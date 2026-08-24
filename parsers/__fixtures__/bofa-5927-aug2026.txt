@@ -1,0 +1,23 @@
+Bank of America
+SafeBalance Banking
+Account 5927
+08/01/26 - 08/31/26
+Deposits and other additions 1,000.00
+ATM and debit card subtractions 200.00
+Other subtractions 380.00
+Service fees 10.00
+Ending balance 2,490.00
+
+Deposits and other additions
+08/05/26 ZELLE PAYMENT FROM FRIEND 1,000.00
+
+ATM and debit card subtractions
+08/10/26 CHECKCARD 0810 CHEVRON 100.00
+08/12/26 CHECKCARD 0812 SHELL 100.00
+
+Other subtractions
+08/15/26 BILT PAYMENT 300.00
+08/20/26 Zelle payment to OLEKSANDRA OLIINYK 80.00
+
+Service fees
+08/31/26 MONTHLY FEE 10.00

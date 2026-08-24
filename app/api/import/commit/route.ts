@@ -1,51 +1,110 @@
-import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { accountLookupHint } from "@/lib/account-refs";
 import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type CommitRow = {
-  ts: string;
+  date: string;
   amount: number;
   currency: "RUB" | "USD";
   type: "income" | "expense" | "conversion" | "transfer";
   merchant: string | null;
-  bank: string;
+  accountRef: string;
+  categoryGuess?: string;
+  excluded?: boolean;
+  externalId: string;
+  rawDescription?: string;
 };
 
-function externalId(bank: string, ts: string, amount: number, merchant: string | null) {
-  return createHash("sha256").update(`${bank}|${ts}|${amount}|${merchant ?? ""}`).digest("hex").slice(0, 40);
+type CommitPayload = {
+  rows?: CommitRow[];
+  controlOk?: boolean;
+};
+
+async function resolveAccountId(accountRef: string): Promise<string | null> {
+  const hint = accountLookupHint(accountRef).toLowerCase();
+  const { data } = await supabase.from("accounts").select("id, name").ilike("name", `%${hint}%`).limit(1);
+  if (data?.[0]?.id) return data[0].id;
+
+  const { data: all } = await supabase.from("accounts").select("id, name");
+  const match = (all ?? []).find((a) => a.name.toLowerCase().includes(hint));
+  return match?.id ?? null;
+}
+
+async function resolveCategoryId(name?: string): Promise<string | null> {
+  if (!name) return null;
+  const { data } = await supabase.from("categories").select("id").eq("name", name).maybeSingle();
+  return data?.id ?? null;
 }
 
 export async function POST(request: NextRequest) {
-  let body: { rows?: CommitRow[] };
+  let body: CommitPayload;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const rows = body.rows ?? [];
+  if (body.controlOk === false) {
+    return NextResponse.json({ error: "Control check failed — fix parser or statement before commit" }, { status: 422 });
+  }
+
+  const rows = (body.rows ?? []).filter((r) => !r.excluded);
   if (rows.length === 0) {
     return NextResponse.json({ error: "No rows to import" }, { status: 400 });
   }
 
-  const payload = rows.map((row) => ({
-    ts: row.ts,
-    amount: row.amount,
-    currency: row.currency,
-    type: row.type,
-    merchant: row.merchant,
-    category_id: null,
-    source: "statement" as const,
-    external_id: externalId(row.bank, row.ts, row.amount, row.merchant),
-    reconciled: false,
-  }));
+  const accountCache = new Map<string, string | null>();
+  const categoryCache = new Map<string, string | null>();
+
+  const payload: Record<string, unknown>[] = [];
+  const unresolved: string[] = [];
+
+  for (const row of rows) {
+    if (!accountCache.has(row.accountRef)) {
+      accountCache.set(row.accountRef, await resolveAccountId(row.accountRef));
+    }
+    const accountId = accountCache.get(row.accountRef);
+    if (!accountId) {
+      unresolved.push(row.accountRef);
+      continue;
+    }
+
+    let categoryId: string | null = null;
+    if (row.categoryGuess) {
+      if (!categoryCache.has(row.categoryGuess)) {
+        categoryCache.set(row.categoryGuess, await resolveCategoryId(row.categoryGuess));
+      }
+      categoryId = categoryCache.get(row.categoryGuess) ?? null;
+    }
+
+    payload.push({
+      ts: row.date,
+      amount: row.amount,
+      currency: row.currency,
+      type: row.type,
+      merchant: row.merchant,
+      category_id: categoryId,
+      account_id: accountId,
+      source: "statement",
+      external_id: row.externalId,
+      reconciled: false,
+      notes: row.rawDescription ? `stmt: ${row.rawDescription.slice(0, 200)}` : null,
+    });
+  }
+
+  if (unresolved.length > 0) {
+    return NextResponse.json(
+      { error: "Unknown accountRef — map accounts in Supabase", unresolved: [...new Set(unresolved)] },
+      { status: 422 }
+    );
+  }
 
   const { data, error } = await supabase
     .from("transactions")
-    .upsert(payload, { onConflict: "source,external_id", ignoreDuplicates: true })
+    .upsert(payload, { onConflict: "account_id,external_id", ignoreDuplicates: true })
     .select("id");
 
   if (error) {
@@ -53,7 +112,7 @@ export async function POST(request: NextRequest) {
   }
 
   const inserted = data?.length ?? 0;
-  const skipped = rows.length - inserted;
+  const skipped = payload.length - inserted;
 
-  return NextResponse.json({ inserted, skipped, total: rows.length });
+  return NextResponse.json({ inserted, skipped, total: payload.length });
 }

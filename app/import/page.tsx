@@ -5,17 +5,22 @@ import { C } from "@/lib/tokens";
 import { terminal as S } from "@/lib/terminal";
 
 type PreviewRow = {
-  ts: string;
+  date: string;
   amount: number;
   currency: string;
   type: string;
   merchant: string | null;
   bank: string;
+  accountRef: string;
+  externalId: string;
+  excluded?: boolean;
+  categoryGuess?: string;
 };
 
 type ParseResponse = {
   rows: PreviewRow[];
   warnings?: string[];
+  controlOk?: boolean;
   error?: string;
 };
 
@@ -34,6 +39,7 @@ export default function ImportPage() {
   const [committing, setCommitting] = useState(false);
   const [rows, setRows] = useState<PreviewRow[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [controlOk, setControlOk] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
 
   const addFiles = useCallback((list: FileList | File[]) => {
@@ -73,6 +79,7 @@ export default function ImportPage() {
       }
       setRows(data.rows ?? []);
       setWarnings(data.warnings ?? []);
+      setControlOk(data.controlOk !== false);
       if ((data.rows ?? []).length === 0) setMessage("No rows parsed — check warnings below.");
     } catch {
       setMessage("Network error while parsing PDFs");
@@ -90,7 +97,7 @@ export default function ImportPage() {
       const res = await fetch("/api/import/commit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rows }),
+        body: JSON.stringify({ rows, controlOk }),
       });
       const data = (await res.json()) as CommitResponse;
       if (!res.ok) {
@@ -215,7 +222,7 @@ export default function ImportPage() {
                 <tbody>
                   {rows.map((row, i) => (
                     <tr key={i} style={{ ...S.mono, color: C.ink }}>
-                      <td style={{ padding: "8px 10px", borderBottom: `1px solid ${C.line}`, whiteSpace: "nowrap" }}>{row.ts}</td>
+                      <td style={{ padding: "8px 10px", borderBottom: `1px solid ${C.line}`, whiteSpace: "nowrap" }}>{row.date}</td>
                       <td style={{ padding: "8px 10px", borderBottom: `1px solid ${C.line}`, color: row.type === "expense" ? C.down : C.up }}>
                         {row.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </td>
@@ -233,7 +240,7 @@ export default function ImportPage() {
 
             <button
               type="button"
-              disabled={committing}
+              disabled={committing || !controlOk}
               onClick={handleCommit}
               style={{
                 width: "100%",

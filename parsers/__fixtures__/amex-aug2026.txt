@@ -1,0 +1,18 @@
+American Express
+Blue Cash Preferred
+Closing Date 08/07/26
+Account Summary
+Previous Balance $1,000.00
+Payments $500.00
+Credits $50.00
+New Charges $620.00
+New Balance $1,070.00
+
+Payments and Credits
+08/01/26 MOBILE PAYMENT - THANK YOU 500.00
+
+New Charges
+08/05/26 ANTHROPIC 120.00
+08/10/26 AplPay TRADER JOES 200.00
+08/15/26 ABERCROMBIE CREDIT 50.00
+08/20/26 DIGITALOCEAN 300.00

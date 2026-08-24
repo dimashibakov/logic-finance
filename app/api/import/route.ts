@@ -1,11 +1,14 @@
 import { PDFParse } from "pdf-parse";
 import { NextRequest, NextResponse } from "next/server";
-import { detectBank, parseByBank, type BankId, type StatementRow } from "@/parsers";
+import { detectBank, parseByBank, type BankId } from "@/parsers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-async function extractPdfText(buffer: Buffer): Promise<string> {
+async function extractText(buffer: Buffer, filename: string): Promise<string> {
+  if (filename.toLowerCase().endsWith(".html") || filename.toLowerCase().endsWith(".htm")) {
+    return buffer.toString("utf8");
+  }
   const parser = new PDFParse({ data: buffer });
   try {
     const result = await parser.getText();
@@ -23,62 +26,66 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No files uploaded" }, { status: 400 });
   }
 
-  const results: {
+  const files: {
     filename: string;
     bank: BankId | null;
-    rows: (StatementRow & { bank: string })[];
+    result: ReturnType<typeof parseByBank> | null;
     warnings: string[];
   }[] = [];
 
   for (const entry of entries) {
     if (!(entry instanceof File)) continue;
-    if (!entry.name.toLowerCase().endsWith(".pdf")) {
-      results.push({
-        filename: entry.name,
-        bank: null,
-        rows: [],
-        warnings: ["Skipped: only .pdf files are supported"],
-      });
-      continue;
-    }
 
-    const buffer = Buffer.from(await entry.arrayBuffer());
     const warnings: string[] = [];
     let text = "";
 
     try {
-      text = await extractPdfText(buffer);
+      text = await extractText(Buffer.from(await entry.arrayBuffer()), entry.name);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "PDF parse failed";
-      results.push({ filename: entry.name, bank: null, rows: [], warnings: [msg] });
+      warnings.push(e instanceof Error ? e.message : "Parse failed");
+      files.push({ filename: entry.name, bank: null, result: null, warnings });
       continue;
     }
 
-    if (!text.trim()) warnings.push("No text extracted from PDF");
+    if (!text.trim()) warnings.push("No text extracted");
 
-    const bank = detectBank(text);
+    const bank = detectBank(text, entry.name);
     if (!bank) {
-      warnings.push("Could not detect bank — no parser applied");
-      results.push({ filename: entry.name, bank: null, rows: [], warnings });
+      warnings.push("Could not detect bank");
+      files.push({ filename: entry.name, bank: null, result: null, warnings });
       continue;
     }
 
-    const parsed = parseByBank(bank, text);
-    if (parsed.length === 0) warnings.push("No transactions matched generic parser — TODO: calibrate bank parser");
+    const result = parseByBank(bank, text);
+    if (!result.control.ok) {
+      warnings.push(`Control check failed: ${(result.control.notes ?? []).join("; ")}`);
+    }
+    if (result.txs.length === 0) warnings.push("No transactions parsed");
 
-    results.push({
-      filename: entry.name,
-      bank,
-      rows: parsed.map((row) => ({ ...row, bank })),
-      warnings,
-    });
+    files.push({ filename: entry.name, bank, result, warnings });
   }
 
-  const allRows = results.flatMap((r) => r.rows);
+  const rows = files.flatMap((f) =>
+    (f.result?.txs ?? []).map((tx) => ({
+      date: tx.date,
+      amount: tx.amount,
+      currency: tx.currency,
+      type: tx.type,
+      merchant: tx.merchant ?? null,
+      bank: f.bank ?? "unknown",
+      accountRef: tx.accountRef,
+      categoryGuess: tx.categoryGuess,
+      excluded: tx.excluded ?? false,
+      excludeReason: tx.excludeReason,
+      externalId: tx.externalId,
+      rawDescription: tx.rawDescription,
+    }))
+  );
 
   return NextResponse.json({
-    files: results,
-    rows: allRows,
-    warnings: results.flatMap((r) => r.warnings.map((w) => `${r.filename}: ${w}`)),
+    files,
+    rows,
+    warnings: files.flatMap((f) => f.warnings.map((w) => `${f.filename}: ${w}`)),
+    controlOk: files.every((f) => !f.result || f.result.control.ok),
   });
 }
