@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { C } from "@/lib/tokens";
 
 const tabs = [
-  { href: "/", label: "Обзор" },
-  { href: "/rates", label: "Курсы" },
-  { href: "/convert", label: "Конвертация" },
-  { href: "/debts", label: "Долги" },
-  { href: "/plan", label: "План" },
+  { href: "/", label: "Overview" },
+  { href: "/rates", label: "Rates" },
+  { href: "/convert", label: "Convert" },
+  { href: "/debts", label: "Debts" },
+  { href: "/plan", label: "Plan" },
 ];
 
 export default function BottomNav() {

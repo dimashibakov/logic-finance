@@ -13,13 +13,13 @@ export default async function ConvertPage() {
     <div style={S.wrap}>
       <div style={S.phone}>
         <div style={S.header}>
-          <span style={S.title}>КОНВЕРТАЦИЯ · Logic Finance</span>
+          <span style={S.title}>CONVERT · Logic Finance</span>
           <span style={{ ...S.mono, fontSize: 12, color: C.sub }}>{fmtRate(effectiveRate)} eff.</span>
         </div>
 
         <div style={{ ...S.label, marginBottom: 4 }}>₽ → $</div>
         <div style={{ ...S.mono, fontSize: 12, color: C.sub, marginBottom: 16 }}>
-          расчёт по effective-курсу · ЦБ {fmtRate(cbrRate)}
+          at effective rate · CBR {fmtRate(cbrRate)}
         </div>
 
         <ConvertForm cbrRate={cbrRate} effectiveRate={effectiveRate} />

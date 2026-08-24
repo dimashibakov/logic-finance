@@ -3,6 +3,12 @@ import { DEFAULT_RUB_PER_USD } from "./format";
 
 export type FxRate = { rate_date: string; rub_per_usd: number; kind: string; notes: string | null };
 
+const FALLBACKS: Record<string, number> = {
+  spot: DEFAULT_RUB_PER_USD,
+  effective: 82.09,
+  cbr: 77.23,
+};
+
 export async function fetchFxRates(): Promise<FxRate[]> {
   const { data } = await supabase.from("fx_rates").select("*").order("rate_date", { ascending: false });
   return (data ?? []) as FxRate[];
@@ -13,11 +19,10 @@ export function latestByKind(rates: FxRate[], kind: string): FxRate | undefined 
 }
 
 export function getRubPerUsd(rates: FxRate[], kind = "spot"): number {
-  return Number(latestByKind(rates, kind)?.rub_per_usd) || DEFAULT_RUB_PER_USD;
+  return Number(latestByKind(rates, kind)?.rub_per_usd) || FALLBACKS[kind] || DEFAULT_RUB_PER_USD;
 }
 
-export function deltaForKind(rates: FxRate[], kind: string): number | null {
-  const sameKind = rates.filter((r) => r.kind === kind);
-  if (sameKind.length < 2) return null;
-  return Number(sameKind[0].rub_per_usd) - Number(sameKind[1].rub_per_usd);
+export function effectivePremiumPct(spotRate: number, effectiveRate: number): number {
+  if (spotRate <= 0) return 0;
+  return ((effectiveRate - spotRate) / spotRate) * 100;
 }

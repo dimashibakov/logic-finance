@@ -1,92 +1,69 @@
-import { supabase } from "@/lib/supabase";
-import { fetchFxRates, latestByKind, deltaForKind } from "@/lib/fx";
-import { fmtDelta, fmtRate } from "@/lib/format";
+import { fetchFxRates, getRubPerUsd, effectivePremiumPct, latestByKind } from "@/lib/fx";
+import { fmtPct, fmtRate } from "@/lib/format";
 import { C } from "@/lib/tokens";
 import { terminal as S } from "@/lib/terminal";
 
-const KIND_LABELS: Record<string, string> = {
-  spot: "Spot USD/RUB",
-  effective: "Effective USD/RUB",
-  cbr: "Курс ЦБ",
-};
-
 export default async function RatesPage() {
   const rates = await fetchFxRates();
+  const spotRate = getRubPerUsd(rates, "spot");
+  const effectiveRate = getRubPerUsd(rates, "effective");
+  const cbrRate = getRubPerUsd(rates, "cbr");
   const spot = latestByKind(rates, "spot");
   const effective = latestByKind(rates, "effective");
   const cbr = latestByKind(rates, "cbr");
+  const premium = effectivePremiumPct(spotRate, effectiveRate);
 
-  const quotes = (["spot", "effective", "cbr"] as const).map((kind) => {
-    const latest = latestByKind(rates, kind);
-    const delta = deltaForKind(rates, kind);
-    return { kind, latest, delta };
-  });
+  const rows = [
+    { label: "Spot", rate: spotRate, date: spot?.rate_date },
+    { label: "Your effective rate", rate: effectiveRate, date: effective?.rate_date },
+    { label: "CBR on transfer date", rate: cbrRate, date: cbr?.rate_date },
+  ];
 
   return (
     <div style={S.wrap}>
       <div style={S.phone}>
         <div style={S.header}>
-          <span style={S.title}>КУРСЫ · Logic Finance</span>
-          {spot && <span style={{ ...S.mono, fontSize: 12, color: C.sub }}>{fmtRate(Number(spot.rub_per_usd))}</span>}
+          <span style={S.title}>RATES · Logic Finance</span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
-          <div style={S.card}>
-            <div style={{ ...S.mono, fontSize: 11, color: C.sub }}>Spot USD/RUB</div>
-            <div style={{ ...S.mono, fontSize: 22, fontWeight: 600, color: C.ink, marginTop: 4 }}>
-              {spot ? fmtRate(Number(spot.rub_per_usd)) : "—"}
-            </div>
-            {spot && <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 2 }}>{spot.rate_date}</div>}
-          </div>
-          <div style={S.card}>
-            <div style={{ ...S.mono, fontSize: 11, color: C.sub }}>Effective USD/RUB</div>
-            <div style={{ ...S.mono, fontSize: 22, fontWeight: 600, color: C.ink, marginTop: 4 }}>
-              {effective ? fmtRate(Number(effective.rub_per_usd)) : "—"}
-            </div>
-            {effective && <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 2 }}>{effective.rate_date}</div>}
-          </div>
+        <div style={{ ...S.label, marginBottom: 4 }}>USD/RUB</div>
+        <div style={{ ...S.mono, fontSize: 38, fontWeight: 600, color: C.ink, letterSpacing: "-0.02em" }}>{fmtRate(spotRate)}</div>
+        {spot && <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 4 }}>spot · {spot.rate_date}</div>}
+
+        <div style={{ ...S.mono, fontSize: 13, color: C.down, marginTop: 12, fontWeight: 500 }}>
+          Effective premium {fmtPct(premium)}
         </div>
 
-        <div style={{ ...S.card, marginBottom: 16 }}>
-          <div style={{ ...S.mono, fontSize: 11, color: C.sub }}>Курс ЦБ</div>
-          <div style={{ ...S.mono, fontSize: 28, fontWeight: 600, color: C.ink, marginTop: 4 }}>
-            {cbr ? fmtRate(Number(cbr.rub_per_usd)) : "—"}
-          </div>
-          {cbr && <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 2 }}>на {cbr.rate_date}</div>}
-        </div>
-
-        <div style={{ ...S.label, marginBottom: 8 }}>КОТИРОВКИ</div>
+        <div style={{ ...S.label, marginTop: 20, marginBottom: 8 }}>RATES</div>
         <div style={{ ...S.card, padding: 0 }}>
-          {quotes.map(({ kind, latest, delta }, i) => (
+          {rows.map((row, i) => (
             <div
-              key={kind}
+              key={row.label}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "12px 14px",
-                borderBottom: i < quotes.length - 1 ? `1px solid ${C.line}` : "none",
+                borderBottom: i < rows.length - 1 ? `1px solid ${C.line}` : "none",
               }}
             >
               <div>
-                <div style={{ fontSize: 13.5, fontWeight: 500, color: C.ink }}>{KIND_LABELS[kind]}</div>
-                <div style={{ ...S.mono, fontSize: 11, color: C.faint }}>{latest?.rate_date ?? "нет данных"}</div>
+                <div style={{ fontSize: 13.5, fontWeight: 500, color: C.ink }}>{row.label}</div>
+                {row.date && <div style={{ ...S.mono, fontSize: 11, color: C.faint }}>{row.date}</div>}
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ ...S.mono, fontSize: 14, fontWeight: 600, color: C.ink }}>
-                  {latest ? fmtRate(Number(latest.rub_per_usd)) : "—"}
-                </div>
-                {delta !== null && (
-                  <div style={{ ...S.mono, fontSize: 11, color: delta <= 0 ? C.up : C.down, marginTop: 2 }}>
-                    {fmtDelta(delta)}
-                  </div>
-                )}
-              </div>
+              <div style={{ ...S.mono, fontSize: 14, fontWeight: 600, color: C.ink }}>{fmtRate(row.rate)}</div>
             </div>
           ))}
           {rates.length === 0 && (
-            <div style={{ padding: 16, fontSize: 13, color: C.sub }}>Нет данных — проверь таблицу fx_rates в Supabase.</div>
+            <div style={{ padding: 16, fontSize: 13, color: C.sub }}>No data — check fx_rates table in Supabase.</div>
           )}
+        </div>
+
+        <div style={{ ...S.card, marginTop: 12, background: "#F0F4FF", borderColor: "#1652F022", display: "flex", gap: 10 }}>
+          <span style={{ ...S.mono, color: C.blue, fontWeight: 600 }}>i</span>
+          <div style={{ fontSize: 12.5, color: C.ink, lineHeight: 1.5 }}>
+            Effective ≈ real ₽→$ cost via father → USDC → Coinbase.
+          </div>
         </div>
       </div>
     </div>
