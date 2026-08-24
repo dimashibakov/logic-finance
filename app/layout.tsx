@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import BottomNav from "./components/BottomNav";
 
 export const metadata: Metadata = {
   title: "Logic Finance",
@@ -15,7 +16,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <BottomNav />
+      </body>
     </html>
   );
 }
