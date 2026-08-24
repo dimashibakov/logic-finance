@@ -10,6 +10,7 @@ const tabs = [
   { href: "/convert", label: "Convert" },
   { href: "/debts", label: "Debts" },
   { href: "/plan", label: "Plan" },
+  { href: "/import", label: "Import" },
 ];
 
 export default function BottomNav() {

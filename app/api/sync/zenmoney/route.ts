@@ -194,7 +194,6 @@ export async function GET(request: NextRequest) {
   const accountMap = buildStringMap(diff.account);
   const tags = buildStringMap(diff.tag);
   const merchants = buildStringMap(diff.merchant);
-  void accountMap;
 
   const transactions = diff.transaction ?? [];
   const byType: Record<string, number> = { income: 0, expense: 0, conversion: 0, transfer: 0 };
