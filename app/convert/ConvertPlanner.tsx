@@ -21,44 +21,61 @@ export default function ConvertPlanner({ spot, eff, usdNeeds30d, usdCash, shortf
 
   return (
     <>
-      <div style={{ ...S.card, marginBottom: 12 }}>
-        <div style={{ ...S.label, marginBottom: 6 }}>Effective rate rule</div>
-        <div style={{ fontSize: 12.5, color: C.ink, lineHeight: 1.5 }}>
-          spot × 1.015 + 3 ₽ ≈ +{premiumPct}% vs spot
+      <div style={S.secLabel}>
+        <span style={S.eyebrow}>RUB → USD conversion</span>
+      </div>
+      <div style={{ ...S.cardPad, marginBottom: 0 }}>
+        <div style={S.eyebrow}>Effective rate</div>
+        <div style={{ ...S.mono, fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", marginTop: 6 }}>
+          {fmtRate(eff)} <span style={{ fontSize: 14, color: C.faint }}>₽/$</span>
         </div>
-        <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 8 }}>
-          SPOT {fmtRate(spot)} · EFF {fmtRate(eff)} ₽/$
+        <div style={{ fontSize: 12.5, color: C.sub, lineHeight: 1.5, marginTop: 4 }}>
+          spot {fmtRate(spot)} + rule 1.5% + 3₽ · premium ≈ {premiumPct}%
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
-        <div style={S.card}>
-          <div style={{ ...S.label, marginBottom: 4 }}>USD need 30d</div>
-          <div style={{ ...S.mono, fontSize: 18, fontWeight: 600 }}>{usd(usdNeeds30d)}</div>
-        </div>
-        <div style={S.card}>
-          <div style={{ ...S.label, marginBottom: 4 }}>USD cash</div>
-          <div style={{ ...S.mono, fontSize: 18, fontWeight: 600 }}>{usd(usdCash)}</div>
-        </div>
+      <div style={{ ...S.secLabel, marginTop: 18 }}>
+        <span style={S.eyebrow}>Planner · 30 days</span>
       </div>
-
-      <div style={{ ...S.card, marginBottom: 12 }}>
-        <div style={{ ...S.label, marginBottom: 6 }}>Shortfall</div>
-        <div style={{ ...S.mono, fontSize: 24, fontWeight: 600, color: shortfall > 0 ? C.debt : C.up }}>{usd(shortfall)}</div>
-        {shortfall > 0 && (
-          <div style={{ ...S.mono, fontSize: 12, color: C.faint, marginTop: 8, lineHeight: 1.5 }}>
-            Recommend {rub(rubRecommendation)} at EFF · cost over spot {usd(costOverSpot)}
+      <div style={{ ...S.card, padding: 0, overflow: "hidden" }}>
+        <div style={S.row}>
+          <div>
+            <div style={{ fontSize: 13.5, color: C.ink }}>USD needs</div>
+            <div style={{ ...S.mono, fontSize: 10.5, color: C.faint, marginTop: 2 }}>rent share + cards + bills</div>
           </div>
-        )}
+          <div style={{ ...S.mono, fontSize: 14, fontWeight: 600 }}>{usd(usdNeeds30d)}</div>
+        </div>
+        <div style={S.row}>
+          <div>
+            <div style={{ fontSize: 13.5, color: C.ink }}>USD cash</div>
+            <div style={{ ...S.mono, fontSize: 10.5, color: C.faint, marginTop: 2 }}>checking + crypto</div>
+          </div>
+          <div style={{ ...S.mono, fontSize: 14, fontWeight: 600 }}>{usd(usdCash)}</div>
+        </div>
+        <div style={{ ...S.row, borderBottom: "none" }}>
+          <div style={{ fontSize: 13.5, color: C.debt }}>Shortfall</div>
+          <div style={{ ...S.mono, fontSize: 14, fontWeight: 600, color: C.debt }}>{usd(shortfall)}</div>
+        </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => openView("operation", { type: "conversion", amount: rubRecommendation, currency: "RUB", notes: "FX conversion plan" })}
-        style={{ width: "100%", minHeight: 52, borderRadius: 12, border: "none", background: C.accent, color: "#fff", fontWeight: 600, cursor: "pointer" }}
-      >
-        Record conversion
-      </button>
+      {shortfall > 0 && (
+        <div style={{ ...S.cardPad, marginTop: 10 }}>
+          <div style={S.eyebrow}>Recommendation</div>
+          <div style={{ ...S.mono, fontSize: 19, fontWeight: 600, margin: "8px 0 2px" }}>
+            {rub(rubRecommendation)} → {usd(shortfall)}
+          </div>
+          <div style={{ fontSize: 12.5, color: C.sub, lineHeight: 1.5 }}>
+            at {fmtRate(eff)} · cost over spot ≈ <b>{rub(Math.round(costOverSpot * spot))}</b>. Record as conversion after transfer.
+          </div>
+          <button
+            type="button"
+            onClick={() => openView("operation", { type: "conversion", amount: rubRecommendation, currency: "RUB", notes: "FX conversion plan" })}
+            style={S.btn}
+          >
+            Record conversion
+          </button>
+        </div>
+      )}
     </>
   );
 }

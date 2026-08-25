@@ -40,7 +40,7 @@ export default async function ConvertPage() {
   return (
     <div style={S.wrap}>
       <div style={S.phone}>
-        <RateHeader title="Convert" subtitle="30-day USD liquidity planner" />
+        <RateHeader title="Convert" />
         <ConvertPlanner
           spot={spot}
           eff={eff}
