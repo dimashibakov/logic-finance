@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import BottomNav from "./components/BottomNav";
+import AppChrome from "./components/AppChrome";
 
 export const metadata: Metadata = {
   title: "Logic Finance",
@@ -17,8 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        {children}
-        <BottomNav />
+        <AppChrome>{children}</AppChrome>
       </body>
     </html>
   );

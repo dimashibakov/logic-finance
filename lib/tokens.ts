@@ -1,8 +1,20 @@
-// Logic Finance · дизайн-токены · стиль «Терминал»
+// Logic Finance · design tokens (mockup)
 export const C = {
-  app: "#F6F8FA", card: "#FFFFFF", line: "#E7EAF0",
-  ink: "#0B0E14", sub: "#667085", faint: "#98A2B3",
-  up: "#16B979", down: "#EA3B4B", blue: "#1652F0", amber: "#E0A020",
+  app: "#e9ebee",
+  card: "#ffffff",
+  line: "#e3e6ea",
+  ink: "#0f1720",
+  sub: "#6b7683",
+  faint: "#9aa4af",
+  accent: "#2f6fed",
+  debt: "#d23b3b",
+  up: "#127c4a",
+  warn: "#b5760a",
+  warnBg: "#fdf4e3",
+  /** aliases */
+  blue: "#2f6fed",
+  down: "#d23b3b",
+  amber: "#b5760a",
   sans: "'IBM Plex Sans', system-ui, sans-serif",
-  mono: "'IBM Plex Mono', ui-monospace, monospace",
+  mono: "'IBM Plex Mono', ui-monospace, 'SF Mono', monospace",
 };

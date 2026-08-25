@@ -22,6 +22,12 @@ export function getRubPerUsd(rates: FxRate[], kind = "spot"): number {
   return Number(latestByKind(rates, kind)?.rub_per_usd) || FALLBACKS[kind] || DEFAULT_RUB_PER_USD;
 }
 
+export function effRate(spot: number): number {
+  return spot * 1.015 + 3;
+}
+
+export { toUsd } from "./format";
+
 export function effectivePremiumPct(spotRate: number, effectiveRate: number): number {
   if (spotRate <= 0) return 0;
   return ((effectiveRate - spotRate) / spotRate) * 100;

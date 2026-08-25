@@ -1,148 +1,119 @@
 import { supabase } from "@/lib/supabase";
-import { fetchFxRates, getRubPerUsd } from "@/lib/fx";
-import { fmtNative, rub, toUsd, usd } from "@/lib/format";
+import { fetchFxRates, getRubPerUsd, toUsd } from "@/lib/fx";
+import { usd } from "@/lib/format";
 import { C } from "@/lib/tokens";
 import { terminal as S } from "@/lib/terminal";
+import RateHeader from "../components/RateHeader";
 
-type Transaction = {
-  amount: number;
-  currency: string;
-  type: string;
-  ts: string;
-  category_id: string | null;
-  categories: { name: string; kind: string } | { name: string; kind: string }[] | null;
-};
+type Tx = { amount: number; currency: string; type: string; ts: string; category_id: string | null; source: string | null; categories: { name: string } | { name: string }[] | null };
+type PlanRow = { planned_amount: number; currency: string; category_id: string; categories: { name: string } | { name: string }[] | null };
 
-function categoryOf(tx: Transaction) {
-  const c = tx.categories;
-  if (!c) return null;
-  return Array.isArray(c) ? c[0] ?? null : c;
-}
-
-function monthRangeFromTs(ts: string) {
-  const d = new Date(ts + "T00:00:00");
-  const start = new Date(d.getFullYear(), d.getMonth(), 1);
-  const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-  const fmt = (x: Date) => x.toISOString().slice(0, 10);
-  const label = start.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  return { start: fmt(start), end: fmt(end), label };
+function catName(c: Tx["categories"] | PlanRow["categories"]) {
+  if (!c) return "Uncategorized";
+  return Array.isArray(c) ? c[0]?.name ?? "Uncategorized" : c.name;
 }
 
 export default async function PlanPage() {
-  const [{ data: txData }, rates] = await Promise.all([
-    supabase.from("transactions").select("amount, currency, type, ts, category_id, categories(name, kind)").order("ts", { ascending: false }),
+  const month = "2026-08-01"; // first fact month (August)
+  const monthEnd = "2026-08-31";
+  const label = "August 2026";
+
+  const [{ data: txData }, { data: planData }, rates] = await Promise.all([
+    supabase
+      .from("transactions")
+      .select("amount, currency, type, ts, category_id, source, categories(name)")
+      .gte("ts", month)
+      .lte("ts", monthEnd)
+      .in("source", ["statement", "manual"]),
+    supabase.from("plan").select("planned_amount, currency, category_id, categories(name)").eq("month", month),
     fetchFxRates(),
   ]);
-  const rubPerUsd = getRubPerUsd(rates, "spot");
-  const allTx = (txData ?? []) as Transaction[];
 
-  if (allTx.length === 0) {
-    return (
-      <div style={S.wrap}>
-        <div style={S.phone}>
-          <div style={S.header}>
-            <span style={S.title}>PLAN · Logic Finance</span>
-          </div>
-          <div style={{ ...S.card, padding: 16, fontSize: 13, color: C.sub }}>No transactions — check transactions table in Supabase.</div>
-        </div>
-      </div>
-    );
-  }
+  const spot = getRubPerUsd(rates, "spot");
+  const txs = (txData ?? []) as Tx[];
+  const plans = (planData ?? []) as PlanRow[];
 
-  const { start, end, label } = monthRangeFromTs(allTx[0].ts);
-  const transactions = allTx.filter((tx) => tx.ts >= start && tx.ts <= end);
+  let incomeFact = 0;
+  let expenseFact = 0;
+  const factByCat = new Map<string, number>();
+  const planByCat = new Map<string, number>();
 
-  let incomeUsd = 0;
-  let expenseUsd = 0;
-  let incomeRub = 0;
-  let incomeUsdNative = 0;
-  let expenseRub = 0;
-  let expenseUsdNative = 0;
-
-  type CatExpense = { name: string; rub: number; usd: number };
-  const expenseByCat = new Map<string, CatExpense>();
-
-  for (const tx of transactions) {
+  for (const tx of txs) {
     const amt = Math.abs(Number(tx.amount));
-    const cat = categoryOf(tx);
-    const catName = cat?.name ?? "Uncategorized";
-
-    if (tx.type === "income") {
-      incomeUsd += toUsd(amt, tx.currency, rubPerUsd);
-      if (tx.currency === "RUB") incomeRub += amt;
-      else incomeUsdNative += amt;
-    } else if (tx.type === "expense") {
-      expenseUsd += toUsd(amt, tx.currency, rubPerUsd);
-      if (tx.currency === "RUB") expenseRub += amt;
-      else expenseUsdNative += amt;
-
-      const prev = expenseByCat.get(catName) ?? { name: catName, rub: 0, usd: 0 };
-      if (tx.currency === "RUB") prev.rub += amt;
-      else prev.usd += amt;
-      expenseByCat.set(catName, prev);
+    const usdAmt = toUsd(amt, tx.currency, spot);
+    const name = catName(tx.categories);
+    if (tx.type === "income") incomeFact += usdAmt;
+    if (tx.type === "expense") {
+      expenseFact += usdAmt;
+      factByCat.set(name, (factByCat.get(name) ?? 0) + usdAmt);
     }
   }
 
-  const net = incomeUsd - expenseUsd;
-
-  const expenseCats = [...expenseByCat.values()]
-    .map((c) => ({ ...c, sortKey: toUsd(c.rub, "RUB", rubPerUsd) + c.usd }))
-    .sort((a, b) => b.sortKey - a.sortKey);
-
-  function catTotal(c: CatExpense) {
-    const parts: string[] = [];
-    if (c.rub > 0) parts.push(rub(c.rub));
-    if (c.usd > 0) parts.push(usd(c.usd));
-    return parts.join(" + ") || "—";
+  let incomePlan = 0;
+  let expensePlan = 0;
+  for (const p of plans) {
+    const usdAmt = toUsd(Number(p.planned_amount), p.currency, spot);
+    const name = catName(p.categories);
+    planByCat.set(name, (planByCat.get(name) ?? 0) + usdAmt);
+    if (name.toLowerCase().includes("income") || usdAmt < 0) incomePlan += Math.abs(usdAmt);
+    else expensePlan += usdAmt;
   }
+
+  const cats = [...new Set([...factByCat.keys(), ...planByCat.keys()])].sort(
+    (a, b) => (factByCat.get(b) ?? 0) - (factByCat.get(a) ?? 0)
+  );
 
   return (
     <div style={S.wrap}>
       <div style={S.phone}>
-        <div style={S.header}>
-          <span style={S.title}>PLAN · Logic Finance</span>
-          <span style={{ ...S.mono, fontSize: 12, color: C.sub }}>{label}</span>
-        </div>
+        <RateHeader title="Plan" subtitle={label} />
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
           <div style={S.card}>
-            <div style={{ ...S.mono, fontSize: 10, color: C.sub }}>Income</div>
-            <div style={{ ...S.mono, fontSize: 18, fontWeight: 600, color: C.up, marginTop: 3 }}>{usd(incomeUsd)}</div>
+            <div style={{ ...S.label, marginBottom: 4 }}>Income</div>
+            <div style={{ ...S.mono, fontSize: 16, fontWeight: 600, color: C.up }}>{usd(incomeFact)}</div>
+            <div style={{ ...S.mono, fontSize: 10, color: C.faint, marginTop: 4 }}>plan {usd(incomePlan)}</div>
           </div>
           <div style={S.card}>
-            <div style={{ ...S.mono, fontSize: 10, color: C.sub }}>Expenses</div>
-            <div style={{ ...S.mono, fontSize: 18, fontWeight: 600, color: C.down, marginTop: 3 }}>{usd(expenseUsd)}</div>
+            <div style={{ ...S.label, marginBottom: 4 }}>Expenses</div>
+            <div style={{ ...S.mono, fontSize: 16, fontWeight: 600, color: C.debt }}>{usd(expenseFact)}</div>
+            <div style={{ ...S.mono, fontSize: 10, color: C.faint, marginTop: 4 }}>plan {usd(expensePlan)}</div>
           </div>
           <div style={S.card}>
-            <div style={{ ...S.mono, fontSize: 10, color: C.sub }}>Net</div>
-            <div style={{ ...S.mono, fontSize: 18, fontWeight: 600, color: net >= 0 ? C.up : C.down, marginTop: 3 }}>{usd(net)}</div>
-          </div>
-        </div>
-
-        <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginBottom: 16, lineHeight: 1.5 }}>
-          Income: {rub(incomeRub)} + {usd(incomeUsdNative)} · Expenses: {rub(expenseRub)} + {usd(expenseUsdNative)}
-        </div>
-
-        <div style={{ ...S.label, marginBottom: 8 }}>EXPENSE CATEGORIES</div>
-        <div style={{ ...S.card, padding: 0 }}>
-          {expenseCats.map((c, i) => (
-            <div
-              key={c.name}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "12px 14px",
-                borderBottom: i < expenseCats.length - 1 ? `1px solid ${C.line}` : "none",
-              }}
-            >
-              <div style={{ fontSize: 13.5, fontWeight: 500, color: C.ink }}>{c.name}</div>
-              <div style={{ ...S.mono, fontSize: 13, fontWeight: 600, color: C.down }}>{catTotal(c)}</div>
+            <div style={{ ...S.label, marginBottom: 4 }}>Net</div>
+            <div style={{ ...S.mono, fontSize: 16, fontWeight: 600, color: incomeFact - expenseFact >= 0 ? C.up : C.debt }}>
+              {usd(incomeFact - expenseFact)}
             </div>
-          ))}
-          {expenseCats.length === 0 && (
-            <div style={{ padding: 16, fontSize: 13, color: C.sub }}>No expenses in {label}.</div>
-          )}
+          </div>
+        </div>
+
+        <div style={{ ...S.label, marginBottom: 8 }}>Expenses · plan vs fact</div>
+        <div style={{ ...S.card, padding: 0 }}>
+          {cats.map((name, i) => {
+            const fact = factByCat.get(name) ?? 0;
+            const plan = planByCat.get(name) ?? 0;
+            const delta = fact - plan;
+            const over = delta > 0 && plan > 0;
+            const pct = plan > 0 ? Math.min(100, Math.round((fact / plan) * 100)) : 100;
+            const oneOff = /travel|ticket|shop|marketplace/i.test(name);
+            return (
+              <div key={name} style={{ padding: "12px 14px", borderBottom: i < cats.length - 1 ? `1px solid ${C.line}` : "none" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>{name}</div>
+                    {oneOff && fact > plan * 1.5 && <div style={{ fontSize: 10, color: C.warn, marginTop: 2 }}>one-off spike</div>}
+                  </div>
+                  <div style={{ ...S.mono, fontSize: 11, textAlign: "right", color: over ? C.debt : C.faint }}>
+                    {usd(fact)} / {usd(plan)}
+                  </div>
+                </div>
+                <div style={{ height: 4, borderRadius: 99, background: C.line, marginTop: 8, overflow: "hidden" }}>
+                  <div style={{ width: `${pct}%`, height: "100%", background: over ? C.debt : C.accent }} />
+                </div>
+              </div>
+            );
+          })}
+          {cats.length === 0 && <div style={{ padding: 16, fontSize: 13, color: C.sub }}>No plan rows for {label}. Apply migration to seed plan table.</div>}
         </div>
       </div>
     </div>
