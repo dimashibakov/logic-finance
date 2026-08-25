@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, ArrowLeftRight, Landmark, CalendarRange } from "lucide-react";
+import { LayoutGrid, ArrowLeftRight, Landmark, CalendarRange, Plus } from "lucide-react";
 import { C } from "@/lib/tokens";
 
 const tabs = [
@@ -18,90 +18,92 @@ export default function BottomNav({ onFabClick }: Props) {
   const pathname = usePathname();
 
   return (
-    <nav
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: 420,
-        maxWidth: "100%",
-        background: C.card,
-        borderTop: `1px solid ${C.line}`,
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr 64px 1fr 1fr",
-        alignItems: "end",
-        zIndex: 50,
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}
-    >
-      {tabs.slice(0, 2).map((tab) => {
-        const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
+    <nav style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30 }}>
+      <div
+        style={{
+          maxWidth: 430,
+          margin: "0 auto",
+          background: "rgba(255,255,255,0.94)",
+          backdropFilter: "blur(10px)",
+          borderTop: `1px solid ${C.line}`,
+          display: "flex",
+          justifyContent: "space-around",
+          alignItems: "flex-end",
+          padding: "8px 6px calc(8px + env(safe-area-inset-bottom))",
+        }}
+      >
+        {tabs.slice(0, 2).map((tab) => {
+          const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+                padding: "6px 0",
+                minHeight: 52,
+                textDecoration: "none",
+                color: active ? C.accent : C.faint,
+              }}
+            >
+              <tab.Icon size={21} strokeWidth={1.9} />
+              <span style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: "0.04em" }}>{tab.label}</span>
+            </Link>
+          );
+        })}
+
+        <div style={{ flex: "0 0 auto", width: 64, display: "flex", justifyContent: "center" }}>
+          <button
+            type="button"
+            aria-label="Add"
+            onClick={onFabClick}
             style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              border: "none",
+              background: C.accent,
+              color: "#fff",
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              minHeight: 52,
-              padding: "8px 4px 10px",
-              textDecoration: "none",
-              color: active ? C.accent : C.sub,
+              cursor: "pointer",
+              transform: "translateY(-14px)",
+              boxShadow: "0 6px 16px rgba(47,111,237,0.4)",
             }}
           >
-            <tab.Icon size={20} strokeWidth={active ? 2.2 : 1.8} />
-            <span style={{ fontSize: 10, fontWeight: active ? 600 : 500, marginTop: 4 }}>{tab.label}</span>
-          </Link>
-        );
-      })}
+            <Plus size={26} strokeWidth={2.2} />
+          </button>
+        </div>
 
-      <div style={{ display: "flex", justifyContent: "center", position: "relative", top: -14 }}>
-        <button
-          type="button"
-          aria-label="Add"
-          onClick={onFabClick}
-          style={{
-            width: 52,
-            height: 52,
-            borderRadius: "50%",
-            border: "none",
-            background: C.accent,
-            color: "#fff",
-            fontSize: 26,
-            lineHeight: 1,
-            cursor: "pointer",
-            boxShadow: "0 6px 20px rgba(47,111,237,0.35)",
-          }}
-        >
-          ＋
-        </button>
+        {tabs.slice(2).map((tab) => {
+          const active = pathname.startsWith(tab.href);
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+                padding: "6px 0",
+                minHeight: 52,
+                textDecoration: "none",
+                color: active ? C.accent : C.faint,
+              }}
+            >
+              <tab.Icon size={21} strokeWidth={1.9} />
+              <span style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: "0.04em" }}>{tab.label}</span>
+            </Link>
+          );
+        })}
       </div>
-
-      {tabs.slice(2).map((tab) => {
-        const active = pathname.startsWith(tab.href);
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: 52,
-              padding: "8px 4px 10px",
-              textDecoration: "none",
-              color: active ? C.accent : C.sub,
-            }}
-          >
-            <tab.Icon size={20} strokeWidth={active ? 2.2 : 1.8} />
-            <span style={{ fontSize: 10, fontWeight: active ? 600 : 500, marginTop: 4 }}>{tab.label}</span>
-          </Link>
-        );
-      })}
     </nav>
   );
 }

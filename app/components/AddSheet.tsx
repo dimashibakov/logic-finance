@@ -31,81 +31,79 @@ export default function AddSheet({ open, view, onClose, onNavigate, children }: 
 
   return (
     <>
-      <div
-        onClick={onClose}
-        style={{ position: "fixed", inset: 0, background: "rgba(15,23,32,0.45)", zIndex: 80 }}
-      />
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(15,23,32,0.34)", zIndex: 40 }} />
       <div
         style={{
           position: "fixed",
-          left: "50%",
-          transform: "translateX(-50%)",
+          left: 0,
+          right: 0,
           bottom: 0,
-          width: 420,
-          maxWidth: "100%",
+          zIndex: 50,
+          maxWidth: 430,
+          margin: "0 auto",
           background: C.card,
-          borderTopLeftRadius: 18,
-          borderTopRightRadius: 18,
-          border: `1px solid ${C.line}`,
-          zIndex: 90,
+          borderRadius: "18px 18px 0 0",
+          padding: "10px 18px calc(24px + env(safe-area-inset-bottom))",
+          transform: "translateY(0)",
+          transition: "transform 0.22s ease",
+          boxShadow: "0 -8px 30px rgba(0,0,0,0.14)",
           maxHeight: "88vh",
           overflow: "auto",
-          animation: "sheetUp 0.22s ease-out",
-          paddingBottom: "env(safe-area-inset-bottom, 12px)",
         }}
       >
-        <div style={{ width: 36, height: 4, borderRadius: 99, background: C.line, margin: "10px auto 8px" }} />
+        <div style={{ width: 38, height: 4, borderRadius: 3, background: "#d7dce1", margin: "6px auto 14px" }} />
 
         {view === "menu" ? (
-          <div style={{ padding: "8px 16px 20px" }}>
-            <div style={{ ...S.label, marginBottom: 12 }}>Add</div>
+          <div>
+            <h3 style={{ margin: "2px 2px 12px", fontSize: 15, fontWeight: 600 }}>Add</h3>
             {[
-              { id: "operation" as const, label: "Operation", desc: "Expense, income, transfer", Icon: PenLine },
-              { id: "balance" as const, label: "Balance adjustment", desc: "Reconcile account balance", Icon: Scale },
-              { id: "import" as const, label: "Import", desc: "Bank statement PDF", Icon: FileUp },
+              { id: "operation" as const, label: "Operation", desc: "income · expense · conversion · transfer", Icon: PenLine },
+              { id: "balance" as const, label: "Balance adjustment", desc: "reconcile account balance", Icon: Scale },
+              { id: "import" as const, label: "Import statement", desc: "PDF → parse → preview", Icon: FileUp },
             ].map(({ id, label, desc, Icon }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => onNavigate(id)}
                 style={{
-                  width: "100%",
                   display: "flex",
                   alignItems: "center",
-                  gap: 14,
-                  padding: "14px 12px",
-                  marginBottom: 8,
+                  gap: 13,
+                  width: "100%",
+                  textAlign: "left",
+                  background: "#f6f8fa",
                   border: `1px solid ${C.line}`,
-                  borderRadius: 12,
-                  background: C.card,
+                  borderRadius: 13,
+                  padding: 14,
+                  marginBottom: 10,
                   cursor: "pointer",
                   minHeight: 52,
-                  textAlign: "left",
                 }}
               >
-                <div
+                <span
                   style={{
-                    width: 40,
-                    height: 40,
+                    width: 38,
+                    height: 38,
                     borderRadius: 10,
-                    background: `${C.accent}12`,
+                    background: C.accentWeak,
+                    color: C.accent,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: C.accent,
+                    flexShrink: 0,
                   }}
                 >
                   <Icon size={20} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{label}</div>
-                  <div style={{ fontSize: 12, color: C.faint, marginTop: 2 }}>{desc}</div>
-                </div>
+                </span>
+                <span>
+                  <span style={{ display: "block", fontSize: 14.5, fontWeight: 600, color: C.ink }}>{label}</span>
+                  <span style={{ display: "block", fontSize: 12, color: C.sub, marginTop: 2 }}>{desc}</span>
+                </span>
               </button>
             ))}
           </div>
         ) : (
-          <div style={{ padding: "0 16px 20px" }}>{children}</div>
+          <div>{children}</div>
         )}
       </div>
     </>
