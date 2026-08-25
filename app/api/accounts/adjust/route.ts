@@ -35,9 +35,16 @@ export async function POST(request: NextRequest) {
   const writeTx = body.write_transaction !== false;
 
   if (writeTx && Math.abs(delta) > 0.001) {
-    const { data: cat } = await supabase.from("categories").select("id").eq("name", "Reconciliation").maybeSingle();
+    const { data: cat, error: catErr } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("name", "Reconciliation")
+      .maybeSingle();
+
+    if (catErr) return NextResponse.json({ error: catErr.message }, { status: 500 });
+
     const type = delta >= 0 ? "income" : "expense";
-    await supabase.from("transactions").upsert(
+    const { error: txErr } = await supabase.from("transactions").upsert(
       {
         ts: body.ts,
         amount: Math.abs(delta),
@@ -50,14 +57,18 @@ export async function POST(request: NextRequest) {
         reconciled: true,
         notes: "Balance reconciliation",
       },
-      { onConflict: "account_id,external_id", ignoreDuplicates: true }
+      { onConflict: "account_id,external_id", ignoreDuplicates: false }
     );
+
+    if (txErr) return NextResponse.json({ error: txErr.message }, { status: 500 });
   }
 
-  await supabase
+  const { error: updErr } = await supabase
     .from("accounts")
     .update({ balance: body.actual_balance, balance_date: body.ts })
     .eq("id", body.account_id);
+
+  if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
 
   return NextResponse.json({ ok: true, delta, previous: current, actual: body.actual_balance });
 }

@@ -26,7 +26,9 @@ export default function BalanceAdjustForm({ onDone, onBack }: Props) {
 
   const account = accounts.find((a) => a.id === accountId);
   const delta = account && actual ? Number(actual) - Number(account.balance) : 0;
-  const inputStyle = { ...S.mono, width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${C.line}`, fontSize: 14 };
+  const fieldLabel = { display: "block", ...S.mono, fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: C.sub, marginBottom: 6 };
+  const inputStyle = { width: "100%", fontFamily: C.sans, fontSize: 15, padding: 12, border: `1px solid ${C.line}`, borderRadius: 10, background: "#fbfcfd", color: C.ink };
+  const monoInput = { ...inputStyle, fontFamily: C.mono };
 
   async function save() {
     if (!accountId || actual === "") return;
@@ -48,68 +50,89 @@ export default function BalanceAdjustForm({ onDone, onBack }: Props) {
 
   return (
     <div>
-      <button type="button" onClick={onBack} style={{ border: "none", background: "none", color: C.accent, fontSize: 13, marginBottom: 12, cursor: "pointer" }}>
-        ← Back
+      <button type="button" onClick={onBack} style={{ border: "none", background: "none", color: C.accent, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: "pointer", padding: 0 }}>
+        ‹ Balance adjustment
       </button>
-      <div style={{ ...S.label, marginBottom: 10 }}>Balance adjustment</div>
 
-      <label style={{ display: "block", marginBottom: 10 }}>
-        <div style={{ ...S.label, marginBottom: 6 }}>Account</div>
-        <select value={accountId} onChange={(e) => { setAccountId(e.target.value); const a = accounts.find(x => x.id === e.target.value); if (a) setActual(String(a.balance)); }} style={inputStyle}>
+      <div style={{ marginBottom: 13 }}>
+        <label style={fieldLabel}>Account</label>
+        <select
+          value={accountId}
+          onChange={(e) => {
+            setAccountId(e.target.value);
+            const a = accounts.find((x) => x.id === e.target.value);
+            if (a) setActual(String(a.balance));
+          }}
+          style={inputStyle}
+        >
           <option value="">Select account</option>
           {accounts.map((a) => (
-            <option key={a.id} value={a.id}>{a.name}</option>
+            <option key={a.id} value={a.id}>
+              {a.name} · {fmtNative(Number(a.balance), a.currency)}
+              {a.balance_date ? ` (${a.balance_date})` : ""}
+            </option>
           ))}
         </select>
-      </label>
+      </div>
 
-      {account && (
-        <div style={{ ...S.card, marginBottom: 10, padding: 12 }}>
-          <div style={{ ...S.mono, fontSize: 11, color: C.faint }}>Current · {account.balance_date ?? "no date"}</div>
-          <div style={{ ...S.mono, fontSize: 16, fontWeight: 600, marginTop: 4 }}>{fmtNative(Number(account.balance), account.currency)}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 13 }}>
+        <div>
+          <label style={fieldLabel}>Actual balance</label>
+          <input value={actual} onChange={(e) => setActual(e.target.value)} style={monoInput} inputMode="decimal" />
         </div>
-      )}
-
-      <label style={{ display: "block", marginBottom: 10 }}>
-        <div style={{ ...S.label, marginBottom: 6 }}>Actual balance</div>
-        <input value={actual} onChange={(e) => setActual(e.target.value)} style={inputStyle} inputMode="decimal" />
-      </label>
-
-      <label style={{ display: "block", marginBottom: 10 }}>
-        <div style={{ ...S.label, marginBottom: 6 }}>As of date</div>
-        <input type="date" value={ts} onChange={(e) => setTs(e.target.value)} style={inputStyle} />
-      </label>
+        <div>
+          <label style={fieldLabel}>Date</label>
+          <input type="date" value={ts} onChange={(e) => setTs(e.target.value)} style={monoInput} />
+        </div>
+      </div>
 
       {account && actual && (
-        <div style={{ ...S.mono, fontSize: 12, color: delta >= 0 ? C.up : C.debt, marginBottom: 10 }}>
-          Delta: {delta >= 0 ? "+" : ""}{delta.toLocaleString()} {account.currency}
+        <div
+          style={{
+            ...S.mono,
+            fontSize: 13,
+            padding: "10px 12px",
+            borderRadius: 10,
+            background: "#f6f8fa",
+            border: `1px solid ${C.line}`,
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: 10,
+          }}
+        >
+          <span>Delta</span>
+          <span style={{ color: delta >= 0 ? C.up : C.debt }}>
+            {delta >= 0 ? "+" : "−"} {fmtNative(Math.abs(delta), account.currency)}
+          </span>
         </div>
       )}
 
-      <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, minHeight: 44 }}>
-        <input type="checkbox" checked={writeTx} onChange={(e) => setWriteTx(e.target.checked)} />
-        <span style={{ fontSize: 13, color: C.ink }}>Write reconciliation transaction</span>
+      <label style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10, marginBottom: 12, cursor: "pointer" }}>
+        <span style={{ width: 42, height: 24, borderRadius: 14, background: writeTx ? C.accent : C.line, position: "relative", flexShrink: 0 }}>
+          <span
+            style={{
+              position: "absolute",
+              top: 2,
+              left: writeTx ? 20 : 2,
+              width: 20,
+              height: 20,
+              borderRadius: "50%",
+              background: "#fff",
+              transition: "left 0.15s",
+            }}
+          />
+        </span>
+        <input type="checkbox" checked={writeTx} onChange={(e) => setWriteTx(e.target.checked)} style={{ display: "none" }} />
+        <span style={{ fontSize: 13, color: C.ink }}>
+          Write reconciliation transaction
+          <span style={{ display: "block", fontSize: 11.5, color: C.faint, marginTop: 2 }}>category Reconciliation · source manual</span>
+        </span>
       </label>
 
       {error && <div style={{ color: C.debt, fontSize: 12, marginBottom: 8 }}>{error}</div>}
 
-      <button
-        type="button"
-        disabled={busy || !accountId || actual === ""}
-        onClick={save}
-        style={{
-          width: "100%",
-          minHeight: 52,
-          borderRadius: 12,
-          border: "none",
-          background: C.accent,
-          color: "#fff",
-          fontWeight: 600,
-          cursor: "pointer",
-          opacity: busy ? 0.5 : 1,
-        }}
-      >
-        {busy ? "Saving…" : "Apply adjustment"}
+      <button type="button" disabled={busy || !accountId || actual === ""} onClick={save} style={{ ...S.btn, opacity: busy ? 0.5 : 1 }}>
+        {busy ? "Saving…" : "Apply"}
       </button>
     </div>
   );
