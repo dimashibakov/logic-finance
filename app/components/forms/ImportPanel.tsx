@@ -1,8 +1,6 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { C } from "@/lib/tokens";
-import { terminal as S } from "@/lib/terminal";
 
 type PreviewRow = {
   date: string;
@@ -63,41 +61,51 @@ export default function ImportPanel({ onBack, onDone }: Props) {
 
   return (
     <div>
-      <button type="button" onClick={onBack} style={{ border: "none", background: "none", color: C.accent, fontSize: 13, marginBottom: 12, cursor: "pointer" }}>
-        ← Back
+      <button type="button" onClick={onBack} className="lf-back">
+        ‹ Import statement
       </button>
-      <div style={{ ...S.label, marginBottom: 10 }}>Import statement</div>
+
       <div
+        className="lf-drop lf-card"
+        style={{ borderColor: dragOver ? "var(--accent)" : undefined, marginBottom: 10, cursor: "pointer" }}
         onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
         onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => { e.preventDefault(); setDragOver(false); addFiles(e.dataTransfer.files); }}
-        style={{ ...S.card, borderStyle: "dashed", borderColor: dragOver ? C.accent : C.line, textAlign: "center", padding: 20, marginBottom: 10, cursor: "pointer" }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          addFiles(e.dataTransfer.files);
+        }}
       >
         Drop PDF files
         <input ref={inputRef} type="file" accept=".pdf" multiple hidden onChange={(e) => e.target.files && addFiles(e.target.files)} />
       </div>
-      <button type="button" onClick={handleParse} disabled={loading || !files.length} style={{ width: "100%", minHeight: 48, borderRadius: 10, border: "none", background: C.accent, color: "#fff", marginBottom: 10 }}>
+
+      <button type="button" className="lf-btn" disabled={loading || !files.length} onClick={handleParse} style={{ marginTop: 0 }}>
         {loading ? "Parsing…" : "Parse"}
       </button>
+
       {rows.length > 0 && (
         <>
-          <div style={{ ...S.mono, fontSize: 11, color: controlOk ? C.faint : C.debt, marginBottom: 8 }}>
+          <div className={`lf-mono lf-note${controlOk ? "" : " lf-text-danger"}`}>
             {rows.length} rows · control {controlOk ? "OK" : "FAILED"}
           </div>
-          <div style={{ maxHeight: 160, overflow: "auto", ...S.card, padding: 8, marginBottom: 10 }}>
+          <div className="lf-card lf-card--pad" style={{ maxHeight: 160, overflow: "auto", marginBottom: 10, padding: 8 }}>
             {rows.slice(0, 20).map((r, i) => (
-              <div key={i} style={{ ...S.mono, fontSize: 10, padding: "4px 0", borderBottom: `1px solid ${C.line}` }}>
+              <div key={i} className="lf-mono" style={{ fontSize: 10, padding: "4px 0", borderBottom: "var(--row-border-w) solid var(--line2)" }}>
                 {r.date} · {r.amount} {r.currency} · {r.bank}
               </div>
             ))}
           </div>
-          <button type="button" onClick={handleCommit} disabled={committing || !controlOk} style={{ width: "100%", minHeight: 52, borderRadius: 12, border: "none", background: controlOk ? C.up : C.line, color: "#fff" }}>
+          <button type="button" className="lf-btn" disabled={committing || !controlOk} onClick={handleCommit} style={{ background: controlOk ? "var(--success)" : "var(--line)" }}>
             {committing ? "Saving…" : "Confirm & save"}
           </button>
         </>
       )}
-      {message && <div style={{ fontSize: 12, color: C.faint, marginTop: 8 }}>{message}</div>}
+      {message && <div className="lf-note">{message}</div>}
     </div>
   );
 }

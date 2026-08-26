@@ -1,7 +1,5 @@
 import { supabase } from "@/lib/supabase";
 import { rub, usd } from "@/lib/format";
-import { C } from "@/lib/tokens";
-import { terminal as S } from "@/lib/terminal";
 import RateHeader from "../components/RateHeader";
 
 type CatJoin = { name: string; kind: string } | { name: string; kind: string }[] | null;
@@ -60,7 +58,7 @@ type CatLine = { name: string; fact: number; plan: number; currency: string };
 function CategoryBlock({ lines }: { lines: CatLine[] }) {
   if (lines.length === 0) return null;
   return (
-    <div style={{ ...S.cardPad, marginBottom: 10 }}>
+    <div className="lf-card lf-card--pad" style={{ marginBottom: 10 }}>
       {lines.map((line, idx) => {
         const delta = line.fact - line.plan;
         const over = delta > 0 && line.plan > 0;
@@ -70,16 +68,16 @@ function CategoryBlock({ lines }: { lines: CatLine[] }) {
           <div key={`${line.currency}:${line.name}`} style={{ marginTop: idx === 0 ? 0 : 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5, gap: 8 }}>
               <span>{line.name}</span>
-              <span style={S.mono}>
-                {fmtAmt(line.fact, line.currency)} <span style={{ color: C.faint }}>/ {fmtAmt(line.plan, line.currency)}</span>
+              <span className="lf-mono">
+                {fmtAmt(line.fact, line.currency)} <span className="lf-text-faint">/ {fmtAmt(line.plan, line.currency)}</span>
               </span>
             </div>
-            <div style={{ height: 6, borderRadius: 4, background: C.line2, marginTop: 8, overflow: "hidden" }}>
-              <div style={{ width: `${pct}%`, height: "100%", background: over ? C.debt : C.accent }} />
+            <div className="lf-progress">
+              <div className={`lf-progress__fill${over ? " lf-progress__fill--over" : ""}`} style={{ width: `${pct}%` }} />
             </div>
             {delta !== 0 && (
-              <div style={{ fontSize: 11.5, color: C.faint, lineHeight: 1.5, marginTop: 4 }}>
-                <span style={{ color: over ? C.debt : delta < 0 ? C.up : C.faint }}>{fmtDelta(delta, line.currency)}</span>
+              <div className={`lf-note${over ? " lf-text-danger" : ""}`}>
+                <span className={over ? "lf-text-danger" : delta < 0 ? "lf-text-success" : "lf-text-faint"}>{fmtDelta(delta, line.currency)}</span>
                 {oneOff && over && " · one-off spike"}
               </div>
             )}
@@ -93,21 +91,27 @@ function CategoryBlock({ lines }: { lines: CatLine[] }) {
 function IncomeSection({ currency, fact, plan }: { currency: "RUB" | "USD"; fact: number; plan: number }) {
   const delta = fact - plan;
   return (
-    <div style={{ ...S.card, padding: 0, overflow: "hidden", marginBottom: 10 }}>
-      <div style={S.row}>
-        <div style={{ fontSize: 13.5, color: C.ink }}>Income · {currency}</div>
-        <div style={{ ...S.mono, fontSize: 14, fontWeight: 600 }}>{fmtAmt(fact, currency)}</div>
+    <div className="lf-card lf-card--flush" style={{ marginBottom: 10 }}>
+      <div className="lf-row">
+        <div style={{ fontSize: 13.5 }}>Income · {currency}</div>
+        <div className="lf-mono" style={{ fontSize: 14, fontWeight: 600 }}>
+          {fmtAmt(fact, currency)}
+        </div>
       </div>
-      <div style={{ ...S.row, borderBottom: "none" }}>
+      <div className="lf-row">
         <div>
-          <div style={{ fontSize: 13.5, color: C.sub }}>Income plan</div>
+          <div className="lf-text-muted" style={{ fontSize: 13.5 }}>
+            Income plan
+          </div>
           {delta !== 0 && (
-            <div style={{ ...S.mono, fontSize: 10.5, color: C.faint, marginTop: 2 }}>
-              dev <span style={{ color: delta < 0 ? C.debt : C.up }}>{fmtDelta(delta, currency)}</span>
+            <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 2 }}>
+              dev <span className={delta < 0 ? "lf-text-danger" : "lf-text-success"}>{fmtDelta(delta, currency)}</span>
             </div>
           )}
         </div>
-        <div style={{ ...S.mono, fontSize: 14, color: C.faint }}>{fmtAmt(plan, currency)}</div>
+        <div className="lf-mono lf-text-faint" style={{ fontSize: 14 }}>
+          {fmtAmt(plan, currency)}
+        </div>
       </div>
     </div>
   );
@@ -182,12 +186,12 @@ export default async function PlanPage() {
   const hasAnyData = hasRubIncome || hasUsdIncome || rubExpenses.length > 0 || usdExpenses.length > 0;
 
   return (
-    <div style={S.wrap}>
-      <div style={S.phone}>
+    <div className="lf-wrap">
+      <div className="lf-phone">
         <RateHeader title="Plan" subtitle={label} />
 
-        <div style={S.secLabel}>
-          <span style={S.eyebrow}>Plan / Fact · {label}</span>
+        <div className="lf-sec-label">
+          <span className="lf-sec-label__h">Plan / Fact · {label}</span>
         </div>
 
         {hasRubIncome && <IncomeSection currency="RUB" fact={incomeFact.RUB} plan={incomePlan.RUB} />}
@@ -195,8 +199,8 @@ export default async function PlanPage() {
 
         {rubExpenses.length > 0 && (
           <>
-            <div style={S.secLabel}>
-              <span style={S.eyebrow}>Expenses · RUB</span>
+            <div className="lf-sec-label">
+              <span className="lf-sec-label__h">Expenses · RUB</span>
             </div>
             <CategoryBlock lines={rubExpenses} />
           </>
@@ -204,19 +208,17 @@ export default async function PlanPage() {
 
         {usdExpenses.length > 0 && (
           <>
-            <div style={S.secLabel}>
-              <span style={S.eyebrow}>Expenses · USD</span>
+            <div className="lf-sec-label">
+              <span className="lf-sec-label__h">Expenses · USD</span>
             </div>
             <CategoryBlock lines={usdExpenses} />
           </>
         )}
 
-        {!hasAnyData && (
-          <div style={{ ...S.cardPad, fontSize: 13, color: C.sub }}>No plan or transaction data for {label}.</div>
-        )}
+        {!hasAnyData && <div className="lf-card lf-card--pad lf-text-muted">No plan or transaction data for {label}.</div>}
 
         {month === "2026-08-01" && (
-          <div style={{ fontSize: 12.5, color: C.sub, lineHeight: 1.5, margin: "12px 2px" }}>
+          <div className="lf-hint" style={{ margin: "12px 2px" }}>
             Large deviations may be one-off (move). September is the first baseline month with plan rows.
           </div>
         )}

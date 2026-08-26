@@ -4,8 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { fetchFxRates, getRubPerUsd, toUsd } from "@/lib/fx";
 import { groupAccounts, illiquidUsdTotal, liquidUsdTotal, type AccountRow } from "@/lib/liquidity";
 import { fmtNative, usd } from "@/lib/format";
-import { C } from "@/lib/tokens";
-import { terminal as S } from "@/lib/terminal";
+import { V } from "@/lib/tokens";
 import RateHeader from "./components/RateHeader";
 import AccountGroup from "./components/AccountGroup";
 
@@ -73,119 +72,93 @@ export default async function Home() {
   });
 
   return (
-    <div style={S.wrap}>
-      <div style={S.phone}>
+    <div className="lf-wrap">
+      <div className="lf-phone">
         <RateHeader />
 
         <div style={{ marginTop: 6 }}>
-          <div style={S.eyebrow}>Net worth</div>
-          <div style={{ ...S.mono, fontSize: 44, fontWeight: 600, letterSpacing: "-0.01em", lineHeight: 1.05, margin: "6px 0 2px", color: C.ink }}>
-            {usd(net)}
-          </div>
-          <div style={{ ...S.mono, fontSize: 12, color: C.faint }}>
-            assets {usd(assets)} − debt <span style={{ color: C.debt }}>{usd(debt)}</span>
+          <div className="lf-eyebrow">Net worth</div>
+          <div className="lf-net-worth lf-mono">{usd(net)}</div>
+          <div className="lf-mono lf-text-faint" style={{ fontSize: 12, marginTop: 2 }}>
+            assets {usd(assets)} − debt <span className="lf-text-danger">{usd(debt)}</span>
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 14 }}>
-          <div style={{ ...S.card, padding: 14 }}>
-            <div style={{ ...S.label, marginBottom: 0 }}>Liquid</div>
-            <div style={{ ...S.mono, fontSize: 22, fontWeight: 600, marginTop: 8, color: C.ink }}>{usd(liquid)}</div>
-            <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 3 }}>banks + cash − cards</div>
+        <div className="lf-split">
+          <div className="lf-card" style={{ padding: 14 }}>
+            <div className="lf-label">Liquid</div>
+            <div className="lf-split__v lf-mono">{usd(liquid)}</div>
+            <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 3 }}>
+              banks + cash − cards
+            </div>
           </div>
-          <div style={{ ...S.card, padding: 14 }}>
-            <div style={{ ...S.label, marginBottom: 0 }}>Illiquid</div>
-            <div style={{ ...S.mono, fontSize: 22, fontWeight: 600, marginTop: 8, color: C.faint }}>{usd(illiquid)}</div>
-            <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 3 }}>real estate + vehicles</div>
+          <div className="lf-card" style={{ padding: 14 }}>
+            <div className="lf-label">Illiquid</div>
+            <div className="lf-split__v lf-mono lf-text-faint">{usd(illiquid)}</div>
+            <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 3 }}>
+              real estate + vehicles
+            </div>
           </div>
         </div>
 
-        <div style={{ height: 6, borderRadius: 4, background: C.line2, overflow: "hidden", marginTop: 12, display: "flex" }}>
-          <div style={{ width: `${liquidPct}%`, height: "100%", background: C.accent }} />
-          <div style={{ width: `${illiquidPct}%`, height: "100%", background: C.illiquidBar }} />
+        <div className="lf-asset-bar">
+          <div style={{ width: `${liquidPct}%`, height: "100%", background: V.accent }} />
+          <div style={{ width: `${illiquidPct}%`, height: "100%", background: V.illiquidBar }} />
         </div>
-        <div style={{ display: "flex", gap: 14, marginTop: 8, ...S.mono, fontSize: 10.5, color: C.sub }}>
-          <span>
-            <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 2, background: C.accent, marginRight: 5, verticalAlign: "middle" }} />
-            liquid {liquidPct}%
-          </span>
-          <span>
-            <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 2, background: C.illiquidBar, marginRight: 5, verticalAlign: "middle" }} />
-            illiquid {illiquidPct}%
-          </span>
+        <div className="lf-mono lf-hint" style={{ display: "flex", gap: 14, marginTop: 8, fontSize: 10.5 }}>
+          <span>liquid {liquidPct}%</span>
+          <span>illiquid {illiquidPct}%</span>
         </div>
 
         {alertObl && (
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "flex-start",
-              background: C.warnBg,
-              border: "1px solid #f0e0bd",
-              borderRadius: 12,
-              padding: "12px 14px",
-              marginTop: 14,
-            }}
-          >
-            <AlertTriangle size={18} color={C.warn} style={{ flexShrink: 0, marginTop: 1 }} />
-            <div style={{ fontSize: 13, lineHeight: 1.4, color: C.ink }}>
-              <b>{alertObl.name}</b> — due <span style={{ color: C.warn }}>{fmtDue(alertObl.due_date!)}</span>. Not covered by free {alertObl.currency} cash in zone; plan early payoff from RUB cash.
+          <>
+            <div className="lf-alert lf-only-terminal">
+              <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1, color: V.warn }} />
+              <div style={{ fontSize: 13, lineHeight: 1.4 }}>
+                <b>{alertObl.name}</b> — due <span style={{ color: V.warn }}>{fmtDue(alertObl.due_date!)}</span>. Not covered by free{" "}
+                {alertObl.currency} cash in zone; plan early payoff from RUB cash.
+              </div>
             </div>
-          </div>
+            <div className="lf-alert lf-only-brutalist">
+              <span className="lf-alert__big lf-mono">{fmtNative(Math.abs(Number(alertObl.balance)), alertObl.currency)}</span>
+              <span className="lf-alert__txt">
+                {alertObl.name}
+                <br />
+                due {fmtDue(alertObl.due_date!)} — cover it
+              </span>
+            </div>
+          </>
         )}
 
         {upcoming.length > 0 && (
           <>
-            <div style={S.secLabel}>
-              <span style={S.eyebrow}>Upcoming payments</span>
-              <Link href="/plan" style={{ ...S.mono, fontSize: 11, color: C.accent, textDecoration: "none" }}>
+            <div className="lf-sec-label">
+              <span className="lf-sec-label__h">Upcoming payments</span>
+              <Link href="/plan" className="lf-sec-label__m">
                 all →
               </Link>
             </div>
-            <div style={{ ...S.card, padding: 0, overflow: "hidden" }}>
-              {upcoming.map((o, i) => {
+            <div className="lf-card lf-card--flush">
+              {upcoming.map((o) => {
                 const due = o.due_date!;
                 const days = daysUntil(due);
                 const hot = days <= 45 && Math.abs(Number(o.balance)) > freeCashByZone(accounts, o.currency === "RUB" ? "RF" : "US", o.currency);
                 return (
-                  <div
-                    key={o.id}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "12px 16px",
-                      borderBottom: i < upcoming.length - 1 ? `1px solid ${C.line2}` : "none",
-                    }}
-                  >
+                  <div key={o.id} className="lf-row">
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 550, color: C.ink }}>{o.name}</div>
-                      <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 2 }}>
+                      <div style={{ fontSize: 14, fontWeight: 550 }}>
+                        {o.name}
+                        {hot && <span className="lf-hot">hot</span>}
+                      </div>
+                      <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 2 }}>
                         {o.monthly_payment ? "installment + balance" : "autopay"}
-                        {hot && (
-                          <span
-                            style={{
-                              ...S.mono,
-                              fontSize: 9.5,
-                              letterSpacing: "0.08em",
-                              textTransform: "uppercase",
-                              padding: "2px 6px",
-                              borderRadius: 5,
-                              background: C.warnBg,
-                              color: C.warn,
-                              border: "1px solid #f0e0bd",
-                              marginLeft: 8,
-                            }}
-                          >
-                            hot
-                          </span>
-                        )}
                       </div>
                     </div>
-                    <div style={{ ...S.mono, fontSize: 14, fontWeight: 600, textAlign: "right", color: hot ? C.debt : C.ink }}>
+                    <div className={`lf-mono${hot ? " lf-text-danger" : ""}`} style={{ fontSize: 14, fontWeight: 600, textAlign: "right" }}>
                       {fmtNative(Math.abs(Number(o.balance)), o.currency)}
-                      <span style={{ display: "block", fontSize: 10, fontWeight: 500, color: C.faint }}>{fmtDue(due)}</span>
+                      <span className="lf-text-faint" style={{ display: "block", fontSize: 10, fontWeight: 500, marginTop: 2 }}>
+                        {fmtDue(due)}
+                      </span>
                     </div>
                   </div>
                 );
@@ -194,9 +167,9 @@ export default async function Home() {
           </>
         )}
 
-        <div style={S.secLabel}>
-          <span style={S.eyebrow}>Accounts & assets</span>
-          <span style={{ ...S.mono, fontSize: 11, color: C.accent }}>{accounts.length} accounts</span>
+        <div className="lf-sec-label">
+          <span className="lf-sec-label__h">Accounts & assets</span>
+          <span className="lf-sec-label__m">{accounts.length} accounts</span>
         </div>
         <AccountGroup title="Liquid · RF banks" accounts={groups.liquidRf} spot={spot} />
         <AccountGroup title="Liquid · US banks" accounts={groups.liquidUs} spot={spot} defaultOpen={false} />

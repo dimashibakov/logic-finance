@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase";
-import { fetchFxRates, getRubPerUsd, effRate, toUsd } from "@/lib/fx";
+import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { isLiquidType, isCardType } from "@/lib/liquidity";
-import { terminal as S } from "@/lib/terminal";
 import RateHeader from "../components/RateHeader";
 import ConvertPlanner from "./ConvertPlanner";
 
@@ -38,8 +37,8 @@ export default async function ConvertPage() {
   const costOverSpot = shortfall * (eff - spot);
 
   return (
-    <div style={S.wrap}>
-      <div style={S.phone}>
+    <div className="lf-wrap">
+      <div className="lf-phone">
         <RateHeader title="Convert" />
         <ConvertPlanner
           spot={spot}

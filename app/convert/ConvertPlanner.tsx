@@ -1,9 +1,8 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useAddSheet } from "@/app/components/AppChrome";
 import { fmtRate, rub, usd } from "@/lib/format";
-import { C } from "@/lib/tokens";
-import { terminal as S } from "@/lib/terminal";
 
 type Props = {
   spot: number;
@@ -18,62 +17,100 @@ type Props = {
 export default function ConvertPlanner({ spot, eff, usdNeeds30d, usdCash, shortfall, rubRecommendation, costOverSpot }: Props) {
   const { openView } = useAddSheet();
   const premiumPct = spot > 0 ? (((eff - spot) / spot) * 100).toFixed(1) : "0";
+  const minUsd = Math.max(50, Math.round(shortfall * 0.25) || 50);
+  const maxUsd = Math.max(minUsd, Math.round(shortfall * 2) || 2000);
+  const [usdAmount, setUsdAmount] = useState(shortfall > 0 ? shortfall : minUsd);
+
+  const rubAmount = useMemo(() => Math.round(usdAmount * eff), [usdAmount, eff]);
+  const costRub = useMemo(() => Math.round(usdAmount * (eff - spot)), [usdAmount, eff, spot]);
 
   return (
     <>
-      <div style={S.secLabel}>
-        <span style={S.eyebrow}>RUB → USD conversion</span>
+      <div className="lf-sec-label">
+        <span className="lf-sec-label__h">RUB → USD conversion</span>
       </div>
-      <div style={{ ...S.cardPad, marginBottom: 0 }}>
-        <div style={S.eyebrow}>Effective rate</div>
-        <div style={{ ...S.mono, fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", marginTop: 6 }}>
-          {fmtRate(eff)} <span style={{ fontSize: 14, color: C.faint }}>₽/$</span>
+      <div className="lf-card lf-card--pad lf-card--shadow">
+        <div className="lf-eyebrow">Effective rate</div>
+        <div className="lf-big-figure lf-mono" style={{ marginTop: 6 }}>
+          {fmtRate(eff)} <span className="lf-text-faint" style={{ fontSize: 14 }}>₽/$</span>
         </div>
-        <div style={{ fontSize: 12.5, color: C.sub, lineHeight: 1.5, marginTop: 4 }}>
+        <div className="lf-hint" style={{ marginTop: 4 }}>
           spot {fmtRate(spot)} + rule 1.5% + 3₽ · premium ≈ {premiumPct}%
         </div>
       </div>
 
-      <div style={{ ...S.secLabel, marginTop: 18 }}>
-        <span style={S.eyebrow}>Planner · 30 days</span>
+      <div className="lf-sec-label">
+        <span className="lf-sec-label__h">Planner · 30 days</span>
       </div>
-      <div style={{ ...S.card, padding: 0, overflow: "hidden" }}>
-        <div style={S.row}>
+      <div className="lf-card lf-card--flush">
+        <div className="lf-row">
           <div>
-            <div style={{ fontSize: 13.5, color: C.ink }}>USD needs</div>
-            <div style={{ ...S.mono, fontSize: 10.5, color: C.faint, marginTop: 2 }}>rent share + cards + bills</div>
+            <div style={{ fontSize: 13.5 }}>USD needs</div>
+            <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 2 }}>
+              rent share + cards + bills
+            </div>
           </div>
-          <div style={{ ...S.mono, fontSize: 14, fontWeight: 600 }}>{usd(usdNeeds30d)}</div>
+          <div className="lf-mono" style={{ fontSize: 14, fontWeight: 600 }}>
+            {usd(usdNeeds30d)}
+          </div>
         </div>
-        <div style={S.row}>
+        <div className="lf-row">
           <div>
-            <div style={{ fontSize: 13.5, color: C.ink }}>USD cash</div>
-            <div style={{ ...S.mono, fontSize: 10.5, color: C.faint, marginTop: 2 }}>checking + crypto</div>
+            <div style={{ fontSize: 13.5 }}>USD cash</div>
+            <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 2 }}>
+              checking + crypto
+            </div>
           </div>
-          <div style={{ ...S.mono, fontSize: 14, fontWeight: 600 }}>{usd(usdCash)}</div>
+          <div className="lf-mono" style={{ fontSize: 14, fontWeight: 600 }}>
+            {usd(usdCash)}
+          </div>
         </div>
-        <div style={{ ...S.row, borderBottom: "none" }}>
-          <div style={{ fontSize: 13.5, color: C.debt }}>Shortfall</div>
-          <div style={{ ...S.mono, fontSize: 14, fontWeight: 600, color: C.debt }}>{usd(shortfall)}</div>
+        <div className="lf-row">
+          <div className="lf-text-danger" style={{ fontSize: 13.5 }}>
+            Shortfall
+          </div>
+          <div className="lf-mono lf-text-danger" style={{ fontSize: 14, fontWeight: 600 }}>
+            {usd(shortfall)}
+          </div>
         </div>
       </div>
 
       {shortfall > 0 && (
-        <div style={{ ...S.cardPad, marginTop: 10 }}>
-          <div style={S.eyebrow}>Recommendation</div>
-          <div style={{ ...S.mono, fontSize: 19, fontWeight: 600, margin: "8px 0 2px" }}>
-            {rub(rubRecommendation)} → {usd(shortfall)}
+        <div className="lf-callout">
+          <div className="lf-eyebrow">Convert this month</div>
+          <div className="lf-mono" style={{ fontSize: 19, fontWeight: 600, margin: "10px 0 6px" }}>
+            {rub(rubAmount)} → {usd(usdAmount)}
           </div>
-          <div style={{ fontSize: 12.5, color: C.sub, lineHeight: 1.5 }}>
-            at {fmtRate(eff)} · cost over spot ≈ <b>{rub(Math.round(costOverSpot * spot))}</b>. Record as conversion after transfer.
-          </div>
+          <div className="lf-hint">cost over spot ≈ {rub(costRub)}</div>
+          <input
+            type="range"
+            className="lf-range"
+            min={minUsd}
+            max={maxUsd}
+            value={usdAmount}
+            onChange={(e) => setUsdAmount(Number(e.target.value))}
+          />
+          <div className="lf-note">drag to size the tranche</div>
           <button
             type="button"
-            onClick={() => openView("operation", { type: "conversion", amount: rubRecommendation, currency: "RUB", notes: "FX conversion plan" })}
-            style={S.btn}
+            className="lf-btn"
+            onClick={() =>
+              openView("operation", {
+                type: "conversion",
+                amount: rubAmount,
+                currency: "RUB",
+                notes: "FX conversion plan",
+              })
+            }
           >
             Record conversion
           </button>
+        </div>
+      )}
+
+      {shortfall <= 0 && rubRecommendation > 0 && (
+        <div className="lf-callout">
+          <div className="lf-hint">USD cash covers 30-day needs. No conversion required.</div>
         </div>
       )}
     </>
