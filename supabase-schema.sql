@@ -52,7 +52,7 @@ create table transactions (
   merchant text,
   fx_rate numeric,                    -- для конвертаций
   fee numeric,                        -- для конвертаций
-  source text,                        -- teller/zenmoney/manual
+  source text,                        -- statement/manual/teller
   external_id text,                   -- дедуп из источника
   reconciled boolean default false,
   notes text,
@@ -78,7 +78,7 @@ create table agent_memory (
 
 create table sync_state (
   id uuid primary key default gen_random_uuid(),
-  connector text not null,            -- teller/zenmoney
+  connector text not null,            -- import connector id (e.g. pdf_import)
   cursor text,
   last_synced_at timestamptz,
   status text

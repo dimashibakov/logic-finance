@@ -4,7 +4,6 @@ import { NextResponse, type NextRequest } from "next/server";
 export function isPublicPath(pathname: string) {
   if (pathname === "/login") return true;
   if (pathname.startsWith("/auth/")) return true;
-  if (pathname === "/api/sync/zenmoney") return true;
   return false;
 }
 
