@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { sortInsights, type AgentInsightRow } from "@/lib/agent/types";
 import { fetchFxRates, getRubPerUsd, toUsd } from "@/lib/fx";
 import { groupAccounts, illiquidUsdTotal, liquidUsdTotal, type AccountRow } from "@/lib/liquidity";
 import { computeNetWorth } from "@/lib/networth";
@@ -19,13 +20,14 @@ import PaymentEventRow from "./components/PaymentEventRow";
 
 export default async function Home() {
   const supabase = createClient();
-  const [{ data: accData }, { data: oblData }, rates] = await Promise.all([
+  const [{ data: accData }, { data: oblData }, rates, { data: insightData }] = await Promise.all([
     supabase.from("accounts").select("*").eq("in_net_worth", true),
     supabase
       .from("obligations")
       .select("id, name, kind, currency, balance, apr, due_date, due_day, monthly_payment, status")
       .eq("status", "active"),
     fetchFxRates(),
+    supabase.from("agent_insights").select("*").eq("status", "active"),
   ]);
 
   const spot = getRubPerUsd(rates, "spot");
@@ -49,11 +51,25 @@ export default async function Home() {
   const shortByCurrency = Object.fromEntries(coverage.map((c) => [c.currency, c.short])) as Record<"RUB" | "USD", boolean>;
   const upcoming = events.slice(0, 6);
   const alertEvent = urgentAlertEvent(events, coverage);
+  const activeInsights = sortInsights((insightData ?? []) as AgentInsightRow[]);
+  const urgentInsight = activeInsights.find((i) => i.severity === "urgent") ?? activeInsights[0] ?? null;
+  const bannerInsight = urgentInsight?.severity === "urgent" ? urgentInsight : null;
 
   return (
     <div className="lf-wrap">
       <div className="lf-phone">
         <RateHeader />
+
+        {activeInsights.length > 0 && (
+          <div className="lf-sec-label" style={{ marginTop: 6 }}>
+            <Link href="/agent" className="lf-sec-label__h" style={{ textDecoration: "none", color: "inherit" }}>
+              {activeInsights.length} active signal{activeInsights.length === 1 ? "" : "s"}
+            </Link>
+            <Link href="/agent" className="lf-sec-label__m">
+              agent →
+            </Link>
+          </div>
+        )}
 
         <div style={{ marginTop: 6 }}>
           <div className="lf-eyebrow">Net worth</div>
@@ -89,7 +105,32 @@ export default async function Home() {
           <span>illiquid {illiquidPct}%</span>
         </div>
 
-        {alertEvent && (
+        {bannerInsight && (
+          <>
+            <div className="lf-alert lf-only-terminal">
+              <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1, color: V.warn }} />
+              <div style={{ fontSize: 13, lineHeight: 1.4 }}>
+                <b>{bannerInsight.title}</b>
+                {bannerInsight.body && <> — {bannerInsight.body}</>}
+              </div>
+            </div>
+            <div className="lf-alert lf-only-brutalist">
+              <span className="lf-alert__big lf-mono">{bannerInsight.severity.toUpperCase()}</span>
+              <span className="lf-alert__txt">
+                {bannerInsight.title}
+                <br />
+                {bannerInsight.body ?? "agent signal"} —{" "}
+                {bannerInsight.action_route && (
+                  <Link href={bannerInsight.action_route} style={{ color: "inherit" }}>
+                    open
+                  </Link>
+                )}
+              </span>
+            </div>
+          </>
+        )}
+
+        {!bannerInsight && alertEvent && (
           <>
             <div className="lf-alert lf-only-terminal">
               <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1, color: V.warn }} />
