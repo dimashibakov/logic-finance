@@ -1,22 +1,9 @@
-import { PDFParse } from "pdf-parse";
 import { NextRequest, NextResponse } from "next/server";
+import { extractDocumentText } from "@/lib/pdf-extract";
 import { detectBank, parseByBank, type BankId } from "@/parsers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-async function extractText(buffer: Buffer, filename: string): Promise<string> {
-  if (filename.toLowerCase().endsWith(".html") || filename.toLowerCase().endsWith(".htm")) {
-    return buffer.toString("utf8");
-  }
-  const parser = new PDFParse({ data: buffer });
-  try {
-    const result = await parser.getText();
-    return result.text ?? "";
-  } finally {
-    await parser.destroy();
-  }
-}
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -40,7 +27,7 @@ export async function POST(request: NextRequest) {
     let text = "";
 
     try {
-      text = await extractText(Buffer.from(await entry.arrayBuffer()), entry.name);
+      text = await extractDocumentText(Buffer.from(await entry.arrayBuffer()), entry.name);
     } catch (e) {
       warnings.push(e instanceof Error ? e.message : "Parse failed");
       files.push({ filename: entry.name, bank: null, result: null, warnings });

@@ -3,3 +3,7 @@
 node_modules
 .next
 .env*.local
+
+# Private real bank statements (PDF/HTML with balances & PII)
+parsers/__fixtures__/real/*
+!parsers/__fixtures__/real/.gitkeep
