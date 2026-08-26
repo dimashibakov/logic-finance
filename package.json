@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.45.0",
     "lucide-react": "^1.33.0",
@@ -24,6 +26,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "sharp": "^0.35.4",
     "typescript": "^5.5.4",
     "vitest": "^4.1.11"
   }
