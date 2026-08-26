@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { fmtNative, rub, toUsd, usd } from "@/lib/format";
 import { isStaleBalance, type AccountRow } from "@/lib/liquidity";
-import { C } from "@/lib/tokens";
-import { terminal as S } from "@/lib/terminal";
 
 type Props = {
   title: string;
@@ -35,58 +33,28 @@ export default function AccountGroup({ title, accounts, spot, defaultOpen = true
   const summary = groupSummary(accounts);
 
   return (
-    <div style={{ ...S.card, marginBottom: 10, overflow: "hidden" }}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        style={{
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "11px 16px",
-          border: "none",
-          borderBottom: open ? `1px solid ${C.line2}` : "none",
-          background: "transparent",
-          cursor: "pointer",
-          minHeight: 44,
-        }}
-      >
-        <span style={{ ...S.mono, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: C.sub }}>{title}</span>
-        <span style={{ ...S.mono, fontSize: 12, fontWeight: 600, color: summary.hasDebt ? C.debt : C.ink }}>
+    <div className="lf-card lf-group">
+      <button type="button" onClick={() => setOpen(!open)} className="lf-group__head" style={{ borderBottom: open ? undefined : "none" }}>
+        <span className="lf-group__title">{title}</span>
+        <span className={`lf-group__sum lf-mono${summary.hasDebt ? " lf-text-danger" : ""}`}>
           {summary.text}
-          <span style={{ color: C.faint, marginLeft: 8 }}>{open ? "▾" : "▸"}</span>
+          <span className="lf-text-faint" style={{ marginLeft: 8 }}>
+            {open ? "▾" : "▸"}
+          </span>
         </span>
       </button>
       {open &&
-        accounts.map((a, i) => {
+        accounts.map((a) => {
           const bal = Number(a.balance);
           const stale = isStaleBalance(a.balance_date);
           const isDebt = bal < 0;
-          const secondary = a.currency === "RUB" ? usd(toUsd(Math.abs(bal), a.currency, spot)) : rub(toUsd(Math.abs(bal), a.currency, spot) * spot);
+          const secondary =
+            a.currency === "RUB" ? usd(toUsd(Math.abs(bal), a.currency, spot)) : rub(toUsd(Math.abs(bal), a.currency, spot) * spot);
           return (
-            <div
-              key={a.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "12px 16px",
-                borderBottom: i < accounts.length - 1 ? `1px solid ${C.line2}` : "none",
-              }}
-            >
+            <div key={a.id} className="lf-acct">
               <div style={{ minWidth: 0, paddingRight: 8 }}>
-                <div style={{ fontSize: 14, fontWeight: 550, color: C.ink }}>{a.name}</div>
-                <div
-                  style={{
-                    ...S.mono,
-                    fontSize: 10.5,
-                    color: C.faint,
-                    marginTop: 3,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                  }}
-                >
+                <div style={{ fontSize: 14, fontWeight: 550 }}>{a.name}</div>
+                <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   {a.type} · {a.zone.toLowerCase()}
                   {a.balance_date ? ` · ${a.balance_date.slice(5).replace("-", " ")}` : ""}
                 </div>
@@ -94,16 +62,20 @@ export default function AccountGroup({ title, accounts, spot, defaultOpen = true
               <div style={{ textAlign: "right", flexShrink: 0 }}>
                 {stale ? (
                   <>
-                    <div style={{ ...S.mono, fontSize: 14.5, fontWeight: 600, color: C.warn }}>···</div>
-                    <div style={{ ...S.mono, fontSize: 11, color: C.warn, marginTop: 2 }}>refresh</div>
+                    <div className="lf-mono lf-stale" style={{ fontSize: 14.5, fontWeight: 600 }}>
+                      ···
+                    </div>
+                    <div className="lf-mono lf-stale" style={{ fontSize: 11, marginTop: 2 }}>
+                      refresh
+                    </div>
                   </>
                 ) : (
                   <>
-                    <div style={{ ...S.mono, fontSize: 14.5, fontWeight: 600, color: isDebt ? C.debt : C.ink }}>
+                    <div className={`lf-mono${isDebt ? " lf-text-danger" : ""}`} style={{ fontSize: 14.5, fontWeight: 600 }}>
                       {isDebt && bal < 0 ? "−" : ""}
                       {fmtNative(Math.abs(bal), a.currency)}
                     </div>
-                    <div style={{ ...S.mono, fontSize: 11, color: C.faint, marginTop: 2 }}>
+                    <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 2 }}>
                       {isDebt && "−"}
                       {secondary}
                     </div>
