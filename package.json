@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "backfill-fx": "node scripts/backfill-fx.mjs"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

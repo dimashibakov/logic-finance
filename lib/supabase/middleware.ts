@@ -5,6 +5,7 @@ export function isPublicPath(pathname: string) {
   if (pathname === "/login") return true;
   if (pathname === "/offline") return true;
   if (pathname.startsWith("/auth/")) return true;
+  if (pathname.startsWith("/api/cron/")) return true;
   return false;
 }
 
