@@ -14,10 +14,15 @@ export default function LoginPage() {
     setBusy(true);
     setError(null);
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback`;
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get("next");
+    let emailRedirectTo = `${window.location.origin}/auth/callback`;
+    if (next?.startsWith("/") && !next.startsWith("//")) {
+      emailRedirectTo += `?next=${encodeURIComponent(next)}`;
+    }
     const { error: err } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: redirectTo },
+      options: { emailRedirectTo },
     });
     setBusy(false);
     if (err) {
