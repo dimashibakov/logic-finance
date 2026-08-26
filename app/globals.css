@@ -1403,3 +1403,40 @@ html[data-theme="brutalist"] .lf-exposure-bar {
 html[data-theme="brutalist"] .lf-exposure-bar__usd {
   background: var(--danger);
 }
+
+.lf-wd-row {
+  align-items: flex-start;
+}
+
+.lf-wd-row__main {
+  flex: 1;
+  min-width: 0;
+  padding-right: 10px;
+}
+
+.lf-wd-status {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 8px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.lf-wd-status--moved {
+  background: var(--accent);
+}
+
+.lf-wd-status--na {
+  background: var(--line2);
+  opacity: 0.7;
+}
+
+.lf-wd-status:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}

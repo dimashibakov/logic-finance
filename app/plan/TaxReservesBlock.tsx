@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { rub, usd } from "@/lib/format";
 import { fmtDueShort, type TaxReserves } from "@/lib/taxes";
 
@@ -8,10 +9,12 @@ export default function TaxReservesBlock({ reserves }: Props) {
 
   return (
     <>
-      <div className="lf-sec-label">
-        <span className="lf-sec-label__h">Tax reserves</span>
-        <span className="lf-sec-label__m">accrual view</span>
-      </div>
+        <div className="lf-sec-label">
+          <span className="lf-sec-label__h">Tax reserves</span>
+          <Link href="/winddown" className="lf-sec-label__m">
+            5927 →
+          </Link>
+        </div>
 
       <div className="lf-card lf-card--pad lf-card--shadow">
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
