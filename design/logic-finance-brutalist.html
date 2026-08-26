@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Logic Finance — Brutalist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f7f3e9; --panel:#efe7d3; --ink:#14110c; --lime:#c6f24e; --coral:#ff4d1c;
+    --disp:'Archivo',"Helvetica Neue",Arial,sans-serif;
+    --mono:'Space Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:#d9d2c0;font-family:var(--disp);color:var(--ink)}
+  .num{font-variant-numeric:tabular-nums}
+  .wrap{max-width:440px;margin:0 auto;min-height:100vh;background:var(--paper);
+    border-left:3px solid var(--ink);border-right:3px solid var(--ink);position:relative;padding-bottom:104px;overflow:hidden}
+  /* header */
+  header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:3px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:20}
+  .tag{font:900 12px/1 var(--disp);letter-spacing:.02em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:7px 10px}
+  .fx{font:700 10.5px/1.4 var(--mono);text-align:right;border:2px solid var(--ink);padding:5px 8px;background:var(--lime)}
+  /* eyebrow / labels */
+  .eye{font:700 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;opacity:.7}
+  .screen{display:none;padding:18px}
+  .screen.on{display:block}
+  .seclabel{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}
+  .seclabel .h{font:900 13px/1 var(--disp);letter-spacing:.02em;text-transform:uppercase}
+  .seclabel .m{font:700 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;opacity:.55}
+  /* net worth */
+  .nw{font:900 62px/.92 var(--disp);letter-spacing:-.035em;margin:8px 0 8px}
+  .adline{font:700 12px/1 var(--mono)}
+  .adline .r{color:var(--coral)}
+  /* zones */
+  .zones{display:grid;grid-template-columns:1fr 1fr;margin:20px 0;border:3px solid var(--ink)}
+  .zones>div{padding:15px}
+  .zones>div:first-child{border-right:3px solid var(--ink)}
+  .zones .zk{font:700 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+  .zones .zv{font:900 25px/1 var(--disp);margin-top:10px}
+  .zones .zs{font:700 11px/1 var(--mono);margin-top:7px;opacity:.6}
+  .bar{height:14px;border:3px solid var(--ink);display:flex;margin-top:-3px}
+  .bar i{display:block;height:100%}
+  /* alert */
+  .alert{display:flex;align-items:center;gap:12px;background:var(--coral);color:#fff;
+    border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:14px;margin:22px 0}
+  .alert .big{font:900 22px/1 var(--disp)}
+  .alert .txt{font:800 11px/1.3 var(--disp);text-transform:uppercase;letter-spacing:.03em}
+  /* generic block */
+  .block{border:3px solid var(--ink)}
+  .pay{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border-bottom:3px solid var(--ink)}
+  .pay:last-child{border-bottom:0}
+  .pay .n{font:800 14px/1.1 var(--disp)}
+  .pay .d{font:700 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-top:5px}
+  .pay .r{font:900 15px/1 var(--disp);text-align:right}
+  .pay .r .s{display:block;font:700 9px/1 var(--mono);opacity:.55;margin-top:5px}
+  .hot{background:var(--lime);font:800 8px/1 var(--disp);text-transform:uppercase;letter-spacing:.06em;border:2px solid var(--ink);padding:2px 5px;margin-left:7px;display:inline-block;vertical-align:middle}
+  .neg{color:var(--coral)}
+  /* account group */
+  .grp{border:3px solid var(--ink);margin-bottom:12px}
+  .grp>.gh{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:12px 14px;background:var(--panel);border-bottom:3px solid var(--ink)}
+  .grp>.gh .gl{font:900 11px/1 var(--disp);letter-spacing:.08em;text-transform:uppercase}
+  .grp>.gh .gr{font:800 12px/1 var(--mono)}
+  .grp>.gh .ca{margin-left:8px;display:inline-block;transition:transform .15s}
+  .grp.closed>.gh{border-bottom:0}
+  .grp.closed>.gh .ca{transform:rotate(-90deg)}
+  .grp.closed .rows{display:none}
+  .acct{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:2px solid var(--ink)}
+  .acct:last-child{border-bottom:0}
+  .acct .an{font:800 14px/1.1 var(--disp)}
+  .acct .am{font:700 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-top:5px}
+  .acct .av{font:900 15px/1 var(--disp);text-align:right}
+  .acct .as{font:700 10px/1 var(--mono);text-align:right;opacity:.55;margin-top:5px}
+  .stale{color:var(--coral)}
+  /* rows (convert/debts/plan) */
+  .row{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:3px solid var(--ink)}
+  .row:last-child{border-bottom:0}
+  .row .k{font:800 13px/1.2 var(--disp)}
+  .row .k .s{display:block;font:700 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;opacity:.55;margin-top:5px}
+  .row .v{font:900 15px/1 var(--disp);text-align:right}
+  .big-figure{font:900 40px/1 var(--disp);letter-spacing:-.02em}
+  .callout{border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:16px;background:var(--lime);margin-top:14px}
+  .callout .k{font:700 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em}
+  .callout .big{font:900 26px/1 var(--disp);margin:10px 0 6px}
+  .hint{font:700 11.5px/1.5 var(--mono)}
+  .apr{font:900 11px/1 var(--disp);border:2px solid var(--ink);padding:3px 6px;margin-left:6px}
+  .apr.hi{background:var(--coral);color:#fff} .apr.mid{background:var(--lime)} .apr.lo{background:var(--paper)}
+  /* progress (plan) */
+  .prog{border:3px solid var(--ink);height:16px;margin-top:9px;background:var(--paper)}
+  .prog i{display:block;height:100%;background:var(--ink)}
+  .prog i.over{background:var(--coral)}
+  .dev{font:700 10px/1 var(--mono);margin-top:6px} .dev.o{color:var(--coral)}
+  /* range slider brutalist */
+  input[type=range]{-webkit-appearance:none;width:100%;height:14px;background:var(--paper);border:3px solid var(--ink);margin:14px 0 6px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;background:var(--coral);border:3px solid var(--ink);cursor:pointer;margin-top:-3px}
+  input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--coral);border:3px solid var(--ink);cursor:pointer;border-radius:0}
+  /* buttons */
+  .btn{display:block;width:100%;text-align:center;font:900 14px/1 var(--disp);text-transform:uppercase;letter-spacing:.04em;
+    border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:15px;margin-top:16px;cursor:pointer;background:var(--lime)}
+  .btn:active{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--ink)}
+  .btn.ink{background:var(--ink);color:var(--paper)}
+  .btn.soft{background:var(--paper);box-shadow:none}
+  /* bottom nav */
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:30}
+  .navin{max-width:440px;margin:0 auto;display:flex;gap:8px;padding:12px;background:var(--paper);border-top:3px solid var(--ink)}
+  .tab{flex:1;font:900 10px/1 var(--disp);letter-spacing:.04em;text-transform:uppercase;padding:14px 2px;
+    border:3px solid var(--ink);background:var(--paper);cursor:pointer}
+  .tab.on{background:var(--ink);color:var(--lime)}
+  .add{flex:0 0 auto;width:52px;background:var(--lime);font-size:22px;font-weight:900}
+  .add:active{transform:translate(2px,2px)}
+  /* sheet */
+  .scrim{position:fixed;inset:0;background:rgba(20,17,12,.5);z-index:40;display:none}
+  .scrim.show{display:block}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:440px;margin:0 auto;background:var(--paper);
+    border-top:3px solid var(--ink);border-left:3px solid var(--ink);border-right:3px solid var(--ink);
+    padding:16px 18px calc(26px + env(safe-area-inset-bottom));transform:translateY(110%);transition:transform .2s}
+  .sheet.show{transform:translateY(0)}
+  .sh-h{font:900 16px/1 var(--disp);text-transform:uppercase;letter-spacing:.02em;margin-bottom:14px}
+  .action{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel);
+    border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:14px;margin-bottom:12px;cursor:pointer}
+  .action:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+  .action .ic{width:40px;height:40px;background:var(--lime);border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;flex:0 0 auto}
+  .action .a{font:900 14px/1 var(--disp);text-transform:uppercase}
+  .action .b{font:700 10px/1.3 var(--mono);opacity:.6;margin-top:5px}
+  /* forms */
+  .field{margin-bottom:13px}
+  .field label{display:block;font:700 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;opacity:.75}
+  .field input,.field select{width:100%;font:700 15px/1 var(--disp);padding:12px;border:3px solid var(--ink);background:var(--paper);color:var(--ink)}
+  .seg{display:flex;gap:0;border:3px solid var(--ink)}
+  .seg button{flex:1;padding:11px 2px;border:0;border-right:3px solid var(--ink);background:var(--paper);
+    font:800 11px/1 var(--disp);text-transform:uppercase;cursor:pointer}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:var(--ink);color:var(--lime)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .deltabox{display:flex;justify-content:space-between;align-items:center;border:3px solid var(--ink);padding:12px 14px;
+    font:900 15px/1 var(--disp);background:var(--panel)}
+  .deltabox .l{font:700 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;opacity:.7}
+  .toggle{display:flex;align-items:center;gap:12px;margin-top:12px;cursor:pointer}
+  .toggle .tr{width:52px;height:28px;border:3px solid var(--ink);background:var(--lime);position:relative;flex:0 0 auto}
+  .toggle .tr i{position:absolute;top:1px;left:25px;width:20px;height:20px;background:var(--ink);transition:left .12s}
+  .toggle.off .tr{background:var(--paper)} .toggle.off .tr i{left:1px}
+  .toggle .t{font:800 12px/1.3 var(--disp)}
+  .note{font:700 10.5px/1.5 var(--mono);opacity:.65;margin-top:10px}
+  .hidden{display:none!important}
+  .drop{border:3px dashed var(--ink);padding:22px;text-align:center}
+  .ribbon{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--lime);
+    font:700 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:4px 12px}
+</style>
+</head>
+<body>
+<div class="ribbon">Concept · Brutalist · клик по всему</div>
+<div class="wrap">
+
+  <header>
+    <span class="tag">◼ Logic Finance</span>
+    <span class="fx">SPOT 76.92<br>EFF 81.07 ₽/$</span>
+  </header>
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <section class="screen on" id="s-over">
+    <div class="eye">Net worth</div>
+    <div class="nw num">$47,721</div>
+    <div class="adline num">ASSETS $189,686 &nbsp;—&nbsp; <span class="r">DEBT $141,965</span></div>
+
+    <div class="zones">
+      <div><div class="zk">RUB zone</div><div class="zv num">₽12.57M</div><div class="zs num">$163,439</div></div>
+      <div><div class="zk">USD zone</div><div class="zv num">$26,247</div><div class="zs num">cash + cards</div></div>
+    </div>
+    <div class="bar"><i style="width:8%;background:var(--lime)"></i><i style="width:92%;background:var(--panel)"></i></div>
+    <div class="hint" style="margin-top:8px;opacity:.6">LIQUID 8% · APARTMENT+CAR 92%</div>
+
+    <div class="alert">
+      <span class="big num">₽237,084</span>
+      <span class="txt">Alfabank card<br>due Oct 4 — cover it</span>
+    </div>
+
+    <div class="seclabel"><span class="h">Upcoming</span><span class="m" onclick="go('plan')">all →</span></div>
+    <div class="block">
+      <div class="pay"><div><div class="n">Apple Card</div><div class="d">installments</div></div><div class="r num">$312<span class="s">Aug 31</span></div></div>
+      <div class="pay"><div><div class="n">AMEX Blue Cash</div><div class="d">autopay</div></div><div class="r num">$196<span class="s">Sep 1</span></div></div>
+      <div class="pay"><div><div class="n">BofA ···3155</div><div class="d">turkish ticket</div></div><div class="r num">$2,409<span class="s">Sep 18</span></div></div>
+      <div class="pay"><div><div class="n">Alfabank 1916 <span class="hot">hot</span></div><div class="d">grace — don't slip</div></div><div class="r num neg">₽237K<span class="s">Oct 4</span></div></div>
+    </div>
+
+    <div class="seclabel"><span class="h">Accounts</span><span class="m">24 total</span></div>
+
+    <div class="grp" id="g1">
+      <div class="gh" onclick="tg('g1')"><span class="gl">Liquid · RF banks</span><span class="gr num">₽868K · $11.3K<span class="ca">▾</span></span></div>
+      <div class="rows">
+        <div class="acct"><div><div class="an">Cash — RUB</div><div class="am">cash · rf · Aug 24</div></div><div><div class="av num">₽475,000</div><div class="as num">$6,175</div></div></div>
+        <div class="acct"><div><div class="an">Sberbank 5623</div><div class="am">checking · rf · Aug 24</div></div><div><div class="av num">₽383,811</div><div class="as num">$4,990</div></div></div>
+        <div class="acct"><div><div class="an">Alfabank 3505</div><div class="am">checking · rf · Aug 24</div></div><div><div class="av num">₽210,000</div><div class="as num">$2,730</div></div></div>
+      </div>
+    </div>
+
+    <div class="grp closed" id="g2">
+      <div class="gh" onclick="tg('g2')"><span class="gl">Cards · debt</span><span class="gr num neg">−$5,490<span class="ca">▾</span></span></div>
+      <div class="rows">
+        <div class="acct"><div><div class="an">Alfabank 1916</div><div class="am">credit · rf · Aug 24</div></div><div><div class="av num neg">−₽237,084</div><div class="as num">−$3,082</div></div></div>
+        <div class="acct"><div><div class="an">BofA 3155</div><div class="am">credit · us · Aug 24</div></div><div><div class="av num neg">−$2,409</div><div class="as num">−₽185K</div></div></div>
+        <div class="acct"><div><div class="an">Apple Card</div><div class="am stale">credit · us · update</div></div><div><div class="av num stale">₽ ···</div><div class="as num stale">stale</div></div></div>
+      </div>
+    </div>
+
+    <div class="grp closed" id="g3">
+      <div class="gh" onclick="tg('g3')"><span class="gl">Illiquid · assets</span><span class="gr num">$173,856<span class="ca">▾</span></span></div>
+      <div class="rows">
+        <div class="acct"><div><div class="an">Apartment (RF)</div><div class="am">real estate · rshb mortgage</div></div><div><div class="av num">₽11.45M</div><div class="as num">$148,856</div></div></div>
+        <div class="acct"><div><div class="an">Dodge Charger GT</div><div class="am">vehicle · us · 2022</div></div><div><div class="av num">$25,000</div><div class="as num">₽1.92M</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONVERT ===================== -->
+  <section class="screen" id="s-conv">
+    <div class="seclabel"><span class="h">Convert ₽ → $</span></div>
+    <div class="block" style="box-shadow:6px 6px 0 var(--ink)">
+      <div style="padding:16px">
+        <div class="eye">Effective rate</div>
+        <div class="big-figure num" style="margin-top:8px">81.07 <span style="font:700 14px/1 var(--mono)">₽/$</span></div>
+        <div class="hint" style="margin-top:6px;opacity:.6">spot 76.92 + rule 1.5% + 3₽ · ≈ +5.4%</div>
+      </div>
+    </div>
+
+    <div class="seclabel"><span class="h">Planner · 30d</span></div>
+    <div class="block">
+      <div class="row"><div class="k">USD needs<span class="s">rent½ + apple + amex + bofa 3155</span></div><div class="v num">$3,937</div></div>
+      <div class="row"><div class="k">USD cash<span class="s">bofa 8541 + coinbase</span></div><div class="v num">$3,373</div></div>
+      <div class="row"><div class="k neg">Shortfall</div><div class="v num neg">$564</div></div>
+    </div>
+
+    <div class="callout">
+      <div class="k">Convert this month</div>
+      <div class="big num" id="conv-out">₽45,720 → $564</div>
+      <div class="hint" id="conv-cost">cost over spot ≈ ₽2,340</div>
+      <input type="range" min="200" max="2000" value="564" id="conv-slider" oninput="convCalc(this.value)">
+      <div class="hint" style="opacity:.6">drag to size the tranche</div>
+    </div>
+    <button class="btn" onclick="openSheet();setTimeout(()=>showForm('op'),240)">Record conversion</button>
+  </section>
+
+  <!-- ===================== DEBTS ===================== -->
+  <section class="screen" id="s-debt">
+    <div class="seclabel"><span class="h">Debts · avalanche</span><span class="m">by apr ↓</span></div>
+    <div class="hint" style="opacity:.6;margin-bottom:12px">Free cash → the most expensive interest-bearing debt.</div>
+    <div class="block">
+      <div class="row"><div class="k">Alfabank 1916 <span class="apr hi">58.5%*</span><span class="s">grace to Oct 4 · *if slipped<span class="hot">hot</span></span></div><div class="v num neg">₽237,084</div></div>
+      <div class="row"><div class="k">AMEX Blue Cash <span class="apr mid">29.99%</span><span class="s">grace now</span></div><div class="v num">$196</div></div>
+      <div class="row"><div class="k">Alfabank consumer <span class="apr mid">24.99%</span><span class="s">avalanche target ↓</span></div><div class="v num">₽312,000</div></div>
+      <div class="row"><div class="k">BofA 3155 <span class="apr mid">25.24%</span><span class="s">turkish ticket</span></div><div class="v num">$2,409</div></div>
+      <div class="row"><div class="k">Mortgage RSHB <span class="apr lo">8.2%</span><span class="s">principal planned</span></div><div class="v num">₽3.87M</div></div>
+      <div class="row"><div class="k">Auto Bridgecrest <span class="apr lo">6.9%</span><span class="s">$491/mo</span></div><div class="v num">₽1.94M</div></div>
+    </div>
+
+    <div class="callout" style="background:var(--paper)">
+      <div class="k">Early-payoff simulator</div>
+      <div class="big num" id="sim-save">throw ₽100,000 → save ≈ ₽24,990/yr</div>
+      <input type="range" min="0" max="475000" step="5000" value="100000" id="sim-slider" oninput="simCalc(this.value)">
+      <div class="hint" style="opacity:.6">extra into Alfabank consumer (24.99%) · you hold ₽475K cash</div>
+    </div>
+  </section>
+
+  <!-- ===================== PLAN ===================== -->
+  <section class="screen" id="s-plan">
+    <div class="seclabel"><span class="h">Plan / Fact</span><span class="m">Aug 2026</span></div>
+    <div class="block">
+      <div class="row"><div class="k">Income<span class="s">dividends 600k + cashback</span></div><div class="v num">₽600,524</div></div>
+      <div class="row"><div class="k">Plan<span class="s">dev <span class="neg">−₽42,476</span> · rent not in stmts</span></div><div class="v num" style="opacity:.5">₽643,000</div></div>
+    </div>
+
+    <div class="seclabel"><span class="h">Expenses</span><span class="m">fact / plan</span></div>
+    <div class="block" style="padding:16px">
+      <div style="display:flex;justify-content:space-between;font:800 13px/1 var(--disp)"><span>Travel / tickets</span><span class="num">₽89,716 <span style="opacity:.45">/ 5,000</span></span></div>
+      <div class="prog"><i class="over" style="width:100%"></i></div>
+      <div class="dev o">+₽84,716 · relocation (one-off)</div>
+
+      <div style="display:flex;justify-content:space-between;font:800 13px/1 var(--disp);margin-top:16px"><span>Shopping</span><span class="num">₽54,761 <span style="opacity:.45">/ 12,000</span></span></div>
+      <div class="prog"><i class="over" style="width:100%"></i></div>
+      <div class="dev o">+₽42,761 · new Alfa card</div>
+
+      <div style="display:flex;justify-content:space-between;font:800 13px/1 var(--disp);margin-top:16px"><span>Groceries</span><span class="num">₽40,044 <span style="opacity:.45">/ 30,000</span></span></div>
+      <div class="prog"><i style="width:100%"></i></div>
+      <div class="dev">+₽10,044</div>
+
+      <div style="display:flex;justify-content:space-between;font:800 13px/1 var(--disp);margin-top:16px"><span>Transport</span><span class="num">₽32,892 <span style="opacity:.45">/ 20,000</span></span></div>
+      <div class="prog"><i class="over" style="width:100%"></i></div>
+      <div class="dev o">+₽12,892</div>
+
+      <div style="display:flex;justify-content:space-between;font:800 13px/1 var(--disp);margin-top:16px"><span>Health / sport</span><span class="num">₽25,195 <span style="opacity:.45">/ 8,000</span></span></div>
+      <div class="prog"><i style="width:92%"></i></div>
+      <div class="dev">+₽17,195 · boxing + pharmacy</div>
+    </div>
+    <div class="hint" style="opacity:.6;margin-top:12px">Big misses are one-off (переезд). Clean baseline — September.</div>
+  </section>
+
+</div>
+
+<!-- ===================== NAV ===================== -->
+<nav><div class="navin">
+  <button class="tab on" id="t-over" onclick="go('over')">Over</button>
+  <button class="tab" id="t-conv" onclick="go('conv')">Conv</button>
+  <button class="tab add" onclick="openSheet()">+</button>
+  <button class="tab" id="t-debt" onclick="go('debt')">Debt</button>
+  <button class="tab" id="t-plan" onclick="go('plan')">Plan</button>
+</div></nav>
+
+<!-- ===================== + SHEET ===================== -->
+<div class="scrim" id="scrim" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div id="sh-menu">
+    <div class="sh-h">◼ Add</div>
+    <button class="action" onclick="showForm('op')"><span class="ic">+</span><span><span class="a">Operation</span><span class="b">income · expense · convert · transfer</span></span></button>
+    <button class="action" onclick="showForm('bal')"><span class="ic">≋</span><span><span class="a">Adjust balance</span><span class="b">reconcile an account</span></span></button>
+    <button class="action" onclick="showForm('imp')"><span class="ic">↥</span><span><span class="a">Import statement</span><span class="b">pdf → parse → preview</span></span></button>
+  </div>
+
+  <!-- operation -->
+  <div id="f-op" class="hidden">
+    <div class="sh-h" style="cursor:pointer" onclick="backMenu()">‹ Operation</div>
+    <div class="field"><label>Account</label><select><option>Sberbank 5623 (₽)</option><option>Alfabank 1916 (₽)</option><option>Bank of America 8541 ($)</option><option>Cash — RUB (₽)</option></select></div>
+    <div class="field"><label>Type</label>
+      <div class="seg">
+        <button class="on" onclick="seg(this,'exp')">Exp</button>
+        <button onclick="seg(this,'inc')">Inc</button>
+        <button onclick="seg(this,'conv')">Conv</button>
+        <button onclick="seg(this,'tr')">Trf</button>
+      </div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Amount</label><input class="num" inputmode="decimal" placeholder="0.00"></div>
+      <div class="field"><label>Currency</label><select><option>RUB</option><option>USD</option></select></div>
+    </div>
+    <div class="field" id="op-cat"><label>Category</label><select><option>Transport &amp; mobility (RF)</option><option>Groceries (RF)</option><option>Cafes (RF)</option><option>Shopping (RF)</option><option>Health &amp; sport (RF)</option><option>— auto —</option></select></div>
+    <div id="op-conv" class="two hidden">
+      <div class="field"><label>Rate ₽/$</label><input class="num" value="81.07"></div>
+      <div class="field"><label>Fee</label><input class="num" placeholder="over spot"></div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Merchant</label><input placeholder="e.g. Пятёрочка"></div>
+      <div class="field"><label>Date</label><input class="num" value="25.08.2026"></div>
+    </div>
+    <div class="note">source='manual' · runs categorize() · shifts account balance</div>
+    <button class="btn ink" style="color:var(--lime)">Save operation</button>
+  </div>
+
+  <!-- balance -->
+  <div id="f-bal" class="hidden">
+    <div class="sh-h" style="cursor:pointer" onclick="backMenu()">‹ Adjust balance</div>
+    <div class="field"><label>Account</label><select onchange="balCalc()"><option data-cur="₽383,811">Sberbank 5623 · now ₽383,811</option><option data-cur="₽475,000">Cash — RUB · now ₽475,000</option></select></div>
+    <div class="two">
+      <div class="field"><label>Actual balance</label><input class="num" id="bal-in" value="380500" oninput="balCalc()"></div>
+      <div class="field"><label>Date</label><input class="num" value="25.08.2026"></div>
+    </div>
+    <div class="deltabox"><span class="l">Delta</span><span class="num neg" id="bal-delta">− ₽3,311</span></div>
+    <div class="toggle" id="bal-tg" onclick="this.classList.toggle('off')"><div class="tr"><i></i></div><div class="t">Record reconciliation op</div></div>
+    <div class="note">ON → creates a Reconciliation transaction for the delta · OFF → snapshot balance only</div>
+    <button class="btn">Apply</button>
+  </div>
+
+  <!-- import -->
+  <div id="f-imp" class="hidden">
+    <div class="sh-h" style="cursor:pointer" onclick="backMenu()">‹ Import statement</div>
+    <div class="drop"><div style="font:900 26px/1 var(--disp)">↥</div><div style="font:800 14px/1 var(--disp);margin-top:8px;text-transform:uppercase">Drop a PDF</div><div class="note" style="margin-top:6px">sber · alfa · rshb · tbank · amex · bofa · coinbase</div></div>
+    <div class="note" style="margin-top:12px">Parser checks control sums. Save is blocked if they don't match. Dups killed by external_id.</div>
+    <button class="btn soft">Choose file</button>
+  </div>
+</div>
+
+<script>
+  function go(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+    document.getElementById('s-'+id).classList.add('on');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+    var t=document.getElementById('t-'+id); if(t)t.classList.add('on');
+    window.scrollTo(0,0);
+  }
+  function tg(id){document.getElementById(id).classList.toggle('closed');}
+  var scrim=document.getElementById('scrim'),sheet=document.getElementById('sheet');
+  function openSheet(){backMenu();scrim.classList.add('show');sheet.classList.add('show');}
+  function closeSheet(){scrim.classList.remove('show');sheet.classList.remove('show');}
+  function hideForms(){['menu','op','bal','imp'].forEach(k=>{var e=document.getElementById(k==='menu'?'sh-menu':'f-'+k);if(e)e.classList.add('hidden')});}
+  function backMenu(){hideForms();document.getElementById('sh-menu').classList.remove('hidden');}
+  function showForm(k){hideForms();document.getElementById('f-'+k).classList.remove('hidden');}
+  function seg(b,t){b.parentNode.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    document.getElementById('op-conv').classList.toggle('hidden',t!=='conv');
+    document.getElementById('op-cat').classList.toggle('hidden',t==='conv'||t==='tr');}
+  var EFF=81.07,SPOT=76.92;
+  function fmt(n){return n.toLocaleString('en-US');}
+  function convCalc(usd){usd=+usd;var rub=Math.round(usd*EFF);var cost=Math.round(usd*(EFF-SPOT));
+    document.getElementById('conv-out').textContent='₽'+fmt(rub)+' → $'+fmt(usd);
+    document.getElementById('conv-cost').textContent='cost over spot ≈ ₽'+fmt(cost);}
+  function simCalc(x){x=+x;var save=Math.round(x*0.2499);
+    document.getElementById('sim-save').textContent='throw ₽'+fmt(x)+' → save ≈ ₽'+fmt(save)+'/yr';}
+  function balCalc(){var sel=document.querySelector('#f-bal select');var cur=+sel.options[sel.selectedIndex].dataset.cur.replace(/[₽,]/g,'');
+    var v=+document.getElementById('bal-in').value.replace(/[^\d.-]/g,'')||0;var d=v-cur;
+    var el=document.getElementById('bal-delta');el.textContent=(d<0?'− ₽':'+ ₽')+fmt(Math.abs(d));
+    el.className='num '+(d<0?'neg':'');}
+</script>
+</body>
+</html>

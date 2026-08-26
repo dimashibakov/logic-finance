@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeProvider } from "./ThemeProvider";
 import BottomNav from "./BottomNav";
 import AddSheet from "./AddSheet";
 import { AddSheetProvider, useAddSheet } from "./AddSheetContext";
@@ -32,9 +33,11 @@ function ChromeInner({ children }: { children: React.ReactNode }) {
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   return (
-    <AddSheetProvider>
-      <ChromeInner>{children}</ChromeInner>
-    </AddSheetProvider>
+    <ThemeProvider>
+      <AddSheetProvider>
+        <ChromeInner>{children}</ChromeInner>
+      </AddSheetProvider>
+    </ThemeProvider>
   );
 }
 

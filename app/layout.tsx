@@ -1,6 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import AppChrome from "./components/AppChrome";
+import { archivo, spaceMono } from "@/lib/fonts";
+import { themeInitScript } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: "Logic Finance",
@@ -9,14 +11,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning data-theme="terminal">
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body>
+      <body className={`${archivo.variable} ${spaceMono.variable}`}>
         <AppChrome>{children}</AppChrome>
       </body>
     </html>
