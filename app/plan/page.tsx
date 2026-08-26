@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { rub, usd } from "@/lib/format";
+import { findUsReserveBalance, taxReserves } from "@/lib/taxes";
 import RateHeader from "../components/RateHeader";
+import TaxReservesBlock from "./TaxReservesBlock";
 
 type CatJoin = { name: string; kind: string } | { name: string; kind: string }[] | null;
 type Tx = { amount: number; currency: string; type: string; ts: string; category_id: string | null; source: string | null; categories: CatJoin };
@@ -123,7 +125,7 @@ export default async function PlanPage() {
   const monthEndStr = monthEnd(month);
   const label = monthLabel(month);
 
-  const [{ data: txData }, { data: planData }] = await Promise.all([
+  const [{ data: txData }, { data: planData }, { data: accData }] = await Promise.all([
     supabase
       .from("transactions")
       .select("amount, currency, type, ts, category_id, source, categories(name, kind)")
@@ -131,7 +133,11 @@ export default async function PlanPage() {
       .lte("ts", monthEndStr)
       .in("source", ["statement", "manual"]),
     supabase.from("plan").select("planned_amount, currency, category_id, categories(name, kind)").eq("month", month),
+    supabase.from("accounts").select("name, balance, currency").eq("in_net_worth", true),
   ]);
+
+  const hysaBalance = findUsReserveBalance(accData ?? []);
+  const taxReserveSnapshot = taxReserves(new Date(), undefined, hysaBalance);
 
   const txs = (txData ?? []) as Tx[];
   const plans = (planData ?? []) as PlanRow[];
@@ -190,6 +196,8 @@ export default async function PlanPage() {
     <div className="lf-wrap">
       <div className="lf-phone">
         <RateHeader title="Plan" subtitle={label} />
+
+        <TaxReservesBlock reserves={taxReserveSnapshot} />
 
         <div className="lf-sec-label">
           <span className="lf-sec-label__h">Plan / Fact · {label}</span>
