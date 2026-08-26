@@ -195,7 +195,8 @@ body {
   max-width: 100%;
   background: var(--paper);
   min-height: 100vh;
-  padding: 0 20px 96px;
+  padding: env(safe-area-inset-top, 0px) 20px 96px;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   border-left: var(--phone-side-border);
   border-right: var(--phone-side-border);
   position: relative;
