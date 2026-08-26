@@ -11,7 +11,7 @@ import ImportPanel from "./forms/ImportPanel";
 
 function ChromeInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const authShell = pathname === "/login" || pathname.startsWith("/auth");
+  const authShell = pathname === "/login" || pathname === "/offline" || pathname.startsWith("/auth");
   const { sheetOpen, sheetView, preset, openMenu, openView, close } = useAddSheet();
 
   return (

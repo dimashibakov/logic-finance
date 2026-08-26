@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export function isPublicPath(pathname: string) {
   if (pathname === "/login") return true;
+  if (pathname === "/offline") return true;
   if (pathname.startsWith("/auth/")) return true;
   return false;
 }
