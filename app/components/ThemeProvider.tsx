@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useLayoutEffect, useState, type ReactNode } from "react";
 import { applyPwaThemeMeta } from "@/lib/pwa-theme";
-import { applyTheme, DEFAULT_THEME, readStoredTheme, type Theme, writeStoredTheme } from "@/lib/theme";
+import { ACTIVE_THEME, applyTheme, readStoredTheme, type Theme, writeStoredTheme } from "@/lib/theme";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -15,14 +15,15 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [theme, setThemeState] = useState<Theme>(() =>
-    typeof window !== "undefined" ? readStoredTheme() : DEFAULT_THEME
+    typeof window !== "undefined" ? readStoredTheme() : ACTIVE_THEME
   );
 
   const setTheme = useCallback((next: Theme) => {
-    document.documentElement.dataset.theme = next;
+    const locked = ACTIVE_THEME;
+    document.documentElement.dataset.theme = locked;
     writeStoredTheme(next);
-    applyPwaThemeMeta(next);
-    setThemeState(next);
+    applyPwaThemeMeta(locked);
+    setThemeState(locked);
   }, []);
 
   // Sync root attribute on theme change and after App Router navigations (layout may reset <html>).

@@ -1,35 +1,40 @@
 export type Theme = "terminal" | "brutalist";
 
 export const THEME_STORAGE_KEY = "lf.theme";
-export const DEFAULT_THEME: Theme = "terminal";
+/** Brutalist is the only active theme; Terminal tokens remain in CSS for a future return. */
+export const DEFAULT_THEME: Theme = "brutalist";
+export const ACTIVE_THEME: Theme = "brutalist";
 
 export function isTheme(value: string | null | undefined): value is Theme {
   return value === "terminal" || value === "brutalist";
 }
 
 export function readStoredTheme(): Theme {
-  if (typeof window === "undefined") return DEFAULT_THEME;
+  if (typeof window === "undefined") return ACTIVE_THEME;
   try {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    return isTheme(stored) ? stored : DEFAULT_THEME;
+    if (stored === "terminal") {
+      localStorage.setItem(THEME_STORAGE_KEY, ACTIVE_THEME);
+    }
   } catch {
-    return DEFAULT_THEME;
+    /* ignore */
   }
+  return ACTIVE_THEME;
 }
 
-export function writeStoredTheme(theme: Theme) {
+export function writeStoredTheme(_theme: Theme) {
   try {
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    localStorage.setItem(THEME_STORAGE_KEY, ACTIVE_THEME);
   } catch {
     /* ignore quota / private mode */
   }
 }
 
 /** Apply theme on document root — must match [data-theme="…"] selectors in globals.css */
-export function applyTheme(theme: Theme) {
+export function applyTheme(_theme?: Theme) {
   if (typeof document === "undefined") return;
-  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.theme = ACTIVE_THEME;
 }
 
-/** Inline bootstrap — must stay in sync with readStoredTheme / DEFAULT_THEME */
-export const themeInitScript = `(function(){try{var k='${THEME_STORAGE_KEY}',t=localStorage.getItem(k),d='${DEFAULT_THEME}';if(t==='terminal'||t==='brutalist')document.documentElement.dataset.theme=t;else document.documentElement.dataset.theme=d;}catch(e){document.documentElement.dataset.theme='${DEFAULT_THEME}';}})();`;
+/** Inline bootstrap — always Brutalist; migrates legacy terminal preference. */
+export const themeInitScript = `(function(){try{localStorage.setItem('${THEME_STORAGE_KEY}','${ACTIVE_THEME}');document.documentElement.dataset.theme='${ACTIVE_THEME}';}catch(e){document.documentElement.dataset.theme='${ACTIVE_THEME}';}})();`;

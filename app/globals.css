@@ -1221,3 +1221,45 @@ html:not([data-theme]) .lf-only-brutalist {
 html[data-theme="brutalist"] .lf-only-terminal {
   display: none;
 }
+
+.lf-verdict {
+  display: inline-block;
+  padding: 7px 10px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 9.5px;
+  line-height: 1.25;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: var(--card-border-w) solid var(--card-border);
+  box-shadow: var(--shadow);
+  max-width: 148px;
+  text-align: right;
+}
+
+.lf-verdict--favorable {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.lf-verdict--hold {
+  background: var(--danger);
+  color: #fff;
+}
+
+.lf-verdict--neutral {
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.lf-sparkline-wrap {
+  margin-top: 14px;
+  color: var(--ink);
+  opacity: 0.72;
+}
+
+.lf-sparkline {
+  width: 100%;
+  height: 44px;
+  display: block;
+}

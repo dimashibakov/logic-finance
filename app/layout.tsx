@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: PWA_THEME.terminal.themeColor,
+  themeColor: PWA_THEME.brutalist.themeColor,
 };
 
 export const metadata: Metadata = {

@@ -19,7 +19,8 @@ describe("theme CSS smoke", () => {
     expect(css).toMatch(/html\[data-theme="brutalist"\][\s\S]*--card-border-w:\s*3px/);
   });
 
-  it("theme bootstrap script sets documentElement.dataset.theme", () => {
+  it("theme bootstrap script locks brutalist on documentElement", () => {
     expect(themeInitScript).toContain("document.documentElement.dataset.theme");
+    expect(themeInitScript).toContain("brutalist");
   });
 });
