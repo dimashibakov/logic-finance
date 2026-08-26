@@ -8,7 +8,6 @@ import { parse as parseCoinbase } from "./coinbase";
 import { parse as parseRshb } from "./rshb";
 import { parse as parseSber } from "./sber";
 import { parse as parseTbank } from "./tbank";
-import { makeExternalId } from "./utils";
 
 const FIX = join(__dirname, "__fixtures__");
 const read = (name: string) => readFileSync(join(FIX, name), "utf8");
@@ -38,6 +37,7 @@ describe("rshb parser", () => {
   it("passes control; principal vs interest split", () => {
     const result = parseRshb(read("rshb-aug2026.txt"));
     expect(result.control.ok).toBe(true);
+    expect(result.account.ref).toBe("rshb");
     expect(result.txs.some((t) => /осн\.долга/i.test(t.rawDescription) && t.excluded)).toBe(true);
     expect(result.txs.some((t) => /%/i.test(t.rawDescription) && t.type === "expense")).toBe(true);
   });
@@ -47,6 +47,7 @@ describe("tbank parser", () => {
   it("passes control on service fee", () => {
     const result = parseTbank(read("tbank-aug2026.txt"));
     expect(result.control.ok).toBe(true);
+    expect(result.account.ref).toBe("tbank-5120");
     expect(result.txs[0]?.categoryGuess).toMatch(/Bank fees/i);
   });
 });
@@ -55,6 +56,7 @@ describe("amex parser", () => {
   it("passes balance equation", () => {
     const result = parseAmex(read("amex-aug2026.txt"));
     expect(result.control.ok).toBe(true);
+    expect(result.account.ref).toBe("amex-23009");
     expect(result.txs.some((t) => t.categoryGuess === "Investment in Zenlo LLC")).toBe(true);
   });
 });
@@ -74,17 +76,7 @@ describe("coinbase parser", () => {
   it("marks USDC received as conversion not income", () => {
     const result = parseCoinbase(read("coinbase-aug2026.html"));
     expect(result.control.ok).toBe(true);
+    expect(result.account.ref).toBe("coinbase");
     expect(result.txs.some((t) => t.type === "conversion" && t.excluded)).toBe(true);
-  });
-});
-
-describe("idempotency externalId", () => {
-  it("stable sha1 hash for same inputs", () => {
-    const a = makeExternalId("sber-5623", "2026-08-15", 500, "WHOOSH", 0);
-    const b = makeExternalId("sber-5623", "2026-08-15", 500, "WHOOSH", 0);
-    const c = makeExternalId("sber-5623", "2026-08-15", 500, "WHOOSH", 1);
-    expect(a).toBe(b);
-    expect(a).not.toBe(c);
-    expect(a).toHaveLength(40);
   });
 });

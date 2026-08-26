@@ -1,8 +1,9 @@
 import type { ParseResult, ParsedTx } from "./types";
+import { detectCoinbaseRef } from "./account-detect";
 import { assignExternalIds, isoFromRuDate, parseUsMoney, round2 } from "./utils";
 
-function extractHeader(_text: string) {
-  return { ref: "coinbase-usdc", balanceEnd: 0, deposits: 0, withdrawals: 0, start: "", end: "" };
+function extractHeader(text: string) {
+  return { ref: detectCoinbaseRef(text), balanceEnd: 0, deposits: 0, withdrawals: 0, start: "", end: "" };
 }
 
 /** Coinbase HTML/text statement — USDC conversion channel. */
@@ -27,7 +28,7 @@ export function parse(text: string): ParseResult {
         amount,
         currency: "USD",
         type: "conversion",
-        accountRef: "coinbase-usdc",
+        accountRef: "coinbase",
         rawDescription: kind,
         externalId: "",
         excluded: true,
@@ -40,7 +41,7 @@ export function parse(text: string): ParseResult {
         amount,
         currency: "USD",
         type: "conversion",
-        accountRef: "coinbase-usdc",
+        accountRef: "coinbase",
         rawDescription: kind,
         externalId: "",
         statementSign: -1,
@@ -51,7 +52,7 @@ export function parse(text: string): ParseResult {
         amount,
         currency: "USD",
         type: "expense",
-        accountRef: "coinbase-usdc",
+        accountRef: "coinbase",
         rawDescription: kind,
         externalId: "",
         fee: feeMatch ? parseUsMoney(feeMatch[1]) : undefined,

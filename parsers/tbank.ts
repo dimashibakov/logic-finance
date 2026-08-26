@@ -1,11 +1,11 @@
 import { categorizeAll } from "./categorize";
 import { applyCommonRules } from "./rules";
 import type { ParseResult, ParsedTx } from "./types";
+import { detectTbankRef } from "./account-detect";
 import { assignExternalIds, isoFromRuDate, parseRuAmount, round2, verifyControl } from "./utils";
 
 function extractHeader(text: string) {
-  const card = text.match(/карт[аы][^\d]*(\d{4})/i);
-  const ref = card ? `tbank-${card[1]}` : "tbank-unknown";
+  const ref = detectTbankRef(text);
   const period = text.match(/(\d{2}\.\d{2}\.\d{4})\s*[-–]\s*(\d{2}\.\d{2}\.\d{4})/);
   const balanceEnd = parseRuAmount(text.match(/Баланс[^\d]*([\d\s]+,\d{2})/i)?.[1]?.split(/\s+/).pop() ?? "0");
   const deposits = parseRuAmount(text.match(/Поступления[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? "0");

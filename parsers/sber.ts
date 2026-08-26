@@ -1,11 +1,11 @@
 import { categorizeAll } from "./categorize";
 import { applyCommonRules } from "./rules";
 import type { ParseResult, ParsedTx } from "./types";
+import { detectSberRef } from "./account-detect";
 import { assignExternalIds, isoFromRuDate, parseRuAmount, round2, verifyControl } from "./utils";
 
 function extractHeader(text: string) {
-  const cardMatch = text.match(/(?:карт[аы]|сч[её]т)[^\d]*(\d{4})/i);
-  const ref = cardMatch ? `sber-${cardMatch[1]}` : "sber-unknown";
+  const ref = detectSberRef(text);
 
   const period =
     text.match(/(?:за период|период)\s+(\d{2}\.\d{2}\.\d{4})\s*[-–]\s*(\d{2}\.\d{2}\.\d{4})/i) ??

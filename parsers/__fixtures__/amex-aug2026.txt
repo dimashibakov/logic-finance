@@ -1,5 +1,6 @@
 American Express
 Blue Cash Preferred
+Account Ending 1-23009
 Closing Date 08/07/26
 Account Summary
 Previous Balance $1,000.00

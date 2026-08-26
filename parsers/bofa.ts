@@ -1,11 +1,11 @@
 import { categorizeAll } from "./categorize";
 import { applyBofaSplit, applyCommonRules } from "./rules";
 import type { ParseResult, ParsedTx } from "./types";
+import { detectBofaRef } from "./account-detect";
 import { assignExternalIds, isoFromUsDate, parseUsMoney, round2, verifyControl } from "./utils";
 
 function extractHeader(text: string) {
-  const acct = text.match(/(?:account|сч[её]t)[^\d]*(\d{4})/i) ?? text.match(/(\d{4})\s*$/m);
-  const ref = acct ? `bofa-${acct[1]}` : "bofa-5927";
+  const ref = detectBofaRef(text);
   const period = text.match(/(\d{2}\/\d{2}\/\d{2,4})\s*[-–]\s*(\d{2}\/\d{2}\/\d{2,4})/);
   const deposits = parseUsMoney(text.match(/Deposits and other additions[^\d$]*([\d,]+\.\d{2})/i)?.[1] ?? "0");
   const atm = parseUsMoney(text.match(/ATM and debit card subtractions[^\d$]*([\d,]+\.\d{2})/i)?.[1] ?? "0");

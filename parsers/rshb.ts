@@ -1,11 +1,11 @@
 import { categorizeAll } from "./categorize";
 import { applyCommonRules } from "./rules";
 import type { ParseResult, ParsedTx } from "./types";
+import { detectRshbRef } from "./account-detect";
 import { assignExternalIds, isoFromRuDate, parseRuAmount, round2, verifyControl } from "./utils";
 
 function extractHeader(text: string) {
-  const acct = text.match(/сч[её]т[^\d]*(\d{4})/i);
-  const ref = acct ? `rshb-${acct[1]}` : "rshb-unknown";
+  const ref = detectRshbRef(text);
   const period = text.match(/(\d{2}\.\d{2}\.\d{4})\s*[-–]\s*(\d{2}\.\d{2}\.\d{4})/);
   const balanceEnd = parseRuAmount(text.match(/(?:Исходящий|Остаток)[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? "0");
   const deposits = parseRuAmount(text.match(/(?:Приход|Поступления)[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? "0");

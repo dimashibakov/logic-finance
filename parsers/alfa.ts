@@ -1,11 +1,11 @@
 import { categorizeAll } from "./categorize";
 import { applyCommonRules } from "./rules";
 import type { ParseResult, ParsedTx } from "./types";
+import { detectAlfaRef } from "./account-detect";
 import { assignExternalIds, isoFromRuDate, parseRuAmount, round2, verifyControl } from "./utils";
 
 function extractHeader(text: string) {
-  const acct = text.match(/(?:сч[её]т|карт[аы])[^\d]*(\d{4})/i);
-  const ref = acct ? `alfa-${acct[1]}` : text.includes("1916") ? "alfa-1916" : "alfa-unknown";
+  const ref = detectAlfaRef(text);
 
   const period = text.match(/(\d{2}\.\d{2}\.\d{4})\s*[-–]\s*(\d{2}\.\d{2}\.\d{4})/);
   const incoming = parseRuAmount(text.match(/Входящий[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? "0");

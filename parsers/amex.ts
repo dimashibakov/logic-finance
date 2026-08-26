@@ -1,10 +1,11 @@
 import { categorizeAll } from "./categorize";
 import { applyCommonRules } from "./rules";
 import type { ParseResult, ParsedTx } from "./types";
+import { detectAmexRef } from "./account-detect";
 import { assignExternalIds, isoFromUsDate, parseUsMoney, round2 } from "./utils";
 
 function extractHeader(text: string) {
-  const ref = "amex-bcp";
+  const ref = detectAmexRef(text);
   const period = text.match(/Closing Date\s+(\d{2}\/\d{2}\/\d{2,4})/i);
   const prev = parseUsMoney(text.match(/Previous Balance\s*\$?\s*([\d,]+\.\d{2})/i)?.[1] ?? "0");
   const payments = parseUsMoney(text.match(/Payments\s*\$?\s*([\d,]+\.\d{2})/i)?.[1] ?? "0");
