@@ -10,12 +10,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const fontVars = `${archivo.variable} ${spaceMono.variable}`;
+
   return (
-    <html lang="en" suppressHydrationWarning data-theme="terminal">
+    <html lang="en" suppressHydrationWarning className={fontVars}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className={`${archivo.variable} ${spaceMono.variable}`}>
+      <body className={fontVars}>
         <AppChrome>{children}</AppChrome>
       </body>
     </html>

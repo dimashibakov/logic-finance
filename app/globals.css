@@ -713,7 +713,7 @@ html[data-theme="brutalist"] .lf-toggle__track--off {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--paper);
   transition: left 0.12s;
 }
 

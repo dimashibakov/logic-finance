@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { applyTheme, readStoredTheme, type Theme, writeStoredTheme } from "@/lib/theme";
+import { usePathname } from "next/navigation";
+import { createContext, useCallback, useContext, useLayoutEffect, useState, type ReactNode } from "react";
+import { applyTheme, DEFAULT_THEME, readStoredTheme, type Theme, writeStoredTheme } from "@/lib/theme";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -11,18 +12,23 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => readStoredTheme());
-
-  useEffect(() => {
-    applyTheme(theme);
-    writeStoredTheme(theme);
-  }, [theme]);
-
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme: setThemeState }}>
-      {children}
-    </ThemeContext.Provider>
+  const pathname = usePathname();
+  const [theme, setThemeState] = useState<Theme>(() =>
+    typeof window !== "undefined" ? readStoredTheme() : DEFAULT_THEME
   );
+
+  const setTheme = useCallback((next: Theme) => {
+    document.documentElement.dataset.theme = next;
+    writeStoredTheme(next);
+    setThemeState(next);
+  }, []);
+
+  // Sync root attribute on theme change and after App Router navigations (layout may reset <html>).
+  useLayoutEffect(() => {
+    applyTheme(theme);
+  }, [theme, pathname]);
+
+  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
