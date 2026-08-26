@@ -16,6 +16,7 @@ type Obligation = {
   balance: number;
   due_date: string | null;
   monthly_payment: number | null;
+  kind: string;
 };
 
 function daysUntil(dateStr: string) {
@@ -36,7 +37,7 @@ function freeCashByZone(accounts: AccountRow[], zone: string, currency: string) 
 export default async function Home() {
   const [{ data: accData }, { data: oblData }, rates] = await Promise.all([
     supabase.from("accounts").select("*").eq("in_net_worth", true),
-    supabase.from("obligations").select("id, name, currency, balance, due_date, monthly_payment").eq("status", "active"),
+    supabase.from("obligations").select("id, name, currency, balance, due_date, monthly_payment, kind").eq("status", "active"),
     fetchFxRates(),
   ]);
 
