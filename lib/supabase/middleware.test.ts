@@ -7,6 +7,7 @@ describe("isPublicPath", () => {
     expect(isPublicPath("/offline")).toBe(true);
     expect(isPublicPath("/auth/callback")).toBe(true);
     expect(isPublicPath("/api/cron/fx")).toBe(true);
+    expect(isPublicPath("/api/cron/agent")).toBe(true);
     expect(isPublicPath("/")).toBe(false);
     expect(isPublicPath("/api/meta")).toBe(false);
   });
