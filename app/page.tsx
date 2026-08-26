@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { fetchFxRates, getRubPerUsd, toUsd } from "@/lib/fx";
 import { groupAccounts, illiquidUsdTotal, liquidUsdTotal, type AccountRow } from "@/lib/liquidity";
+import { computeNetWorth } from "@/lib/networth";
 import { fmtNative, usd } from "@/lib/format";
 import { V } from "@/lib/tokens";
 import RateHeader from "./components/RateHeader";
@@ -45,9 +46,7 @@ export default async function Home() {
   const accounts = (accData ?? []) as AccountRow[];
   const obligations = (oblData ?? []) as Obligation[];
 
-  const assets = accounts.filter((a) => Number(a.balance) > 0).reduce((s, a) => s + toUsdSpot(Number(a.balance), a.currency), 0);
-  const debt = accounts.filter((a) => Number(a.balance) < 0).reduce((s, a) => s + toUsdSpot(Math.abs(Number(a.balance)), a.currency), 0);
-  const net = assets - debt;
+  const { assets, debt, net } = computeNetWorth(accounts, obligations, toUsdSpot);
 
   const liquid = liquidUsdTotal(accounts, toUsdSpot);
   const illiquid = illiquidUsdTotal(accounts, toUsdSpot);
