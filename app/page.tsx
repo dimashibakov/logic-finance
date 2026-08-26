@@ -4,41 +4,27 @@ import { createClient } from "@/lib/supabase/server";
 import { fetchFxRates, getRubPerUsd, toUsd } from "@/lib/fx";
 import { groupAccounts, illiquidUsdTotal, liquidUsdTotal, type AccountRow } from "@/lib/liquidity";
 import { computeNetWorth } from "@/lib/networth";
+import {
+  coverageByZone,
+  fmtDueShort,
+  upcomingPayments,
+  urgentAlertEvent,
+  type ObligationRow,
+} from "@/lib/payments";
 import { fmtNative, usd } from "@/lib/format";
 import { V } from "@/lib/tokens";
 import RateHeader from "./components/RateHeader";
 import AccountGroup from "./components/AccountGroup";
-
-type Obligation = {
-  id: string;
-  name: string;
-  currency: string;
-  balance: number;
-  due_date: string | null;
-  monthly_payment: number | null;
-  kind: string;
-};
-
-function daysUntil(dateStr: string) {
-  return Math.ceil((new Date(`${dateStr}T12:00:00`).getTime() - Date.now()) / 86400000);
-}
-
-function fmtDue(dateStr: string) {
-  const d = new Date(`${dateStr}T12:00:00`);
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }).toLowerCase();
-}
-
-function freeCashByZone(accounts: AccountRow[], zone: string, currency: string) {
-  return accounts
-    .filter((a) => a.zone === zone && a.currency === currency && ["cash", "checking", "savings"].includes(a.type))
-    .reduce((s, a) => s + Math.max(0, Number(a.balance)), 0);
-}
+import PaymentEventRow from "./components/PaymentEventRow";
 
 export default async function Home() {
   const supabase = createClient();
   const [{ data: accData }, { data: oblData }, rates] = await Promise.all([
     supabase.from("accounts").select("*").eq("in_net_worth", true),
-    supabase.from("obligations").select("id, name, currency, balance, due_date, monthly_payment, kind").eq("status", "active"),
+    supabase
+      .from("obligations")
+      .select("id, name, kind, currency, balance, apr, due_date, due_day, monthly_payment, status")
+      .eq("status", "active"),
     fetchFxRates(),
   ]);
 
@@ -46,7 +32,7 @@ export default async function Home() {
   const toUsdSpot = (n: number, c: string) => toUsd(n, c, spot);
 
   const accounts = (accData ?? []) as AccountRow[];
-  const obligations = (oblData ?? []) as Obligation[];
+  const obligations = (oblData ?? []) as ObligationRow[];
 
   const { assets, debt, net } = computeNetWorth(accounts, obligations, toUsdSpot);
 
@@ -58,19 +44,11 @@ export default async function Home() {
 
   const groups = groupAccounts(accounts);
 
-  const upcoming = [...obligations]
-    .filter((o) => o.due_date)
-    .sort((a, b) => String(a.due_date).localeCompare(String(b.due_date)))
-    .slice(0, 6);
-
-  const alertObl = obligations.find((o) => {
-    if (!o.due_date) return false;
-    const days = daysUntil(o.due_date);
-    if (days > 45) return false;
-    const need = Math.abs(Number(o.balance));
-    const cash = freeCashByZone(accounts, o.currency === "RUB" ? "RF" : "US", o.currency);
-    return need > cash;
-  });
+  const { events } = upcomingPayments(obligations, 90);
+  const coverage = coverageByZone(events, accounts, 30);
+  const shortByCurrency = Object.fromEntries(coverage.map((c) => [c.currency, c.short])) as Record<"RUB" | "USD", boolean>;
+  const upcoming = events.slice(0, 6);
+  const alertEvent = urgentAlertEvent(events, coverage);
 
   return (
     <div className="lf-wrap">
@@ -111,21 +89,23 @@ export default async function Home() {
           <span>illiquid {illiquidPct}%</span>
         </div>
 
-        {alertObl && (
+        {alertEvent && (
           <>
             <div className="lf-alert lf-only-terminal">
               <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1, color: V.warn }} />
               <div style={{ fontSize: 13, lineHeight: 1.4 }}>
-                <b>{alertObl.name}</b> — due <span style={{ color: V.warn }}>{fmtDue(alertObl.due_date!)}</span>. Not covered by free{" "}
-                {alertObl.currency} cash in zone; plan early payoff from RUB cash.
+                <b>{alertEvent.name}</b> — due <span style={{ color: V.warn }}>{fmtDueShort(alertEvent.date)}</span>
+                {alertEvent.highApr && alertEvent.apr != null && ` · APR ${alertEvent.apr.toFixed(0)}%`}.{" "}
+                {shortByCurrency[alertEvent.currency] ? "Zone cash short for next 30d." : "High APR — don’t miss grace."}
               </div>
             </div>
             <div className="lf-alert lf-only-brutalist">
-              <span className="lf-alert__big lf-mono">{fmtNative(Math.abs(Number(alertObl.balance)), alertObl.currency)}</span>
+              <span className="lf-alert__big lf-mono">{fmtNative(alertEvent.amount, alertEvent.currency)}</span>
               <span className="lf-alert__txt">
-                {alertObl.name}
+                {alertEvent.name}
                 <br />
-                due {fmtDue(alertObl.due_date!)} — cover it
+                due {fmtDueShort(alertEvent.date)}
+                {alertEvent.highApr ? " · high apr" : ""} — cover it
               </span>
             </div>
           </>
@@ -135,35 +115,14 @@ export default async function Home() {
           <>
             <div className="lf-sec-label">
               <span className="lf-sec-label__h">Upcoming payments</span>
-              <Link href="/plan" className="lf-sec-label__m">
+              <Link href="/payments" className="lf-sec-label__m">
                 all →
               </Link>
             </div>
             <div className="lf-card lf-card--flush">
-              {upcoming.map((o) => {
-                const due = o.due_date!;
-                const days = daysUntil(due);
-                const hot = days <= 45 && Math.abs(Number(o.balance)) > freeCashByZone(accounts, o.currency === "RUB" ? "RF" : "US", o.currency);
-                return (
-                  <div key={o.id} className="lf-row">
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 550 }}>
-                        {o.name}
-                        {hot && <span className="lf-hot">hot</span>}
-                      </div>
-                      <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 2 }}>
-                        {o.monthly_payment ? "installment + balance" : "autopay"}
-                      </div>
-                    </div>
-                    <div className={`lf-mono${hot ? " lf-text-danger" : ""}`} style={{ fontSize: 14, fontWeight: 600, textAlign: "right" }}>
-                      {fmtNative(Math.abs(Number(o.balance)), o.currency)}
-                      <span className="lf-text-faint" style={{ display: "block", fontSize: 10, fontWeight: 500, marginTop: 2 }}>
-                        {fmtDue(due)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+              {upcoming.map((e) => (
+                <PaymentEventRow key={e.id} event={e} zoneShort={shortByCurrency[e.currency]} compact />
+              ))}
             </div>
           </>
         )}
