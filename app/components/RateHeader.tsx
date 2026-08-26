@@ -1,18 +1,25 @@
 import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { fmtRate } from "@/lib/format";
+import { createClient } from "@/lib/supabase/server";
 import ThemeToggle from "./ThemeToggle";
+import SignOutButton from "./SignOutButton";
 
 type Props = { title?: string; subtitle?: string };
 
 export default async function RateHeader({ title = "Portfolio · Logic Finance", subtitle }: Props) {
-  const rates = await fetchFxRates();
+  const supabase = createClient();
+  const [{ data: { user } }, rates] = await Promise.all([
+    supabase.auth.getUser(),
+    fetchFxRates(),
+  ]);
   const spot = getRubPerUsd(rates, "spot");
   const eff = effRate(spot);
 
   return (
     <>
-      <div className="lf-theme-bar">
+      <div className="lf-theme-bar" style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "flex-end" }}>
         <ThemeToggle />
+        {user && <SignOutButton />}
       </div>
       <header className="lf-header">
         <div>
