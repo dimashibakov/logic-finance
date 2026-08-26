@@ -64,13 +64,13 @@ export default async function Home() {
         </div>
 
         <div className="lf-split">
-          <div className="lf-card" style={{ padding: 14 }}>
+          <Link href="/cash" className="lf-card" style={{ padding: 14, textDecoration: "none", color: "inherit" }}>
             <div className="lf-label">Liquid</div>
             <div className="lf-split__v lf-mono">{usd(liquid)}</div>
             <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 3 }}>
-              banks + cash − cards
+              banks + cash − cards · <span className="lf-sec-label__m">cash →</span>
             </div>
-          </div>
+          </Link>
           <div className="lf-card" style={{ padding: 14 }}>
             <div className="lf-label">Illiquid</div>
             <div className="lf-split__v lf-mono lf-text-faint">{usd(illiquid)}</div>

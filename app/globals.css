@@ -1440,3 +1440,11 @@ html[data-theme="brutalist"] .lf-exposure-bar__usd {
   opacity: 0.5;
   cursor: wait;
 }
+
+.lf-wd-row--risk {
+  background: var(--warn-bg);
+}
+
+html[data-theme="brutalist"] .lf-wd-row--risk {
+  background: var(--paper);
+}
