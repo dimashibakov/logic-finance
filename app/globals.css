@@ -1263,3 +1263,113 @@ html[data-theme="brutalist"] .lf-only-terminal {
   height: 44px;
   display: block;
 }
+
+.lf-zone-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.lf-zone-card {
+  padding: 12px 14px;
+  position: relative;
+}
+
+.lf-zone-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+html[data-theme="brutalist"] .lf-zone-badge {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 8px;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+}
+
+.lf-zone-badge--ok {
+  background: #eef6f0;
+  color: var(--success);
+}
+
+html[data-theme="brutalist"] .lf-zone-badge--ok {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.lf-zone-badge--short {
+  background: var(--hot-bg);
+  color: var(--hot-ink);
+  border: 2px solid var(--hot-border);
+}
+
+html[data-theme="brutalist"] .lf-zone-badge--short {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.lf-pay-row {
+  align-items: flex-start;
+}
+
+.lf-pay-row__main {
+  min-width: 0;
+  flex: 1;
+}
+
+.lf-pay-row__amt {
+  margin-left: 10px;
+}
+
+.lf-pay-rec {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin-right: 6px;
+  opacity: 0.65;
+}
+
+.lf-pay-cov {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-left: 6px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+html[data-theme="brutalist"] .lf-pay-cov {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 7.5px;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+}
+
+.lf-pay-cov--ok {
+  background: var(--paper);
+  color: var(--ink);
+  opacity: 0.55;
+}
+
+.lf-pay-cov--short {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+html[data-theme="brutalist"] .lf-pay-cov--short {
+  background: var(--accent);
+  color: var(--ink);
+  opacity: 1;
+}
