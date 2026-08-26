@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
+import { fetchFxRates, fetchSpotHistory, getRubPerUsd, effRate } from "@/lib/fx";
+import { computeFxTiming } from "@/lib/fx-timing";
 import { isLiquidType, isCardType } from "@/lib/liquidity";
 import RateHeader from "../components/RateHeader";
 import ConvertPlanner from "./ConvertPlanner";
@@ -13,14 +14,16 @@ function addDaysISO(days: number) {
 export default async function ConvertPage() {
   const supabase = createClient();
   const cutoff = addDaysISO(30);
-  const [{ data: accData }, { data: oblData }, rates] = await Promise.all([
+  const [{ data: accData }, { data: oblData }, rates, spotHistory] = await Promise.all([
     supabase.from("accounts").select("id, name, currency, type, zone, balance"),
     supabase.from("obligations").select("currency, balance, due_date").eq("status", "active"),
     fetchFxRates(),
+    fetchSpotHistory(90),
   ]);
 
   const spot = getRubPerUsd(rates, "spot");
   const eff = effRate(spot);
+  const timing = computeFxTiming(spotHistory.length > 0 ? spotHistory : rates.filter((r) => r.kind === "spot"));
 
   const accounts = accData ?? [];
   const obligations = oblData ?? [];
@@ -42,6 +45,7 @@ export default async function ConvertPage() {
       <div className="lf-phone">
         <RateHeader title="Convert" />
         <ConvertPlanner
+          timing={timing}
           spot={spot}
           eff={eff}
           usdNeeds30d={usdNeeds30d}

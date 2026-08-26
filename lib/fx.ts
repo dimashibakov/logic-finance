@@ -15,6 +15,20 @@ export async function fetchFxRates(): Promise<FxRate[]> {
   return (data ?? []) as FxRate[];
 }
 
+export async function fetchSpotHistory(days = 90): Promise<FxRate[]> {
+  const supabase = createClient();
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const sinceStr = since.toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from("fx_rates")
+    .select("rate_date, rub_per_usd, kind, notes")
+    .eq("kind", "spot")
+    .gte("rate_date", sinceStr)
+    .order("rate_date", { ascending: true });
+  return (data ?? []) as FxRate[];
+}
+
 export function latestByKind(rates: FxRate[], kind: string): FxRate | undefined {
   return rates.find((r) => r.kind === kind);
 }

@@ -3,8 +3,11 @@
 import { useMemo, useState } from "react";
 import { useAddSheet } from "@/app/components/AppChrome";
 import { fmtRate, rub, usd } from "@/lib/format";
+import type { FxTimingStats } from "@/lib/fx-timing";
+import FxTimingBlock from "./FxTimingBlock";
 
 type Props = {
+  timing: FxTimingStats;
   spot: number;
   eff: number;
   usdNeeds30d: number;
@@ -14,7 +17,7 @@ type Props = {
   costOverSpot: number;
 };
 
-export default function ConvertPlanner({ spot, eff, usdNeeds30d, usdCash, shortfall, rubRecommendation, costOverSpot }: Props) {
+export default function ConvertPlanner({ timing, spot, eff, usdNeeds30d, usdCash, shortfall, rubRecommendation, costOverSpot }: Props) {
   const { openView } = useAddSheet();
   const premiumPct = spot > 0 ? (((eff - spot) / spot) * 100).toFixed(1) : "0";
   const minUsd = Math.max(50, Math.round(shortfall * 0.25) || 50);
@@ -26,6 +29,8 @@ export default function ConvertPlanner({ spot, eff, usdNeeds30d, usdCash, shortf
 
   return (
     <>
+      <FxTimingBlock stats={timing} />
+
       <div className="lf-sec-label">
         <span className="lf-sec-label__h">RUB → USD conversion</span>
       </div>
