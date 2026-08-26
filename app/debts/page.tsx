@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { fetchFxRates, getRubPerUsd } from "@/lib/fx";
 import { fmtNative } from "@/lib/format";
 import RateHeader from "../components/RateHeader";
@@ -34,6 +34,7 @@ function AprPill({ apr }: { apr: number | null }) {
 }
 
 export default async function DebtsPage() {
+  const supabase = createClient();
   const [{ data: accData }, { data: oblData }] = await Promise.all([
     supabase.from("accounts").select("currency, type, balance").eq("currency", "RUB"),
     supabase.from("obligations").select("*"),

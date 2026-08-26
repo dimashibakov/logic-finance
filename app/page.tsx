@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { fetchFxRates, getRubPerUsd, toUsd } from "@/lib/fx";
 import { groupAccounts, illiquidUsdTotal, liquidUsdTotal, type AccountRow } from "@/lib/liquidity";
 import { computeNetWorth } from "@/lib/networth";
@@ -35,6 +35,7 @@ function freeCashByZone(accounts: AccountRow[], zone: string, currency: string) 
 }
 
 export default async function Home() {
+  const supabase = createClient();
   const [{ data: accData }, { data: oblData }, rates] = await Promise.all([
     supabase.from("accounts").select("*").eq("in_net_worth", true),
     supabase.from("obligations").select("id, name, currency, balance, due_date, monthly_payment, kind").eq("status", "active"),

@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +17,7 @@ function externalId(accountId: string, ts: string, delta: number) {
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = createClient();
   const body = (await request.json()) as Body;
   if (!body.account_id || body.actual_balance == null || !body.ts) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });

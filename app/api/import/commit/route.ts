@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { accountLookupHint } from "@/lib/account-refs";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,7 +24,7 @@ type CommitPayload = {
   controlOk?: boolean;
 };
 
-async function resolveAccountId(accountRef: string): Promise<string | null> {
+async function resolveAccountId(supabase: SupabaseClient, accountRef: string): Promise<string | null> {
   const hint = accountLookupHint(accountRef).toLowerCase();
   const { data } = await supabase.from("accounts").select("id, name").ilike("name", `%${hint}%`).limit(1);
   if (data?.[0]?.id) return data[0].id;
@@ -33,13 +34,14 @@ async function resolveAccountId(accountRef: string): Promise<string | null> {
   return match?.id ?? null;
 }
 
-async function resolveCategoryId(name?: string): Promise<string | null> {
+async function resolveCategoryId(supabase: SupabaseClient, name?: string): Promise<string | null> {
   if (!name) return null;
   const { data } = await supabase.from("categories").select("id").eq("name", name).maybeSingle();
   return data?.id ?? null;
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = createClient();
   let body: CommitPayload;
   try {
     body = await request.json();
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
 
   for (const row of rows) {
     if (!accountCache.has(row.accountRef)) {
-      accountCache.set(row.accountRef, await resolveAccountId(row.accountRef));
+      accountCache.set(row.accountRef, await resolveAccountId(supabase, row.accountRef));
     }
     const accountId = accountCache.get(row.accountRef);
     if (!accountId) {
@@ -75,7 +77,7 @@ export async function POST(request: NextRequest) {
     let categoryId: string | null = null;
     if (row.categoryGuess) {
       if (!categoryCache.has(row.categoryGuess)) {
-        categoryCache.set(row.categoryGuess, await resolveCategoryId(row.categoryGuess));
+        categoryCache.set(row.categoryGuess, await resolveCategoryId(supabase, row.categoryGuess));
       }
       categoryId = categoryCache.get(row.categoryGuess) ?? null;
     }

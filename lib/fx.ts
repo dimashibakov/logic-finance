@@ -1,5 +1,5 @@
-import { supabase } from "./supabase";
 import { DEFAULT_RUB_PER_USD } from "./format";
+import { createClient } from "./supabase/server";
 
 export type FxRate = { rate_date: string; rub_per_usd: number; kind: string; notes: string | null };
 
@@ -10,6 +10,7 @@ const FALLBACKS: Record<string, number> = {
 };
 
 export async function fetchFxRates(): Promise<FxRate[]> {
+  const supabase = createClient();
   const { data } = await supabase.from("fx_rates").select("*").order("rate_date", { ascending: false });
   return (data ?? []) as FxRate[];
 }

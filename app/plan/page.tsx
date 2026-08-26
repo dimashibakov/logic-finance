@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { rub, usd } from "@/lib/format";
 import RateHeader from "../components/RateHeader";
 
@@ -32,7 +32,7 @@ function monthKey(tsOrDate: string) {
   return `${tsOrDate.slice(0, 7)}-01`;
 }
 
-async function resolveDefaultMonth() {
+async function resolveDefaultMonth(supabase: ReturnType<typeof createClient>) {
   const [{ data: planRows }, { data: txRows }] = await Promise.all([
     supabase.from("plan").select("month"),
     supabase.from("transactions").select("ts").in("source", ["statement", "manual"]),
@@ -118,7 +118,8 @@ function IncomeSection({ currency, fact, plan }: { currency: "RUB" | "USD"; fact
 }
 
 export default async function PlanPage() {
-  const month = await resolveDefaultMonth();
+  const supabase = createClient();
+  const month = await resolveDefaultMonth(supabase);
   const monthEndStr = monthEnd(month);
   const label = monthLabel(month);
 

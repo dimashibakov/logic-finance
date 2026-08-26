@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { isLiquidType, isCardType } from "@/lib/liquidity";
 import RateHeader from "../components/RateHeader";
@@ -11,6 +11,7 @@ function addDaysISO(days: number) {
 }
 
 export default async function ConvertPage() {
+  const supabase = createClient();
   const cutoff = addDaysISO(30);
   const [{ data: accData }, { data: oblData }, rates] = await Promise.all([
     supabase.from("accounts").select("id, name, currency, type, zone, balance"),
