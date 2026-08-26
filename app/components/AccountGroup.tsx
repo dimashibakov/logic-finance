@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { fmtNative, rub, toUsd, usd } from "@/lib/format";
 import { isStaleBalance, type AccountRow } from "@/lib/liquidity";
+import AccountBadge from "./AccountBadge";
 
 type Props = {
   title: string;
@@ -52,7 +53,8 @@ export default function AccountGroup({ title, accounts, spot, defaultOpen = true
             a.currency === "RUB" ? usd(toUsd(Math.abs(bal), a.currency, spot)) : rub(toUsd(Math.abs(bal), a.currency, spot) * spot);
           return (
             <div key={a.id} className="lf-acct">
-              <div style={{ minWidth: 0, paddingRight: 8 }}>
+              <AccountBadge account={a} />
+              <div className="lf-acct__mid">
                 <div style={{ fontSize: 14, fontWeight: 550 }}>{a.name}</div>
                 <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   {a.type} · {a.zone.toLowerCase()}

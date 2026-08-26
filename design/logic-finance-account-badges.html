@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Logic Finance — account badges draft</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#e7e4dd;color:#0f1720;padding:24px 0 60px}
+  .num{font-variant-numeric:tabular-nums;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  .cap{max-width:430px;margin:0 auto 12px;font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:#6b7683;padding:0 20px}
+  .phone{max-width:430px;margin:0 auto 26px;background:#f6f7f9;border:1px solid #e3e6ea;border-radius:22px;overflow:hidden}
+  .hd{font:600 11px/1 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#6b7683;padding:16px 18px 6px}
+  /* group */
+  .grp .gh{display:flex;justify-content:space-between;align-items:center;padding:11px 18px;background:#eef1f4;border-top:1px solid #e3e6ea;border-bottom:1px solid #e3e6ea}
+  .grp .gl{font:600 10px/1 ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:#6b7683}
+  .grp .gr{font:600 12px/1 ui-monospace,monospace;color:#0f1720}
+  .acct{display:flex;align-items:center;gap:13px;padding:12px 18px;border-bottom:1px solid #eef1f4}
+  .acct:last-child{border-bottom:0}
+  /* THE BADGE */
+  .badge{width:38px;height:38px;border-radius:11px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    font:800 14px/1 system-ui;letter-spacing:.02em;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+  .acct .mid{flex:1;min-width:0}
+  .acct .n{font:550 14px/1.1 system-ui}
+  .acct .m{font:500 10px/1 ui-monospace,monospace;letter-spacing:.06em;color:#9aa4af;margin-top:4px;text-transform:uppercase}
+  .acct .r{text-align:right}
+  .acct .p{font:600 14.5px/1 ui-monospace,monospace}
+  .acct .s{font:500 11px/1 ui-monospace,monospace;color:#9aa4af;margin-top:4px}
+  .neg{color:#d23b3b}
+  /* brutalist strip */
+  .bru{max-width:430px;margin:0 auto;background:#f7f3e9;border:3px solid #14110c}
+  .bru .bh{font:900 11px/1 'Archivo',system-ui;letter-spacing:.08em;text-transform:uppercase;padding:12px 16px;border-bottom:3px solid #14110c;background:#efe7d3}
+  .bru .row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #14110c}
+  .bru .row:last-child{border-bottom:0}
+  .bru .bbadge{width:38px;height:38px;flex:0 0 auto;border:3px solid #14110c;display:flex;align-items:center;justify-content:center;font:900 14px/1 'Archivo',system-ui}
+  .bru .n{font:800 14px/1.1 'Archivo',system-ui}
+  .bru .m{font:700 9px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:#8a8270;margin-top:4px}
+  .bru .p{font:900 14px/1 'Archivo',system-ui;font-variant-numeric:tabular-nums}
+  .bru .s{font:700 10px/1 ui-monospace,monospace;color:#8a8270;margin-top:4px;text-align:right}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="cap">Draft · монограммы-бейджи (не товарные знаки) — фирменный цвет + буква</div>
+
+<!-- ================= TERMINAL ================= -->
+<div class="phone">
+  <div class="hd">Accounts &amp; assets · Terminal</div>
+
+  <div class="grp">
+    <div class="gh"><span class="gl">Liquid · RF banks</span><span class="gr num">₽1,068,811</span></div>
+
+    <div class="acct">
+      <span class="badge" style="background:#e9edf0;color:#6b7683">₽</span>
+      <div class="mid"><div class="n">Cash — RUB</div><div class="m">cash · rf</div></div>
+      <div class="r"><div class="p num">₽475,000</div><div class="s num">$6,175</div></div>
+    </div>
+    <div class="acct">
+      <span class="badge" style="background:#1a9f47;color:#fff">С</span>
+      <div class="mid"><div class="n">Sberbank — 5623</div><div class="m">checking · rf</div></div>
+      <div class="r"><div class="p num">₽383,811</div><div class="s num">$4,990</div></div>
+    </div>
+    <div class="acct">
+      <span class="badge" style="background:#ffdd2d;color:#14110c">Т</span>
+      <div class="mid"><div class="n">T-Bank — 5120</div><div class="m">checking · rf</div></div>
+      <div class="r"><div class="p num">₽566</div><div class="s num">$7</div></div>
+    </div>
+    <div class="acct">
+      <span class="badge" style="background:#ef3124;color:#fff">А</span>
+      <div class="mid"><div class="n">Alfabank — 3505</div><div class="m">checking · rf · dividends</div></div>
+      <div class="r"><div class="p num">₽210,000</div><div class="s num">$2,730</div></div>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="gh"><span class="gl">Liquid · US banks</span><span class="gr num">$3,373</span></div>
+    <div class="acct">
+      <span class="badge" style="background:#012169;color:#fff;font-size:12px">BA</span>
+      <div class="mid"><div class="n">Bank of America — 8541</div><div class="m">checking · us</div></div>
+      <div class="r"><div class="p num">$3,356</div><div class="s num">₽258K</div></div>
+    </div>
+    <div class="acct">
+      <span class="badge" style="background:#0052ff;color:#fff">C</span>
+      <div class="mid"><div class="n">Coinbase — USD</div><div class="m">crypto · us</div></div>
+      <div class="r"><div class="p num">$17</div><div class="s num">₽1.3K</div></div>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="gh"><span class="gl">Cards · debt</span><span class="gr num neg">−$5,687</span></div>
+    <div class="acct">
+      <span class="badge" style="background:#ef3124;color:#fff">А</span>
+      <div class="mid"><div class="n">Alfabank — 1916</div><div class="m">credit · rf</div></div>
+      <div class="r"><div class="p num neg">−₽237,084</div><div class="s num">−$3,082</div></div>
+    </div>
+    <div class="acct">
+      <span class="badge" style="background:#012169;color:#fff;font-size:12px">BA</span>
+      <div class="mid"><div class="n">BofA — 3155</div><div class="m">credit · us</div></div>
+      <div class="r"><div class="p num neg">−$2,409</div><div class="s num">−₽185K</div></div>
+    </div>
+    <div class="acct">
+      <span class="badge" style="background:#006fcf;color:#fff;font-size:12px">AX</span>
+      <div class="mid"><div class="n">AMEX — 7997</div><div class="m">credit · us · blue cash</div></div>
+      <div class="r"><div class="p num neg">−$196</div><div class="s num">−₽15K</div></div>
+    </div>
+    <div class="acct">
+      <span class="badge" style="background:#111;color:#fff;font-size:12px">Ap</span>
+      <div class="mid"><div class="n">Apple Card</div><div class="m">credit · us</div></div>
+      <div class="r"><div class="p num neg">−$351</div><div class="s num">−₽27K</div></div>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="gh"><span class="gl">Illiquid · assets</span><span class="gr num">$173,856</span></div>
+    <div class="acct">
+      <span class="badge" style="background:#e9edf0;color:#6b7683;font-size:18px">⌂</span>
+      <div class="mid"><div class="n">Apartment (RF)</div><div class="m">real estate · rshb mortgage</div></div>
+      <div class="r"><div class="p num">₽11.45M</div><div class="s num">$148,856</div></div>
+    </div>
+    <div class="acct">
+      <span class="badge" style="background:#e9edf0;color:#6b7683;font-size:16px">▮</span>
+      <div class="mid"><div class="n">Dodge Charger GT</div><div class="m">vehicle · us · 2022</div></div>
+      <div class="r"><div class="p num">$25,000</div><div class="s num">₽1.92M</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= BRUTALIST ================= -->
+<div class="cap">…те же бейджи в Brutalist (квадрат в обводке)</div>
+<div class="bru">
+  <div class="bh">Liquid · RF banks</div>
+  <div class="row">
+    <span class="bbadge" style="background:#1a9f47;color:#fff">С</span>
+    <div style="flex:1"><div class="n">Sberbank — 5623</div><div class="m">checking · rf</div></div>
+    <div><div class="p">₽383,811</div><div class="s">$4,990</div></div>
+  </div>
+  <div class="row">
+    <span class="bbadge" style="background:#ffdd2d;color:#14110c">Т</span>
+    <div style="flex:1"><div class="n">T-Bank — 5120</div><div class="m">checking · rf</div></div>
+    <div><div class="p">₽566</div><div class="s">$7</div></div>
+  </div>
+  <div class="row">
+    <span class="bbadge" style="background:#ef3124;color:#fff">А</span>
+    <div style="flex:1"><div class="n">Alfabank — 3505</div><div class="m">checking · rf</div></div>
+    <div><div class="p">₽210,000</div><div class="s">$2,730</div></div>
+  </div>
+  <div class="row">
+    <span class="bbadge" style="background:#012169;color:#fff;font-size:12px">BA</span>
+    <div style="flex:1"><div class="n">Bank of America — 8541</div><div class="m">checking · us</div></div>
+    <div><div class="p">$3,356</div><div class="s">₽258K</div></div>
+  </div>
+</div>
+
+</body>
+</html>
