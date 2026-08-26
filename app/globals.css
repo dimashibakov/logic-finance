@@ -1373,3 +1373,33 @@ html[data-theme="brutalist"] .lf-pay-cov--short {
   color: var(--ink);
   opacity: 1;
 }
+
+.lf-exposure-bar {
+  height: var(--bar-h);
+  border-radius: var(--bar-radius);
+  background: var(--line2);
+  overflow: hidden;
+  margin-top: 8px;
+  display: flex;
+  border: var(--bar-border);
+}
+
+html[data-theme="brutalist"] .lf-exposure-bar {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 0;
+}
+
+.lf-exposure-bar__rub {
+  height: 100%;
+  background: var(--ink);
+}
+
+.lf-exposure-bar__usd {
+  height: 100%;
+  background: var(--accent);
+}
+
+html[data-theme="brutalist"] .lf-exposure-bar__usd {
+  background: var(--danger);
+}

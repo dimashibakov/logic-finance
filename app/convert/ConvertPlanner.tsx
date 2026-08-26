@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import { useAddSheet } from "@/app/components/AppChrome";
 import { fmtRate, rub, usd } from "@/lib/format";
 import type { FxTimingStats } from "@/lib/fx-timing";
+import type { ExposureAccount, ExposureObligation, ExposureSnapshot } from "@/lib/exposure";
 import FxTimingBlock from "./FxTimingBlock";
+import FxExposureBlock from "./FxExposureBlock";
 
 type Props = {
   timing: FxTimingStats;
@@ -15,9 +17,24 @@ type Props = {
   shortfall: number;
   rubRecommendation: number;
   costOverSpot: number;
+  exposure: ExposureSnapshot;
+  exposureAccounts: ExposureAccount[];
+  exposureObligations: ExposureObligation[];
 };
 
-export default function ConvertPlanner({ timing, spot, eff, usdNeeds30d, usdCash, shortfall, rubRecommendation, costOverSpot }: Props) {
+export default function ConvertPlanner({
+  timing,
+  spot,
+  eff,
+  usdNeeds30d,
+  usdCash,
+  shortfall,
+  rubRecommendation,
+  costOverSpot,
+  exposure,
+  exposureAccounts,
+  exposureObligations,
+}: Props) {
   const { openView } = useAddSheet();
   const premiumPct = spot > 0 ? (((eff - spot) / spot) * 100).toFixed(1) : "0";
   const minUsd = Math.max(50, Math.round(shortfall * 0.25) || 50);
@@ -30,6 +47,7 @@ export default function ConvertPlanner({ timing, spot, eff, usdNeeds30d, usdCash
   return (
     <>
       <FxTimingBlock stats={timing} />
+      <FxExposureBlock exposure={exposure} accounts={exposureAccounts} obligations={exposureObligations} />
 
       <div className="lf-sec-label">
         <span className="lf-sec-label__h">RUB → USD conversion</span>

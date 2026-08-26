@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { fetchFxRates, fetchSpotHistory, getRubPerUsd, effRate } from "@/lib/fx";
 import { computeFxTiming } from "@/lib/fx-timing";
+import { computeExposure } from "@/lib/exposure";
 import { isLiquidType, isCardType } from "@/lib/liquidity";
 import RateHeader from "../components/RateHeader";
 import ConvertPlanner from "./ConvertPlanner";
@@ -15,8 +16,8 @@ export default async function ConvertPage() {
   const supabase = createClient();
   const cutoff = addDaysISO(30);
   const [{ data: accData }, { data: oblData }, rates, spotHistory] = await Promise.all([
-    supabase.from("accounts").select("id, name, currency, type, zone, balance"),
-    supabase.from("obligations").select("currency, balance, due_date").eq("status", "active"),
+    supabase.from("accounts").select("balance, currency, type, zone").eq("in_net_worth", true),
+    supabase.from("obligations").select("balance, currency, kind, due_date").eq("status", "active"),
     fetchFxRates(),
     fetchSpotHistory(90),
   ]);
@@ -40,6 +41,19 @@ export default async function ConvertPage() {
   const rubRecommendation = Math.round(shortfall * eff);
   const costOverSpot = shortfall * (eff - spot);
 
+  const exposureAccounts = accounts.map((a) => ({
+    balance: Number(a.balance),
+    currency: a.currency,
+    type: a.type,
+    zone: a.zone,
+  }));
+  const exposureObligations = obligations.map((o) => ({
+    balance: Number(o.balance),
+    currency: o.currency,
+    kind: o.kind,
+  }));
+  const exposure = computeExposure(exposureAccounts, exposureObligations, spot, eff);
+
   return (
     <div className="lf-wrap">
       <div className="lf-phone">
@@ -53,6 +67,9 @@ export default async function ConvertPage() {
           shortfall={shortfall}
           rubRecommendation={rubRecommendation}
           costOverSpot={costOverSpot}
+          exposure={exposure}
+          exposureAccounts={exposureAccounts}
+          exposureObligations={exposureObligations}
         />
       </div>
     </div>
