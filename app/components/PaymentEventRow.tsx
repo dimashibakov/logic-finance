@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { fmtNative } from "@/lib/format";
 import { fmtDueShort, type PaymentEvent } from "@/lib/payments";
 
@@ -5,17 +6,22 @@ type Props = {
   event: PaymentEvent;
   zoneShort: boolean;
   compact?: boolean;
+  href?: string;
 };
 
-export default function PaymentEventRow({ event, zoneShort, compact }: Props) {
+function PaymentEventContent({ event, zoneShort, compact }: Omit<Props, "href">) {
   const covCls = zoneShort ? "lf-pay-cov lf-pay-cov--short" : "lf-pay-cov lf-pay-cov--ok";
   const covLabel = zoneShort ? "short" : "covered";
 
   return (
-    <div className="lf-row lf-pay-row">
+    <>
       <div className="lf-pay-row__main">
         <div style={{ fontSize: compact ? 14 : 14.5, fontWeight: 550, lineHeight: 1.35 }}>
-          {event.recurring && <span className="lf-pay-rec" title="Recurring">↻</span>}
+          {event.recurring && (
+            <span className="lf-pay-rec" title="Recurring">
+              ↻
+            </span>
+          )}
           {event.name}
           {event.hot && <span className="lf-hot">hot</span>}
           {event.highApr && event.apr != null && (
@@ -41,6 +47,22 @@ export default function PaymentEventRow({ event, zoneShort, compact }: Props) {
         {event.estimated && <span className="lf-text-faint">≈ </span>}
         {fmtNative(event.amount, event.currency)}
       </div>
+    </>
+  );
+}
+
+export default function PaymentEventRow({ event, zoneShort, compact, href }: Props) {
+  if (href) {
+    return (
+      <Link href={href} className="lf-row lf-pay-row lf-pay-row--link">
+        <PaymentEventContent event={event} zoneShort={zoneShort} compact={compact} />
+      </Link>
+    );
+  }
+
+  return (
+    <div className="lf-row lf-pay-row">
+      <PaymentEventContent event={event} zoneShort={zoneShort} compact={compact} />
     </div>
   );
 }

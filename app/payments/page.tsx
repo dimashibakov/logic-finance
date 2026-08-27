@@ -15,7 +15,7 @@ import PaymentEventRow from "../components/PaymentEventRow";
 export default async function PaymentsPage() {
   const supabase = createClient();
   const [{ data: oblData }, { data: accData }] = await Promise.all([
-    supabase.from("obligations").select("id, name, kind, currency, balance, apr, due_date, due_day, monthly_payment, status").eq("status", "active"),
+    supabase.from("obligations").select("id, name, kind, currency, balance, apr, due_date, due_day, monthly_payment, status, account_id").eq("status", "active"),
     supabase.from("accounts").select("currency, type, balance").eq("in_net_worth", true),
   ]);
 

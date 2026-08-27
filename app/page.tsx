@@ -16,7 +16,7 @@ import { fmtNative, usd } from "@/lib/format";
 import { V } from "@/lib/tokens";
 import RateHeader from "./components/RateHeader";
 import AccountGroup from "./components/AccountGroup";
-import PaymentEventRow from "./components/PaymentEventRow";
+import UpcomingPaymentsSection from "./components/UpcomingPaymentsSection";
 
 export default async function Home() {
   const supabase = createClient();
@@ -24,7 +24,7 @@ export default async function Home() {
     supabase.from("accounts").select("*").eq("in_net_worth", true),
     supabase
       .from("obligations")
-      .select("id, name, kind, currency, balance, apr, due_date, due_day, monthly_payment, status")
+      .select("id, name, kind, currency, balance, apr, due_date, due_day, monthly_payment, status, account_id")
       .eq("status", "active"),
     fetchFxRates(),
     supabase.from("agent_insights").select("*").eq("status", "active"),
@@ -54,6 +54,8 @@ export default async function Home() {
   const activeInsights = sortInsights((insightData ?? []) as AgentInsightRow[]);
   const urgentInsight = activeInsights.find((i) => i.severity === "urgent") ?? activeInsights[0] ?? null;
   const bannerInsight = urgentInsight?.severity === "urgent" ? urgentInsight : null;
+
+  const accountByObligation = Object.fromEntries(obligations.map((o) => [o.id, o.account_id ?? null]));
 
   return (
     <div className="lf-wrap">
@@ -150,19 +152,11 @@ export default async function Home() {
         )}
 
         {upcoming.length > 0 && (
-          <>
-            <div className="lf-sec-label">
-              <span className="lf-sec-label__h">Upcoming payments</span>
-              <Link href="/payments" className="lf-sec-label__m">
-                all →
-              </Link>
-            </div>
-            <div className="lf-card lf-card--flush">
-              {upcoming.map((e) => (
-                <PaymentEventRow key={e.id} event={e} zoneShort={shortByCurrency[e.currency]} compact />
-              ))}
-            </div>
-          </>
+          <UpcomingPaymentsSection
+            events={upcoming}
+            shortByCurrency={shortByCurrency}
+            accountByObligation={accountByObligation}
+          />
         )}
 
         <div className="lf-sec-label">

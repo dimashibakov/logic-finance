@@ -10,6 +10,7 @@ export type ObligationRow = {
   monthly_payment: number | null;
   due_date: string | null;
   due_day: number | null;
+  account_id?: string | null;
   status?: string;
 };
 
