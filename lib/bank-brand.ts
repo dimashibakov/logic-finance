@@ -16,25 +16,25 @@ type NameRule = Brand & { match: (name: string) => boolean };
 const NAME_RULES: NameRule[] = [
   {
     match: (n) => /sberbank|сбер/i.test(n),
-    label: "С",
+    label: "S",
     bg: "#1a9f47",
     fg: "#fff",
   },
   {
     match: (n) => /t-bank|tbank|t bank/i.test(n),
-    label: "Т",
+    label: "T",
     bg: "#ffdd2d",
     fg: "#14110c",
   },
   {
     match: (n) => /alfabank|alfa/i.test(n),
-    label: "А",
+    label: "A",
     bg: "#ef3124",
     fg: "#fff",
   },
   {
     match: (n) => /rshb|россельхоз/i.test(n),
-    label: "Р",
+    label: "R",
     bg: "#0a7b3e",
     fg: "#fff",
   },

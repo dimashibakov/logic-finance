@@ -78,7 +78,7 @@ export default async function PaymentsPage() {
         {undated.length > 0 && (
           <>
             <div className="lf-sec-label">
-              <span className="lf-sec-label__h">Без даты — задайте срок</span>
+              <span className="lf-sec-label__h">No due date — set a deadline</span>
             </div>
             <div className="lf-card lf-card--flush">
               {undated.map((o) => (
@@ -86,7 +86,7 @@ export default async function PaymentsPage() {
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 550 }}>{o.name}</div>
                     <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 3 }}>
-                      дата не задана · balance due
+                      no date set · balance due
                     </div>
                   </div>
                   <div className="lf-mono" style={{ fontSize: 14, fontWeight: 600, textAlign: "right" }}>

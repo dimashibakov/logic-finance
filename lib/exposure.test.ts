@@ -53,7 +53,7 @@ describe("computeSensitivity", () => {
     expect(s.usdLoadRubDelta).toBeCloseTo(expectedDelta, -2);
     expect(s.usdLoadRubDelta).toBeGreaterThan(17_000);
     expect(s.usdLoadRubDelta).toBeLessThan(20_000);
-    expect(s.note).toContain("слабый рубль");
+    expect(s.note).toContain("weaker ruble");
   });
 
   it("reduces net worth in USD when RUB weakens", () => {
@@ -64,6 +64,6 @@ describe("computeSensitivity", () => {
   it("improves net worth in USD when RUB strengthens 10%", () => {
     const s = computeSensitivity(accounts, obligations, spot, -0.1);
     expect(s.netWorthDeltaUsd).toBeGreaterThan(0);
-    expect(s.note).toContain("укрепление");
+    expect(s.note).toContain("stronger ruble");
   });
 });

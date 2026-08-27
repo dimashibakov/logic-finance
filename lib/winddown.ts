@@ -133,7 +133,7 @@ export function provisionalSettlement(
     jointExpensesTotal,
     dimaShareTotal,
     accountBalance,
-    note: "ориентир, за загруженные месяцы; финальный раздел — напрямую с Диной",
+    note: "estimate from loaded months; final split — coordinate directly with Dina",
   };
 }
 

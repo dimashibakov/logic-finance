@@ -5,9 +5,9 @@ export const LIQUIDITY_CONFIG = {
   DEPOSIT_TERMS: [14, 30, 60, 90] as const,
   MAJOR_OUTFLOW_RUB: 100_000,
   INCOME: [
-    { label: "Дивиденды", amount: 300_000, day: 3 },
-    { label: "Дивиденды", amount: 300_000, day: 20 },
-    { label: "Аренда", amount: 43_000, day: 5 },
+    { label: "Dividends", amount: 300_000, day: 3 },
+    { label: "Dividends", amount: 300_000, day: 20 },
+    { label: "Rent", amount: 43_000, day: 5 },
   ],
 } as const;
 

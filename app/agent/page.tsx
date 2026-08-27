@@ -21,7 +21,7 @@ export default async function AgentPage() {
         </div>
         <AgentFeedClient insights={insights} />
         <div className="lf-hint" style={{ marginTop: 14, fontSize: 10 }}>
-          наблюдение и уведомления; никаких движений денег
+          monitoring & alerts · no money moves
         </div>
       </div>
     </div>

@@ -3,9 +3,9 @@ import { brandFor } from "./bank-brand";
 
 describe("brandFor", () => {
   it("matches banks by name substring", () => {
-    expect(brandFor({ name: "Sberbank — 5623", type: "checking", currency: "RUB" }).label).toBe("С");
-    expect(brandFor({ name: "T-Bank — 5120", type: "checking", currency: "RUB" }).label).toBe("Т");
-    expect(brandFor({ name: "Alfabank — 1916", type: "credit_card", currency: "RUB" }).label).toBe("А");
+    expect(brandFor({ name: "Sberbank — 5623", type: "checking", currency: "RUB" }).label).toBe("S");
+    expect(brandFor({ name: "T-Bank — 5120", type: "checking", currency: "RUB" }).label).toBe("T");
+    expect(brandFor({ name: "Alfabank — 1916", type: "credit_card", currency: "RUB" }).label).toBe("A");
     expect(brandFor({ name: "BofA — 3155", type: "credit_card", currency: "USD" }).label).toBe("BA");
     expect(brandFor({ name: "Apple Card", type: "credit_card", currency: "USD" }).label).toBe("Ap");
   });

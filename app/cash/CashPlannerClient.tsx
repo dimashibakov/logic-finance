@@ -100,7 +100,7 @@ export default function CashPlannerClient({ projection, obligations }: Props) {
 
       <div className="lf-card lf-card--pad">
         <label className="lf-eyebrow" htmlFor="deposit-rate">
-          Ставка вклада, % годовых
+          Deposit rate, % APR
         </label>
         <input
           id="deposit-rate"
@@ -114,7 +114,7 @@ export default function CashPlannerClient({ projection, obligations }: Props) {
           style={{ marginTop: 8, width: "100%" }}
         />
         <div className="lf-hint" style={{ marginTop: 6, fontSize: 10 }}>
-          ставку уточни в своём банке; расчёт иллюстративный
+          confirm the rate with your bank; calculation is illustrative
         </div>
       </div>
 
@@ -148,7 +148,7 @@ export default function CashPlannerClient({ projection, obligations }: Props) {
       </div>
 
       <div className="lf-hint" style={{ marginTop: 14, fontSize: 10 }}>
-        планирование ликвидности, не инвестиционная рекомендация; ставки/условия — в банке
+        liquidity planning, not investment advice; rates and terms — check with your bank
       </div>
 
       <div className="lf-sec-label" style={{ marginTop: 16 }}>

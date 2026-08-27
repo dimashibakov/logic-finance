@@ -160,7 +160,7 @@ export function computeExposure(
 
   const verdict =
     income.usdPct === 0 && outflow.usdPct >= 20
-      ? "RUB-income / USD-costs → уязвим к слабому рублю"
+      ? "RUB income / USD costs → vulnerable to a weaker ruble"
       : "mixed currency flows";
 
   return {
@@ -177,9 +177,9 @@ export function computeExposure(
 }
 
 export function sensitivityNote(rateShockPct: number) {
-  if (rateShockPct > 0) return "доход рублёвый, часть трат долларовая → слабый рубль работает против тебя";
-  if (rateShockPct < 0) return "укрепление рубля снижает ₽-стоимость USD-трат и повышает net worth в $";
-  return "базовый сценарий по текущему spot";
+  if (rateShockPct > 0) return "RUB income, some USD spending → a weaker ruble works against you";
+  if (rateShockPct < 0) return "a stronger ruble lowers the ₽ cost of USD spending and lifts net worth in $";
+  return "baseline scenario at current spot";
 }
 
 export function computeSensitivity(

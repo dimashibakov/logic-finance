@@ -115,7 +115,7 @@ describe("depositScenarios", () => {
     const d90 = noRate.find((s) => s.termDays === 90)!;
     expect(d30.overlapsMajorOutflow).toBe(false);
     expect(d90.overlapsMajorOutflow).toBe(true);
-    expect(d90.riskNote).toMatch(/узла|минимума/);
+    expect(d90.riskNote).toMatch(/bottleneck|minimum/i);
   });
 });
 

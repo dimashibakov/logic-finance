@@ -162,7 +162,7 @@ export default function FxExposureBlock({ exposure, accounts, obligations }: Pro
           onChange={(e) => setRateShockPct(Number(e.target.value) / 100)}
         />
         <div className="lf-hint" style={{ marginTop: 8, fontSize: 10 }}>
-          оценка чувствительности, не рекомендация
+          sensitivity estimate, not advice
         </div>
       </div>
     </>

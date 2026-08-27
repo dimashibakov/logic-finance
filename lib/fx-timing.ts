@@ -42,26 +42,26 @@ export function computeFxTiming(spotRows: Pick<FxRate, "rate_date" | "rub_per_us
   let verdictTitle = "NEUTRAL";
   if (avg30 > 0 && diff30 <= -2) {
     verdict = "favorable";
-    verdictTitle = "FAVORABLE — доллары дешевле обычного";
+    verdictTitle = "FAVORABLE — dollars cheaper than usual";
   } else if (avg30 > 0 && diff30 >= 2) {
     verdict = "hold";
-    verdictTitle = "HOLD — дороже среднего";
+    verdictTitle = "HOLD — above average";
   }
 
-  let positionNote = "около среднего за 30 дней";
+  let positionNote = "near the 30-day average";
   if (avg30 > 0) {
     const abs = Math.abs(diff30);
     if (abs >= 0.5) {
       positionNote =
         diff30 < 0
-          ? `на ${abs.toFixed(0)}% ниже среднего 30д`
-          : `на ${abs.toFixed(0)}% выше среднего 30д`;
+          ? `${abs.toFixed(0)}% below 30d average`
+          : `${abs.toFixed(0)}% above 30d average`;
     }
   }
   if (min90 > 0 && current <= min90 * 1.005) {
-    positionNote = `${positionNote} · около 90-дневного минимума`;
+    positionNote = `${positionNote} · near 90-day low`;
   } else if (max90 > 0 && current >= max90 * 0.995) {
-    positionNote = `${positionNote} · около 90-дневного максимума`;
+    positionNote = `${positionNote} · near 90-day high`;
   }
 
   return {

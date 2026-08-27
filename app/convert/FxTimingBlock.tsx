@@ -87,7 +87,7 @@ export default function FxTimingBlock({ stats }: Props) {
           {stats.positionNote}
         </div>
         <div className="lf-hint" style={{ marginTop: 8, fontSize: 10 }}>
-          рыночный контекст, не инвестиционная рекомендация
+          market context, not investment advice
         </div>
       </div>
     </>

@@ -46,9 +46,9 @@ export default function TaxReservesBlock({ reserves }: Props) {
 
         <div className="lf-row" style={{ marginTop: 16, paddingTop: 14, borderTop: "2px solid var(--ink)" }}>
           <div>
-            <div style={{ fontSize: 13.5 }}>НПД · rental 4%</div>
+            <div style={{ fontSize: 13.5 }}>Rental tax (NPD) · 4%</div>
             <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 2 }}>
-              monthly · Мой налог
+              monthly · My Tax app
             </div>
           </div>
           <div className="lf-mono" style={{ fontSize: 13, fontWeight: 600, textAlign: "right" }}>
@@ -60,7 +60,7 @@ export default function TaxReservesBlock({ reserves }: Props) {
         </div>
 
         <div className="lf-hint" style={{ marginTop: 14, fontSize: 10 }}>
-          оценка резервов, не налоговая консультация; КИК/декларация — к консультанту
+          reserve estimate, not tax advice; CFC/declarations — consult a professional
         </div>
       </div>
     </>

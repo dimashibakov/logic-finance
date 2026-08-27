@@ -190,10 +190,10 @@ export function depositScenarios(
     if (overlapsMajorOutflow) {
       const node = majorOutflows.find((e) => e.date === nodeDate);
       riskNote = node
-        ? `срок погашения после узла ${fmtDueShort(nodeDate)} — замороженные средства недоступны к платежу`
-        : `срок погашения после прогнозного минимума ${fmtDueShort(nodeDate)}`;
+        ? `maturity after bottleneck ${fmtDueShort(nodeDate)} — locked funds unavailable for payment`
+        : `maturity after projected minimum ${fmtDueShort(nodeDate)}`;
     } else if (minBalanceInTerm <= config.SAFETY_BUFFER_RUB * 1.05) {
-      riskNote = "минимум прогноза близко к буферу";
+      riskNote = "projected minimum close to buffer";
     }
 
     return {

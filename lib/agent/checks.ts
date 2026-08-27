@@ -116,7 +116,7 @@ function taxChecks(reserves: ReturnType<typeof taxReserves>, today: Date): Agent
       dedupe_key: `tax:npd:${ym}`,
       kind: "tax",
       severity: "warn",
-      title: `НПД due ${reserves.npd.nextDueLabel}`,
+      title: `Rental tax (NPD) due ${reserves.npd.nextDueLabel}`,
       body: `${rub(reserves.npd.monthly)}/mo rental tax · due in ${npdDays}d`,
       action_route: "/plan",
     });

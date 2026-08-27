@@ -37,9 +37,9 @@ export default function AgentFeedClient({ insights: initial }: { insights: Agent
     return (
       <div className="lf-card lf-card--pad lf-card--shadow">
         <div className="lf-eyebrow">Status</div>
-        <div style={{ fontSize: 16, fontWeight: 600, marginTop: 10 }}>Всё под контролем</div>
+        <div style={{ fontSize: 16, fontWeight: 600, marginTop: 10 }}>All clear</div>
         <div className="lf-hint" style={{ marginTop: 8 }}>
-          Активных сигналов нет. Агент только наблюдает — денег не двигает.
+          No active signals. Agent monitors only — it never moves money.
         </div>
       </div>
     );
@@ -63,7 +63,7 @@ export default function AgentFeedClient({ insights: initial }: { insights: Agent
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
               {item.action_route && (
                 <Link href={item.action_route} className="lf-btn lf-btn--sm">
-                  Сделать
+                  Open
                 </Link>
               )}
               <button
@@ -72,7 +72,7 @@ export default function AgentFeedClient({ insights: initial }: { insights: Agent
                 disabled={busyId === item.id}
                 onClick={() => dismiss(item.id)}
               >
-                Скрыть
+                Dismiss
               </button>
             </div>
           </div>
