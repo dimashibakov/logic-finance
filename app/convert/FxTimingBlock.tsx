@@ -35,9 +35,6 @@ export default function FxTimingBlock({ stats }: Props) {
 
   return (
     <>
-      <div className="lf-sec-label">
-        <span className="lf-sec-label__h">When to convert · market</span>
-      </div>
       <div className="lf-card lf-card--pad lf-card--shadow">
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
           <div>

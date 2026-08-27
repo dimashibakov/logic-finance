@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAddSheet } from "@/app/components/AppChrome";
 import { fmtRate, rub, usd } from "@/lib/format";
@@ -46,6 +47,12 @@ export default function ConvertPlanner({
 
   return (
     <>
+      <div className="lf-sec-label">
+        <span className="lf-sec-label__h">When to convert · market</span>
+        <Link href="/history" className="lf-sec-label__m">
+          history →
+        </Link>
+      </div>
       <FxTimingBlock stats={timing} />
       <FxExposureBlock exposure={exposure} accounts={exposureAccounts} obligations={exposureObligations} />
 

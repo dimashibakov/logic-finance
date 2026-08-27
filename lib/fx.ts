@@ -30,7 +30,12 @@ export async function fetchSpotHistory(days = 90): Promise<FxRate[]> {
 }
 
 export function latestByKind(rates: FxRate[], kind: string): FxRate | undefined {
-  return rates.find((r) => r.kind === kind);
+  let latest: FxRate | undefined;
+  for (const r of rates) {
+    if (r.kind !== kind) continue;
+    if (!latest || r.rate_date > latest.rate_date) latest = r;
+  }
+  return latest;
 }
 
 export function getRubPerUsd(rates: FxRate[], kind = "spot"): number {

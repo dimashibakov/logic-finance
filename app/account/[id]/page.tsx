@@ -15,7 +15,7 @@ type TxRow = {
   type: string;
   merchant: string | null;
   notes: string | null;
-  categories: { name: string } | null;
+  categories: { name: string } | { name: string }[] | null;
 };
 
 type OblRow = {
@@ -29,8 +29,14 @@ type OblRow = {
   due_date: string | null;
 };
 
+function categoryName(categories: TxRow["categories"]) {
+  if (!categories) return null;
+  if (Array.isArray(categories)) return categories[0]?.name ?? null;
+  return categories.name;
+}
+
 function txLabel(tx: TxRow) {
-  return tx.merchant || tx.categories?.name || tx.notes || tx.type;
+  return tx.merchant || categoryName(tx.categories) || tx.notes || tx.type;
 }
 
 function signedAmount(tx: TxRow) {
