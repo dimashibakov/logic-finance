@@ -42,7 +42,7 @@ export default async function WindDownPage() {
     <div className="lf-wrap">
       <div className="lf-phone">
         <RateHeader title="5927 wind-down" />
-        <div className="lf-sec-label" style={{ marginTop: -8 }}>
+        <div className="lf-sec-label">
           <span className="lf-sec-label__h">Joint account closure</span>
           <Link href="/plan" className="lf-sec-label__m">
             plan →

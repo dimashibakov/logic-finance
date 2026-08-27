@@ -24,7 +24,7 @@ export default async function CashPage() {
     <div className="lf-wrap">
       <div className="lf-phone">
         <RateHeader title="RUB cash" />
-        <div className="lf-sec-label" style={{ marginTop: -8 }}>
+        <div className="lf-sec-label">
           <span className="lf-sec-label__h">Liquidity planner</span>
           <Link href="/" className="lf-sec-label__m">
             overview →
