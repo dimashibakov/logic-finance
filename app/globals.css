@@ -1219,6 +1219,20 @@ html[data-theme="brutalist"] .lf-acct {
   border-bottom: none;
 }
 
+.lf-acct--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.lf-acct--link:hover {
+  background: var(--line2);
+}
+
+html[data-theme="brutalist"] .lf-acct--link:active {
+  background: var(--fx-box-bg);
+}
+
 .lf-apr {
   font-family: var(--font-mono);
   font-size: 11px;

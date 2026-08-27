@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { fmtNative, rub, toUsd, usd } from "@/lib/format";
+import Link from "next/link";
+import { fmtNative, formatUpdatedDate, rub, toUsd, usd } from "@/lib/format";
 import { isStaleBalance, type AccountRow } from "@/lib/liquidity";
 import AccountBadge from "./AccountBadge";
 
@@ -52,13 +53,13 @@ export default function AccountGroup({ title, accounts, spot, defaultOpen = true
           const secondary =
             a.currency === "RUB" ? usd(toUsd(Math.abs(bal), a.currency, spot)) : rub(toUsd(Math.abs(bal), a.currency, spot) * spot);
           return (
-            <div key={a.id} className="lf-acct">
+            <Link key={a.id} href={`/account/${a.id}`} className="lf-acct lf-acct--link">
               <AccountBadge account={a} />
               <div className="lf-acct__mid">
                 <div style={{ fontSize: 14, fontWeight: 550 }}>{a.name}</div>
                 <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   {a.type} · {a.zone.toLowerCase()}
-                  {a.balance_date ? ` · ${a.balance_date.slice(5).replace("-", " ")}` : ""}
+                  {a.balance_date ? ` · ${formatUpdatedDate(a.balance_date)}` : ""}
                 </div>
               </div>
               <div style={{ textAlign: "right", flexShrink: 0 }}>
@@ -84,7 +85,7 @@ export default function AccountGroup({ title, accounts, spot, defaultOpen = true
                   </>
                 )}
               </div>
-            </div>
+            </Link>
           );
         })}
     </div>
