@@ -1,0 +1,9 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#14110c"/>
+  <rect x="512" y="0" width="512" height="1024" fill="#c6f24e"/>
+  <rect x="502" y="0" width="20" height="1024" fill="#14110c"/>
+  <text x="256" y="524" font-family="Archivo, 'Arial Black', sans-serif" font-weight="900"
+    font-size="600" fill="#c6f24e" text-anchor="middle" dominant-baseline="central">L</text>
+  <text x="770" y="524" font-family="Archivo, 'Arial Black', sans-serif" font-weight="900"
+    font-size="600" fill="#14110c" text-anchor="middle" dominant-baseline="central">F</text>
+</svg>
