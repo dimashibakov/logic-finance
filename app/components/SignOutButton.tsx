@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 
-export default function SignOutButton() {
+type Props = { compact?: boolean };
+
+export default function SignOutButton({ compact }: Props) {
   const router = useRouter();
 
   async function signOut() {
@@ -14,8 +16,13 @@ export default function SignOutButton() {
   }
 
   return (
-    <button type="button" className="lf-seg__btn" onClick={signOut} style={{ flex: "0 0 auto", minWidth: 72 }}>
-      Sign out
+    <button
+      type="button"
+      className={compact ? "lf-sign-out" : "lf-seg__btn"}
+      onClick={signOut}
+      style={compact ? undefined : { flex: "0 0 auto", minWidth: 72 }}
+    >
+      {compact ? "Sign out" : "Sign out"}
     </button>
   );
 }

@@ -208,6 +208,120 @@ body {
   padding: 8px 0 0;
 }
 
+.lf-header__brand {
+  min-width: 0;
+}
+
+.lf-header__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.lf-header__logo {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+html[data-theme="brutalist"] .lf-header__logo {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: none;
+  padding: 0;
+}
+
+.lf-header__logo--page {
+  font-size: 13px;
+}
+
+html[data-theme="brutalist"] .lf-header__logo--page {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.lf-sign-out {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+html[data-theme="brutalist"] .lf-sign-out {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--ink);
+  opacity: 0.55;
+}
+
+.lf-sign-out:hover {
+  opacity: 1;
+}
+
+.lf-agent-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--card-border-w) solid var(--card-border);
+  border-radius: var(--radius-sm);
+}
+
+html[data-theme="brutalist"] .lf-agent-cta {
+  border-width: 3px;
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lf-agent-cta__badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  background: var(--accent-weak);
+  border-radius: 6px;
+}
+
+html[data-theme="brutalist"] .lf-agent-cta__badge {
+  border: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.lf-agent-cta__label {
+  flex: 1;
+  font-size: 14px;
+}
+
+.lf-agent-cta__arrow {
+  font-size: 16px;
+  opacity: 0.7;
+}
+
 .lf-mono {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -218,13 +332,13 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 20px 0 8px;
+  padding: 12px 0 10px;
   border-bottom: var(--header-border);
   background: var(--paper);
 }
 
 html[data-theme="brutalist"] .lf-header {
-  padding: 16px 18px;
+  padding: 10px 18px 12px;
   margin: 0 -20px;
   position: sticky;
   top: 0;
@@ -242,12 +356,12 @@ html[data-theme="brutalist"] .lf-header {
 
 html[data-theme="brutalist"] .lf-header__title {
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 900;
-  letter-spacing: 0.02em;
-  background: var(--ink);
-  color: var(--paper);
-  padding: 7px 10px;
+  letter-spacing: 0.04em;
+  background: none;
+  color: var(--ink);
+  padding: 0;
   display: inline-block;
 }
 

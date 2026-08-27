@@ -61,14 +61,11 @@ export default async function Home() {
         <RateHeader />
 
         {activeInsights.length > 0 && (
-          <div className="lf-sec-label" style={{ marginTop: 6 }}>
-            <Link href="/agent" className="lf-sec-label__h" style={{ textDecoration: "none", color: "inherit" }}>
-              {activeInsights.length} active signal{activeInsights.length === 1 ? "" : "s"}
-            </Link>
-            <Link href="/agent" className="lf-sec-label__m">
-              agent →
-            </Link>
-          </div>
+          <Link href="/agent" className="lf-agent-cta">
+            <span className="lf-agent-cta__badge">⚡ {activeInsights.length}</span>
+            <span className="lf-agent-cta__label">Agent</span>
+            <span className="lf-agent-cta__arrow">→</span>
+          </Link>
         )}
 
         <div style={{ marginTop: 6 }}>

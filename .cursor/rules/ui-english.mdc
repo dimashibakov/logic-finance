@@ -1,0 +1,27 @@
+---
+description: UI copy must be English-only (no Cyrillic in user-facing strings)
+globs: app/**/*.{tsx,ts},lib/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# UI language: English only
+
+All user-visible copy in `app/` and `lib/` must be English — labels, buttons, toasts, footnotes, empty states, agent text.
+
+## Allowed non-ASCII
+
+Currency symbols (₽, $), arrows (→), math (≈, −, +) are fine.
+
+## Not allowed in UI strings
+
+Cyrillic in JSX text, button labels, hints, or lib strings returned to the UI.
+
+Regex/parsers matching Russian bank exports may keep Cyrillic in patterns — not shown to users.
+
+## Check before merge
+
+```bash
+grep -rnP '[\x{0400}-\x{04FF}]' app lib --include='*.tsx' --include='*.ts' | grep -v '\.test\.' | grep -vE 'match:|test\(|/[^/]+/[i]*'
+```
+
+Fix any hits that are user-facing; update tests if copy changes.

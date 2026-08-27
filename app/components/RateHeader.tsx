@@ -5,7 +5,7 @@ import SignOutButton from "./SignOutButton";
 
 type Props = { title?: string; subtitle?: string };
 
-export default async function RateHeader({ title = "Portfolio · Logic Finance", subtitle }: Props) {
+export default async function RateHeader({ title, subtitle }: Props) {
   const supabase = createClient();
   const [{ data: { user } }, rates] = await Promise.all([
     supabase.auth.getUser(),
@@ -13,30 +13,31 @@ export default async function RateHeader({ title = "Portfolio · Logic Finance",
   ]);
   const spot = getRubPerUsd(rates, "spot");
   const eff = effRate(spot);
+  const isOverview = !title;
 
   return (
-    <>
-      <div className="lf-theme-bar" style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "flex-end" }}>
-        {user && <SignOutButton />}
+    <header className="lf-header">
+      <div className="lf-header__brand">
+        {isOverview ? (
+          <>
+            <div className="lf-header__logo lf-only-terminal">Logic Finance</div>
+            <div className="lf-header__logo lf-only-brutalist">LOGIC FINANCE</div>
+          </>
+        ) : (
+          <>
+            <div className="lf-header__logo lf-header__logo--page">{title}</div>
+            {subtitle && <div className="lf-header__sub">{subtitle}</div>}
+          </>
+        )}
       </div>
-      <header className="lf-header">
-        <div>
-          {title === "Portfolio · Logic Finance" ? (
-            <>
-              <div className="lf-header__title lf-only-terminal">Portfolio · Logic Finance</div>
-              <div className="lf-header__title lf-only-brutalist">◼ Logic Finance</div>
-            </>
-          ) : (
-            <div className="lf-header__title">{title}</div>
-          )}
-          {subtitle && <div className="lf-header__sub">{subtitle}</div>}
-        </div>
+      <div className="lf-header__right">
         <div className="lf-header__fx lf-mono">
           SPOT <b>{fmtRate(spot)}</b>
           <br />
           EFF <b>{fmtRate(eff)}</b> ₽/$
         </div>
-      </header>
-    </>
+        {user && <SignOutButton compact />}
+      </div>
+    </header>
   );
 }
