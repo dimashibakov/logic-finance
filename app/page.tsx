@@ -12,7 +12,8 @@ import {
   urgentAlertEvent,
   type ObligationRow,
 } from "@/lib/payments";
-import { fmtNative, usd } from "@/lib/format";
+import { fmtNative, rub, usd } from "@/lib/format";
+import { computeTveFloatBalance, tveFloatHint, TVE_FLOAT_CATEGORY } from "@/lib/non-pnl";
 import { V } from "@/lib/tokens";
 import RateHeader from "./components/RateHeader";
 import AccountGroup from "./components/AccountGroup";
@@ -20,7 +21,7 @@ import UpcomingPaymentsSection from "./components/UpcomingPaymentsSection";
 
 export default async function Home() {
   const supabase = createClient();
-  const [{ data: accData }, { data: oblData }, rates, { data: insightData }] = await Promise.all([
+  const [{ data: accData }, { data: oblData }, rates, { data: insightData }, { data: floatTxData }] = await Promise.all([
     supabase.from("accounts").select("*").eq("in_net_worth", true),
     supabase
       .from("obligations")
@@ -28,6 +29,10 @@ export default async function Home() {
       .eq("status", "active"),
     fetchFxRates(),
     supabase.from("agent_insights").select("*").eq("status", "active"),
+    supabase
+      .from("transactions")
+      .select("amount, type, categories(name)")
+      .in("source", ["statement", "manual"]),
   ]);
 
   const spot = getRubPerUsd(rates, "spot");
@@ -56,6 +61,20 @@ export default async function Home() {
   const bannerInsight = urgentInsight?.severity === "urgent" ? urgentInsight : null;
 
   const accountByObligation = Object.fromEntries(obligations.map((o) => [o.id, o.account_id ?? null]));
+
+  type FloatCat = { name: string } | { name: string }[] | null;
+  const tveFloat = computeTveFloatBalance(
+    (floatTxData ?? []).map((tx) => {
+      const c = tx.categories as FloatCat;
+      const categoryName = !c ? null : Array.isArray(c) ? c[0]?.name ?? null : c.name;
+      return { amount: Number(tx.amount), type: String(tx.type), categoryName };
+    })
+  );
+  const showTveFloat = (floatTxData ?? []).some((tx) => {
+    const c = tx.categories as FloatCat;
+    const name = !c ? null : Array.isArray(c) ? c[0]?.name ?? null : c.name;
+    return name === TVE_FLOAT_CATEGORY;
+  });
 
   return (
     <div className="lf-wrap">
@@ -103,6 +122,22 @@ export default async function Home() {
           <span>liquid {liquidPct}%</span>
           <span>illiquid {illiquidPct}%</span>
         </div>
+
+        {showTveFloat && (
+          <div className="lf-card" style={{ padding: 14, marginTop: 10 }}>
+            <div className="lf-label">TVE float</div>
+            <div
+              className={`lf-mono${tveFloat < 0 ? " lf-text-danger" : tveFloat > 0 ? " lf-text-success" : ""}`}
+              style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}
+            >
+              {tveFloat < 0 ? "−" : ""}
+              {rub(Math.abs(tveFloat))}
+            </div>
+            <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 4 }}>
+              {tveFloatHint(tveFloat)} · reimbursable
+            </div>
+          </div>
+        )}
 
         {bannerInsight && (
           <>

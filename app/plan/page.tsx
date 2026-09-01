@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { rub, usd } from "@/lib/format";
+import { buildPlanFactSnapshot } from "@/lib/plan-fact";
 import { findUsReserveBalance, taxReserves } from "@/lib/taxes";
 import RateHeader from "../components/RateHeader";
 import TaxReservesBlock from "./TaxReservesBlock";
@@ -142,51 +143,20 @@ export default async function PlanPage() {
   const txs = (txData ?? []) as Tx[];
   const plans = (planData ?? []) as PlanRow[];
 
-  const incomeFact = { RUB: 0, USD: 0 };
-  const incomePlan = { RUB: 0, USD: 0 };
-  const factByKey = new Map<string, number>();
-  const planByKey = new Map<string, number>();
-
-  for (const tx of txs) {
-    const name = catName(tx.categories);
-    if (name === "Reconciliation") continue;
-    const cur = tx.currency as "RUB" | "USD";
-    const amt = Math.abs(Number(tx.amount));
-    if (tx.type === "income") {
-      incomeFact[cur] += amt;
-    } else if (tx.type === "expense") {
-      const key = `${cur}:${name}`;
-      factByKey.set(key, (factByKey.get(key) ?? 0) + amt);
-    }
-  }
-
-  for (const p of plans) {
-    const cur = p.currency as "RUB" | "USD";
-    const name = catName(p.categories);
-    const amt = Number(p.planned_amount);
-    if (catKind(p.categories) === "income") {
-      incomePlan[cur] += amt;
-    } else {
-      const key = `${cur}:${name}`;
-      planByKey.set(key, (planByKey.get(key) ?? 0) + amt);
-    }
-  }
-
-  const expenseKeys = [...new Set([...factByKey.keys(), ...planByKey.keys()])].sort((a, b) => {
-    const factA = factByKey.get(a) ?? 0;
-    const factB = factByKey.get(b) ?? 0;
-    return factB - factA;
-  });
-
-  const rubExpenses: CatLine[] = [];
-  const usdExpenses: CatLine[] = [];
-  for (const key of expenseKeys) {
-    const [cur, ...nameParts] = key.split(":");
-    const name = nameParts.join(":");
-    const line = { name, fact: factByKey.get(key) ?? 0, plan: planByKey.get(key) ?? 0, currency: cur };
-    if (cur === "USD") usdExpenses.push(line);
-    else rubExpenses.push(line);
-  }
+  const { incomeFact, incomePlan, rubExpenses, usdExpenses } = buildPlanFactSnapshot(
+    txs.map((tx) => ({
+      amount: Number(tx.amount),
+      currency: tx.currency,
+      type: tx.type,
+      categoryName: catName(tx.categories),
+    })),
+    plans.map((p) => ({
+      amount: Number(p.planned_amount),
+      currency: p.currency,
+      categoryName: catName(p.categories),
+      categoryKind: catKind(p.categories),
+    }))
+  );
 
   const hasRubIncome = incomeFact.RUB > 0 || incomePlan.RUB > 0;
   const hasUsdIncome = incomeFact.USD > 0 || incomePlan.USD > 0;
