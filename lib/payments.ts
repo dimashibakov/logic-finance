@@ -1,4 +1,5 @@
 import type { AccountRow } from "./liquidity";
+import { fmtDateShort } from "./format";
 
 export type ObligationRow = {
   id: string;
@@ -262,5 +263,5 @@ export function monthLabel(ym: string) {
 }
 
 export function fmtDueShort(dateStr: string) {
-  return atNoon(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return fmtDateShort(dateStr);
 }

@@ -1,4 +1,5 @@
 import { TAX_CONFIG, type TaxConfig } from "./tax-config";
+import { fmtDateShort } from "./format";
 
 export type UsTaxReserve = {
   target: number;
@@ -61,7 +62,7 @@ export function nextNpdDueDate(now = new Date()) {
 }
 
 export function fmtDueShort(dateStr: string) {
-  return atNoon(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return fmtDateShort(dateStr);
 }
 
 function ytdMonths(year: number, now: Date) {

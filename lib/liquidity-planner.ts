@@ -1,4 +1,5 @@
 import type { AccountRow } from "./liquidity";
+import { fmtDateShort } from "./format";
 import { LIQUIDITY_CONFIG, type LiquidityConfig } from "./liquidity-config";
 import { upcomingPayments, type ObligationRow, type PaymentEvent } from "./payments";
 
@@ -210,5 +211,5 @@ export function depositScenarios(
 }
 
 export function fmtDueShort(dateStr: string) {
-  return atNoon(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return fmtDateShort(dateStr);
 }

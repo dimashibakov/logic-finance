@@ -1,5 +1,8 @@
 export const DEFAULT_RUB_PER_USD = 76.9;
 
+/** Locale for all user-visible dates — English UI, Latin month names. */
+export const DATE_LOCALE = "en-US";
+
 export const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 export const rub = (n: number) => "₽" + Math.round(n).toLocaleString("en-US");
 export const toUsd = (amount: number, currency: string, rubPerUsd: number) =>
@@ -22,10 +25,15 @@ export function formatUpdatedDate(updatedAt: string | null | undefined, includeY
   if (!updatedAt) return "Updated —";
   const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
   if (includeYear) opts.year = "numeric";
-  return `Updated ${new Date(updatedAt).toLocaleDateString("ru-RU", opts)}`;
+  return `Updated ${new Date(updatedAt).toLocaleDateString(DATE_LOCALE, opts)}`;
 }
 
 /** Statement / obligation / transaction date columns (YYYY-MM-DD). */
 export function formatTxDate(dateStr: string): string {
-  return parseDateOnly(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return parseDateOnly(dateStr).toLocaleDateString(DATE_LOCALE, { day: "numeric", month: "short", year: "numeric" });
+}
+
+/** Short due date, e.g. "Sep 1". */
+export function fmtDateShort(dateStr: string): string {
+  return parseDateOnly(dateStr).toLocaleDateString(DATE_LOCALE, { day: "numeric", month: "short" });
 }

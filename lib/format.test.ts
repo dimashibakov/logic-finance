@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatUpdatedDate, parseDateOnly } from "./format";
+import { fmtDateShort, formatUpdatedDate, parseDateOnly } from "./format";
 
 describe("parseDateOnly", () => {
   it("keeps the calendar day for YYYY-MM-DD", () => {
@@ -11,14 +11,18 @@ describe("parseDateOnly", () => {
 });
 
 describe("formatUpdatedDate", () => {
-  it("formats timestamptz without noon parsing", () => {
+  it("formats timestamptz in en-US without noon parsing", () => {
     const label = formatUpdatedDate("2026-09-01T15:30:00+03:00");
-    expect(label).toMatch(/^Updated /);
-    expect(label).toContain("1");
-    expect(label.toLowerCase()).toMatch(/сен/);
+    expect(label).toBe("Updated Sep 1");
   });
 
   it("returns placeholder when missing", () => {
     expect(formatUpdatedDate(null)).toBe("Updated —");
+  });
+});
+
+describe("fmtDateShort", () => {
+  it("uses en-US month abbreviations", () => {
+    expect(fmtDateShort("2026-08-13")).toBe("Aug 13");
   });
 });
