@@ -24,7 +24,14 @@ export default async function PaymentsPage() {
   const { events, undated } = upcomingPayments(obligations, 90);
   const coverage = coverageByZone(events, accounts, 30);
   const shortByCurrency = Object.fromEntries(coverage.map((c) => [c.currency, c.short])) as Record<"RUB" | "USD", boolean>;
+  const accountByObligation = Object.fromEntries(obligations.map((o) => [o.id, o.account_id ?? null]));
   const grouped = groupEventsByMonth(events);
+
+  function paymentHref(obligationId: string) {
+    const accountId = accountByObligation[obligationId];
+    if (accountId) return `/account/${accountId}`;
+    return `/payments#obl-${obligationId}`;
+  }
 
   return (
     <div className="lf-wrap">
@@ -69,7 +76,12 @@ export default async function PaymentsPage() {
             </div>
             <div className="lf-card lf-card--flush">
               {monthEvents.map((e) => (
-                <PaymentEventRow key={e.id} event={e} zoneShort={shortByCurrency[e.currency]} />
+                <PaymentEventRow
+                  key={e.id}
+                  event={e}
+                  zoneShort={shortByCurrency[e.currency]}
+                  href={paymentHref(e.obligationId)}
+                />
               ))}
             </div>
           </div>
@@ -82,7 +94,7 @@ export default async function PaymentsPage() {
             </div>
             <div className="lf-card lf-card--flush">
               {undated.map((o) => (
-                <div key={o.id} className="lf-row lf-pay-row">
+                <div key={o.id} id={`obl-${o.id}`} className="lf-row lf-pay-row">
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 550 }}>{o.name}</div>
                     <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 3 }}>

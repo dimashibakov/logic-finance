@@ -59,7 +59,7 @@ export default function AccountGroup({ title, accounts, spot, defaultOpen = true
                 <div style={{ fontSize: 14, fontWeight: 550 }}>{a.name}</div>
                 <div className="lf-mono lf-text-faint" style={{ fontSize: 10.5, marginTop: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   {a.type} · {a.zone.toLowerCase()}
-                  {a.balance_date ? ` · ${formatUpdatedDate(a.balance_date)}` : ""}
+                  {a.updated_at ? ` · ${formatUpdatedDate(a.updated_at)}` : ""}
                 </div>
               </div>
               <div style={{ textAlign: "right", flexShrink: 0 }}>

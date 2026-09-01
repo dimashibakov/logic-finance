@@ -1,3 +1,5 @@
+import { parseDateOnly } from "./format";
+
 export type AccountRow = {
   id: string;
   name: string;
@@ -6,6 +8,7 @@ export type AccountRow = {
   zone: "RF" | "US" | string;
   balance: number;
   balance_date: string | null;
+  updated_at?: string | null;
   in_net_worth?: boolean;
 };
 
@@ -27,7 +30,7 @@ export function isCardType(type: string) {
 
 export function isStaleBalance(balanceDate: string | null, maxDays = 21) {
   if (!balanceDate) return true;
-  const ms = Date.now() - new Date(`${balanceDate}T12:00:00`).getTime();
+  const ms = Date.now() - parseDateOnly(balanceDate).getTime();
   return ms / 86400000 > maxDays;
 }
 

@@ -85,7 +85,7 @@ export default async function AccountPage({ params }: { params: { id: string } }
   return (
     <div className="lf-wrap">
       <div className="lf-phone">
-        <RateHeader title={acct.name} subtitle={formatUpdatedDate(acct.balance_date, true)} />
+        <RateHeader title={acct.name} subtitle={formatUpdatedDate(acct.updated_at, true)} />
 
         <div className="lf-card lf-card--pad lf-card--shadow" style={{ marginTop: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

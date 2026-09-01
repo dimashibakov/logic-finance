@@ -10,6 +10,9 @@ const withPWA = withPWAInit({
   cacheOnFrontendNav: false,
   aggressiveFrontEndNavCaching: false,
   workboxOptions: {
+    skipWaiting: true,
+    clientsClaim: true,
+    cleanupOutdatedCaches: true,
     runtimeCaching: [
       {
         urlPattern: ({ url }) => url.pathname.startsWith("/api/"),
@@ -49,8 +52,8 @@ const withPWA = withPWAInit({
         handler: "NetworkFirst",
         options: {
           cacheName: "pages-shell",
-          networkTimeoutSeconds: 8,
-          expiration: { maxEntries: 16, maxAgeSeconds: 60 * 60 },
+          networkTimeoutSeconds: 5,
+          expiration: { maxEntries: 8, maxAgeSeconds: 15 * 60 },
         },
       },
     ],
