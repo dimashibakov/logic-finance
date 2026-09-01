@@ -17,6 +17,8 @@ export type CommitRow = {
 export type CommitPayload = {
   rows?: CommitRow[];
   controlOk?: boolean;
+  /** Set true only when every uploaded file parsed successfully (no partial import). */
+  parseOk?: boolean;
 };
 
 export type CommitResult = {
@@ -49,6 +51,10 @@ export async function commitImportRows(
   | { ok: true; result: CommitResult }
   | { ok: false; status: number; error: string; unresolved?: string[]; detail?: string }
 > {
+  if (body.parseOk === false) {
+    return { ok: false, status: 422, error: "Parse incomplete — fix errors and re-parse before saving" };
+  }
+
   if (body.controlOk === false) {
     return { ok: false, status: 422, error: "Control check failed — fix parser or statement before commit" };
   }
