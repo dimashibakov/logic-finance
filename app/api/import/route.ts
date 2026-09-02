@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { extractDocumentText } from "@/lib/pdf-extract";
-import { importLog } from "@/lib/import-log";
+import { importLog, serializeImportError } from "@/lib/import-log";
 import { detectBank, parseByBank, type BankId } from "@/parsers";
 
 export const runtime = "nodejs";
@@ -36,13 +36,28 @@ export async function POST(request: NextRequest) {
       const warnings: string[] = [];
       importLog("parse:file:start", { filename: entry.name, size: entry.size });
 
+      const buffer = Buffer.from(await entry.arrayBuffer());
+      if (buffer.length === 0) {
+        const msg = "Empty PDF file";
+        warnings.push(msg);
+        importLog("parse:file:empty", { filename: entry.name, reportedSize: entry.size });
+        files.push({ filename: entry.name, bank: null, result: null, warnings });
+        continue;
+      }
+
       let text = "";
       try {
-        text = await extractDocumentText(Buffer.from(await entry.arrayBuffer()), entry.name);
+        text = await extractDocumentText(buffer, entry.name);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "PDF extract failed";
+        const { error: msg, stack } = serializeImportError(e);
         warnings.push(msg);
-        importLog("parse:file:extract-error", { filename: entry.name, error: msg, ms: Date.now() - fileStarted });
+        importLog("parse:file:extract-error", {
+          filename: entry.name,
+          bytes: buffer.length,
+          error: msg,
+          stack,
+          ms: Date.now() - fileStarted,
+        });
         files.push({ filename: entry.name, bank: null, result: null, warnings });
         continue;
       }
@@ -61,9 +76,15 @@ export async function POST(request: NextRequest) {
       try {
         result = parseByBank(bank, text);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Bank parser failed";
+        const { error: msg, stack } = serializeImportError(e);
         warnings.push(msg);
-        importLog("parse:file:parser-error", { filename: entry.name, bank, error: msg, ms: Date.now() - fileStarted });
+        importLog("parse:file:parser-error", {
+          filename: entry.name,
+          bank,
+          error: msg,
+          stack,
+          ms: Date.now() - fileStarted,
+        });
         files.push({ filename: entry.name, bank, result: null, warnings });
         continue;
       }
@@ -116,8 +137,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ files, rows, warnings, controlOk, parseOk });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Import parse failed";
-    importLog("parse:error", { ms: Date.now() - started, error: msg });
+    const { error: msg, stack } = serializeImportError(e);
+    importLog("parse:error", { ms: Date.now() - started, error: msg, stack });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

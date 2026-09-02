@@ -63,7 +63,7 @@ const withPWA = withPWAInit({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ["pdf-parse"],
+    serverComponentsExternalPackages: ["pdf-parse", "pdfjs-dist"],
   },
 };
 
