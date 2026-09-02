@@ -23,7 +23,12 @@ export function detectBank(text: string, filename?: string): BankId | null {
   if (/american express|amex|blue cash/i.test(text)) return "amex";
   if (/bank of america|safebalance/i.test(text)) return "bofa";
   if (/alfa|альфа/i.test(text)) return "alfa";
-  if (/sberbank|сбер/i.test(text)) return "sber";
+  if (
+    /Выписка по сч[её]ту дебетовой карты/i.test(text) &&
+    /(?:СберБанк|sberbank\.ru|ПАО Сбербанк|Сбербанк)/i.test(text)
+  ) {
+    return "sber";
+  }
   if (/rshb|рсхб|россельхоз/i.test(text)) return "rshb";
   if (/t-bank|t bank|т-банк|т банк/i.test(text)) return "tbank";
   return null;

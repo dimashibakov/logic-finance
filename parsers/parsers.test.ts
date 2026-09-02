@@ -17,7 +17,7 @@ describe("sber parser", () => {
     const result = parseSber(read("sber-aug2026.txt"));
     expect(result.control.ok).toBe(true);
     expect(result.account.ref).toBe("sber-5623");
-    expect(result.txs.some((t) => t.merchant?.includes("WHOOSH"))).toBe(true);
+    expect(result.txs.some((t) => /WHOOSH/i.test(t.rawDescription))).toBe(true);
     expect(result.txs.some((t) => t.type === "income" && /дивиденды/i.test(t.rawDescription))).toBe(true);
     expect(result.txs.some((t) => t.excluded && /перевод для ш/i.test(t.rawDescription))).toBe(true);
   });
