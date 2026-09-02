@@ -149,24 +149,26 @@ export async function POST(request: NextRequest) {
       }
 
       let text = "";
+      let pdfExtractFailed = false;
       try {
         text = await extractDocumentText(buffer, entry.name);
       } catch (e) {
         const { error: msg, stack } = serializeImportError(e);
-        warnings.push(msg);
-        importLog("parse:file:extract-error", { filename: entry.name, error: msg, stack, ms: Date.now() - fileStarted });
-        files.push({ filename: entry.name, bank: null, parser: "regex", result: null, importRows: [], warnings });
-        continue;
+        pdfExtractFailed = true;
+        importLog("parse:pdf-extract-failed", { filename: entry.name, error: msg, stack });
       }
 
-      if (!text.trim()) warnings.push("No text extracted");
+      let bank: BankId | null = null;
+      let regexResult: ParseResult | null = null;
+      if (!pdfExtractFailed) {
+        if (!text.trim()) warnings.push("No text extracted");
+        bank = detectBank(text, entry.name);
+        regexResult = bank ? tryRegexParse(bank, text) : null;
+      }
 
-      const bank = detectBank(text, entry.name);
       let result: ParseResult | null = null;
       let parser: "regex" | "llm" = "regex";
       let importRows: ImportRow[] = [];
-      const regexResult = bank ? tryRegexParse(bank, text) : null;
-
       if (regexResult && regexResult.txs.length > 0 && regexResult.control.ok) {
         result = regexResult;
         importLog("parse:file:done", {
@@ -183,12 +185,13 @@ export async function POST(request: NextRequest) {
         if (regexResult && !regexResult.control.ok) {
           warnings.push(`Control check failed: ${(regexResult.control.notes ?? []).join("; ")}`);
         }
-        if (!bank) warnings.push("Could not detect bank");
+        if (!bank && !pdfExtractFailed) warnings.push("Could not detect bank");
 
         importLog("parse:llm:request", {
           filename: entry.name,
           priorBank: bank,
           priorTxs: regexResult?.txs.length ?? 0,
+          pdfExtractFailed,
         });
         try {
           const extracted = await extractStatement(buffer.toString("base64"));
