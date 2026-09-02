@@ -17,6 +17,7 @@ const hasRealFixtures = listRealStatements().length > 0;
 
 /** Per-file expectations — keyed by lowercase filename substring. */
 const FILE_EXPECTATIONS: { match: RegExp; accountRef: string; deposits?: number; withdrawals?: number }[] = [
+  { match: /sber-debit-0335|0335.*aug2026/i, accountRef: "sber-0335", deposits: 50_000, withdrawals: 30_000 },
   { match: /sber-debit-5623/i, accountRef: "sber-5623", deposits: 0, withdrawals: 212_446 },
   { match: /5623|sber.*5623/i, accountRef: "sber-5623", deposits: 390_000, withdrawals: 103_130.82 },
   { match: /0335|sber.*0335/i, accountRef: "sber-0335" },

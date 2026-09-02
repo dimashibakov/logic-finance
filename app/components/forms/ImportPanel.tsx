@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchWithTimeout } from "@/lib/fetch-timeout";
+
+type Category = { id: string; name: string; kind: string; zone: string };
 
 type PreviewRow = {
   date: string;
@@ -12,12 +14,16 @@ type PreviewRow = {
   bank: string;
   accountRef: string;
   externalId: string;
+  rawDescription?: string;
+  categoryGuess?: string | null;
+  suggestedCategory?: string | null;
+  needsReview?: boolean;
   excluded?: boolean;
 };
 
 type Props = { onBack: () => void; onDone: () => void };
 
-const PARSE_TIMEOUT_MS = 90_000;
+const PARSE_TIMEOUT_MS = 120_000;
 const COMMIT_TIMEOUT_MS = 30_000;
 
 function formatFetchError(e: unknown): string {
@@ -28,6 +34,12 @@ function formatFetchError(e: unknown): string {
   return "Request failed";
 }
 
+function categoryKind(type: string): "income" | "expense" | null {
+  if (type === "income") return "income";
+  if (type === "expense") return "expense";
+  return null;
+}
+
 export default function ImportPanel({ onBack, onDone }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -35,14 +47,39 @@ export default function ImportPanel({ onBack, onDone }: Props) {
   const [loading, setLoading] = useState(false);
   const [committing, setCommitting] = useState(false);
   const [rows, setRows] = useState<PreviewRow[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [controlOk, setControlOk] = useState(true);
   const [parseOk, setParseOk] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/meta")
+      .then((r) => r.json())
+      .then((d) => setCategories(d.categories ?? []));
+  }, []);
 
   const addFiles = useCallback((list: FileList | File[]) => {
     const pdfs = Array.from(list).filter((f) => f.name.toLowerCase().endsWith(".pdf"));
     setFiles((prev) => [...prev, ...pdfs.filter((f) => !prev.some((p) => p.name === f.name))]);
   }, []);
+
+  const categoriesForRow = useCallback(
+    (row: PreviewRow) => {
+      const kind = categoryKind(row.type);
+      if (!kind) return categories;
+      return categories.filter((c) => c.kind === kind);
+    },
+    [categories]
+  );
+
+  const reviewComplete = useMemo(
+    () => rows.every((r) => !r.needsReview || (r.categoryGuess && r.categoryGuess.length > 0)),
+    [rows]
+  );
+
+  function setRowCategory(index: number, categoryName: string) {
+    setRows((prev) => prev.map((r, i) => (i === index ? { ...r, categoryGuess: categoryName || null } : r)));
+  }
 
   async function handleParse() {
     if (!files.length) return;
@@ -64,7 +101,13 @@ export default function ImportPanel({ onBack, onDone }: Props) {
         return;
       }
 
-      setRows(data.rows ?? []);
+      const parsedRows = (data.rows ?? []) as PreviewRow[];
+      setRows(
+        parsedRows.map((r) => ({
+          ...r,
+          categoryGuess: r.categoryGuess ?? r.suggestedCategory ?? null,
+        }))
+      );
       setControlOk(data.controlOk !== false);
       setParseOk(data.parseOk === true);
 
@@ -82,7 +125,7 @@ export default function ImportPanel({ onBack, onDone }: Props) {
   }
 
   async function handleCommit() {
-    if (!rows.length || !controlOk || !parseOk) return;
+    if (!rows.length || !controlOk || !parseOk || !reviewComplete) return;
     setCommitting(true);
     setMessage(null);
 
@@ -108,7 +151,7 @@ export default function ImportPanel({ onBack, onDone }: Props) {
     }
   }
 
-  const canSave = rows.length > 0 && controlOk && parseOk;
+  const canSave = rows.length > 0 && controlOk && parseOk && reviewComplete;
 
   return (
     <div>
@@ -144,11 +187,42 @@ export default function ImportPanel({ onBack, onDone }: Props) {
           <div className={`lf-mono lf-note${controlOk && parseOk ? "" : " lf-text-danger"}`}>
             {rows.length} rows · control {controlOk ? "OK" : "FAILED"}
             {!parseOk && " · parse incomplete"}
+            {!reviewComplete && " · confirm categories marked for review"}
           </div>
-          <div className="lf-card lf-card--pad" style={{ maxHeight: 160, overflow: "auto", marginBottom: 10, padding: 8 }}>
-            {rows.slice(0, 20).map((r, i) => (
-              <div key={i} className="lf-mono" style={{ fontSize: 10, padding: "4px 0", borderBottom: "var(--row-border-w) solid var(--line2)" }}>
-                {r.date} · {r.amount} {r.currency} · {r.bank}
+          <div className="lf-card lf-card--pad" style={{ maxHeight: 280, overflow: "auto", marginBottom: 10, padding: 8 }}>
+            {rows.map((r, i) => (
+              <div
+                key={`${r.externalId}-${i}`}
+                className="lf-mono"
+                style={{
+                  fontSize: 10,
+                  padding: "8px 0",
+                  borderBottom: "var(--row-border-w) solid var(--line2)",
+                  background: r.needsReview ? "color-mix(in srgb, var(--warn) 12%, transparent)" : undefined,
+                }}
+              >
+                <div>
+                  {r.date} · {r.amount} {r.currency} · {r.bank}
+                  {r.needsReview && <span style={{ color: "var(--warn)" }}> · needs review</span>}
+                </div>
+                {r.rawDescription && (
+                  <div style={{ opacity: 0.85, marginTop: 2 }}>{r.rawDescription.slice(0, 120)}</div>
+                )}
+                <label style={{ display: "block", marginTop: 6 }}>
+                  Category{" "}
+                  <select
+                    value={r.categoryGuess ?? ""}
+                    onChange={(e) => setRowCategory(i, e.target.value)}
+                    style={{ fontSize: 10, maxWidth: "100%" }}
+                  >
+                    <option value="">{r.suggestedCategory ? `Suggested: ${r.suggestedCategory}` : "— select —"}</option>
+                    {categoriesForRow(r).map((c) => (
+                      <option key={c.id} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
             ))}
           </div>
