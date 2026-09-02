@@ -234,7 +234,7 @@ export const EXTRACTION_PROMPT = `
 
 export async function extractStatement(pdfBase64: string, promptExtra = ""): Promise<ExtractedStatement> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  const model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514";
+  const model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5";
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured");
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
