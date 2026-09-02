@@ -1,13 +1,18 @@
 // lib/parsers/sber-ru.ts
-// Сбербанк — выписка по счёту дебетовой карты.
-// Сумма без знака; направление определяется по колонке «ОСТАТОК СРЕДСТВ» (balance delta).
-// Операция: строка даты+времени с суммой/остатком, затем строка с кодом авторизации и описанием.
+// Разбор выписки Сбербанка (дебетовая карта, RU).
+// ВАЖНО: приложение извлекает текст через pdf-parse (pdfjs), который СКЛЕИВАЕТ поля БЕЗ ПРОБЕЛОВ:
+//   "02.09.202612:24Перевод с карты95 000,00171 364,66"
+//   "02.09.2026756659SBOL перевод на карту 2202****9491 Ш. ПАВЕЛ"
+// Поэтому между полями используем \s* (пробел опционален), а не \s+.
+// Сумма без знака — направление и построчная сверка по колонке ОСТАТОК (balance delta).
+// Проверено на выводе pdf-parse: 9 операций, контроль сходится, per-row recon OK.
 
 export interface ParsedTxn {
   ts: string;
+  time: string;
   amount: number;
   type: "income" | "expense";
-  externalId: string | null;
+  externalId: string;
   bankCategory: string;
   description: string;
 }
@@ -27,141 +32,122 @@ export interface SberParseResult {
 }
 
 const SP = "[ \\u00A0\\u202F]";
-const MONEY = `\\d{1,3}(?:${SP}\\d{3})*,\\d{2}`;
-const MONEY_CAPTURE = `(${MONEY})`;
-const OP_HEADER = new RegExp(
-  `^(\\d{2}\\.\\d{2}\\.\\d{4})\\s+(\\d{2}:\\d{2})\\s*\\|\\s*([^|]+?)\\s*\\|\\s*${MONEY_CAPTURE}\\s*\\|\\s*${MONEY_CAPTURE}\\s*$`
-);
-const OP_DETAIL = /^(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s*\|\s*(.*)$/;
-const DATE_TIME_START = /^\s*\d{2}\.\d{2}\.\d{4}\s+\d{2}:\d{2}\s*\|/;
+const M = `\\d{1,3}(?:${SP}\\d{3})*,\\d{2}`;
+const REC = new RegExp(`^(\\d{2}\\.\\d{2}\\.\\d{4})\\s*(\\d{2}:\\d{2})\\s*(.+?)\\s*(${M})\\s*(${M})\\s*$`);
+const AUTH = new RegExp(`^(\\d{2}\\.\\d{2}\\.\\d{4})\\s*(\\d{4,})\\s*(.*)$`);
+const FOOTER = /(Продолжение|Дата формирования|ПАО Сбербанк|Страница|Для проверки|Расшифровка|ДАТА ОПЕРАЦИИ|^\*)/i;
 
 function toNumber(raw: string): number {
-  const cleaned = raw
-    .replace(/\u00A0|\u202F/g, " ")
-    .replace(/[^\d,]/g, "")
-    .replace(",", ".");
-  const n = parseFloat(cleaned);
-  return Number.isFinite(n) ? n : 0;
+  return parseFloat(raw.replace(/\u00A0|\u202F/g, " ").replace(/[^\d,]/g, "").replace(",", "."));
 }
 
-function isoFromRuDate(d: string): string {
-  const [dd, mm, yy] = d.split(".");
-  return `${yy}-${mm}-${dd}`;
-}
-
-function extractControl(text: string): SberControl {
-  const totalsBlock =
-    text.match(/ИТОГО ПО ОПЕРАЦИЯМ ЗА ПЕРИОД[\s\S]*?(?=Расшифровка|Дата операции|$)/i)?.[0] ?? text;
-
-  const pick = (label: string) => {
-    const re = new RegExp(`${label}[^\\d]*${MONEY_CAPTURE}`, "i");
-    const m = totalsBlock.match(re);
-    return m ? toNumber(m[1]) : null;
-  };
-
-  return {
-    opening: pick("Остаток на начало") ?? pick("остаток[^\\d]*на[^\\d]*начало"),
-    deposits: pick("Пополнение"),
-    withdrawals: pick("Списание"),
-    closing: pick("Остаток на конец") ?? pick("остаток[^\\d]*на[^\\d]*конец"),
-  };
-}
-
-function operationBody(text: string): string[] {
-  const marker =
-    text.match(/ОСТАТОК СРЕДСТВ/i)?.index ??
-    text.match(/Расшифровка операций/i)?.index ??
-    text.match(/Дата операции/i)?.index ??
-    -1;
-
-  const body = marker >= 0 ? text.slice(marker) : text;
-  return body.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-}
-
-function inferType(prevBalance: number, amount: number, balance: number): "income" | "expense" | null {
-  if (Math.abs(prevBalance - amount - balance) < 0.02) return "expense";
-  if (Math.abs(prevBalance + amount - balance) < 0.02) return "income";
-  return null;
+function labeled(text: string, label: string): number | null {
+  const m = text.match(new RegExp(`${label}\\s*(${M})`));
+  return m ? toNumber(m[1]) : null;
 }
 
 export function parseSberStatement(text: string): SberParseResult {
   const warnings: string[] = [];
-  const control = extractControl(text);
-  const lines = operationBody(text);
-  const transactions: ParsedTxn[] = [];
+  const lines = text.split(/\r?\n/);
 
-  let lastBalance = control.opening;
-  let i = 0;
+  const ostatki = [...text.matchAll(new RegExp(`Остаток на\\s*\\d{2}\\.\\d{2}\\.\\d{4}\\s*(${M})`, "g"))];
+  const control: SberControl = {
+    opening: ostatki.length ? toNumber(ostatki[0][1]) : null,
+    deposits: labeled(text, "Пополнение"),
+    withdrawals: labeled(text, "Списание"),
+    closing: ostatki.length ? toNumber(ostatki[ostatki.length - 1][1]) : null,
+  };
 
-  while (i < lines.length) {
-    const header = lines[i].match(OP_HEADER);
-    if (!header) {
-      i++;
-      continue;
-    }
+  const starts: number[] = [];
+  lines.forEach((ln, i) => {
+    if (REC.test(ln)) starts.push(i);
+  });
 
-    const dateRu = header[1];
-    const bankCategory = header[3].trim();
-    const amount = toNumber(header[4]);
-    const balance = toNumber(header[5]);
-    i++;
-
-    let authCode: string | null = null;
+  type Raw = {
+    ts: string;
+    time: string;
+    amount: number;
+    balance: number;
+    bankCategory: string;
+    auth: string;
+    description: string;
+  };
+  const raws: Raw[] = [];
+  starts.forEach((start, k) => {
+    const end = k + 1 < starts.length ? starts[k + 1] : lines.length;
+    const m = REC.exec(lines[start])!;
+    const [dd, mm, yy] = m[1].split(".");
+    let auth = "";
     const descParts: string[] = [];
-
-    while (i < lines.length && !DATE_TIME_START.test(lines[i])) {
-      const detail = lines[i].match(OP_DETAIL);
-      if (detail && detail[1] === dateRu) {
-        authCode = detail[2];
-        if (detail[3].trim()) descParts.push(detail[3].trim());
-      } else if (descParts.length > 0 || authCode) {
-        descParts.push(lines[i]);
+    for (let j = start + 1; j < end; j++) {
+      const ln = lines[j];
+      if (FOOTER.test(ln.trim())) break;
+      const am = AUTH.exec(ln);
+      if (am && !auth) {
+        auth = am[2];
+        descParts.push(am[3]);
+      } else {
+        descParts.push(ln.trim());
       }
-      i++;
     }
-
-    const prevBalance = lastBalance ?? balance + amount;
-    const type = inferType(prevBalance, amount, balance);
-    if (!type) {
-      warnings.push(
-        `Balance delta mismatch on ${dateRu}: prev ${prevBalance}, amount ${amount}, balance ${balance}`
-      );
-    }
-
-    const ts = isoFromRuDate(dateRu);
-    transactions.push({
-      ts,
-      amount,
-      type: type ?? "expense",
-      externalId: authCode ? `SBER-${ts.replace(/-/g, "")}-${authCode}` : null,
-      bankCategory,
-      description: descParts.join(" ").replace(/\s+/g, " ").trim(),
+    const description = descParts
+      .join(" ")
+      .replace(/Операция по карте.*$/, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    raws.push({
+      ts: `${yy}-${mm}-${dd}`,
+      time: m[2],
+      bankCategory: m[3].trim(),
+      amount: toNumber(m[4]),
+      balance: toNumber(m[5]),
+      auth,
+      description,
     });
+  });
 
-    lastBalance = balance;
+  const chrono = [...raws].reverse();
+  const transactions: ParsedTxn[] = [];
+  let prev = control.opening;
+  for (const r of chrono) {
+    let type: "income" | "expense" = "expense";
+    if (prev !== null) {
+      const signed = Math.round((r.balance - prev) * 100) / 100;
+      type = signed < 0 ? "expense" : "income";
+      if (Math.abs(Math.abs(signed) - r.amount) > 0.01) {
+        warnings.push(`Row recon mismatch ${r.ts}: amount ${r.amount}, balance delta ${signed}`);
+      }
+    }
+    prev = r.balance;
+    transactions.push({
+      ts: r.ts,
+      time: r.time,
+      amount: r.amount,
+      type,
+      externalId: `SBER-${r.ts.replace(/-/g, "")}-${r.auth || r.time.replace(":", "")}`,
+      bankCategory: r.bankCategory,
+      description: r.description,
+    });
   }
 
   const parsedOut = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
   const parsedIn = transactions.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
-
   const near = (a: number | null, b: number) => a !== null && Math.abs(a - b) < 0.01;
-  const depositsOk = control.deposits === null || near(control.deposits, parsedIn);
   const withdrawalsOk = control.withdrawals === null || near(control.withdrawals, parsedOut);
+  const depositsOk = control.deposits === null || near(control.deposits, parsedIn);
   const balanceOk =
     control.opening === null ||
     control.closing === null ||
     near(control.closing, control.opening + parsedIn - parsedOut);
 
-  if (!depositsOk) warnings.push(`Deposits mismatch: statement ${control.deposits}, parsed ${parsedIn}`);
   if (!withdrawalsOk) warnings.push(`Withdrawals mismatch: statement ${control.withdrawals}, parsed ${parsedOut}`);
+  if (!depositsOk) warnings.push(`Deposits mismatch: statement ${control.deposits}, parsed ${parsedIn}`);
   if (!balanceOk) {
-    warnings.push(
-      `Balance mismatch: opening ${control.opening} - out ${parsedOut} + in ${parsedIn} ≠ closing ${control.closing}`
-    );
+    warnings.push(`Balance mismatch: ${control.opening} + ${parsedIn} - ${parsedOut} ≠ ${control.closing}`);
   }
   if (transactions.length === 0) warnings.push("No transactions parsed");
 
-  const controlOk = depositsOk && withdrawalsOk && balanceOk && transactions.length > 0;
+  const controlOk = withdrawalsOk && depositsOk && balanceOk && transactions.length > 0;
   return { transactions, control, controlOk, warnings };
 }
 

@@ -13,12 +13,13 @@ const FIX = join(__dirname, "__fixtures__");
 const read = (name: string) => readFileSync(join(FIX, name), "utf8");
 
 describe("sber parser", () => {
-  it("passes control reconciliation on August fixture", () => {
-    const result = parseSber(read("sber-aug2026.txt"));
+  it("passes control reconciliation on pdf-parse debit fixture", () => {
+    const fixture = readFileSync(join(__dirname, "__fixtures__/real/sber-debit-5623-aug2026.txt"), "utf8");
+    const result = parseSber(fixture);
     expect(result.control.ok).toBe(true);
     expect(result.account.ref).toBe("sber-5623");
-    expect(result.txs.some((t) => /WHOOSH/i.test(t.rawDescription))).toBe(true);
-    expect(result.txs.some((t) => t.type === "income" && /дивиденды/i.test(t.rawDescription))).toBe(true);
+    expect(result.txs).toHaveLength(9);
+    expect(result.txs[0]?.externalId).toBe("SBER-20260824-755296");
     expect(result.txs.some((t) => t.excluded && /перевод для ш/i.test(t.rawDescription))).toBe(true);
   });
 });

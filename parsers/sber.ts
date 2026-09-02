@@ -23,7 +23,7 @@ function mapSberTxn(txn: SberParsedTxn, accountRef: string): ParsedTx {
     type: txn.type,
     accountRef,
     rawDescription,
-    externalId: txn.externalId ?? "",
+    externalId: txn.externalId,
     statementSign: txn.type === "income" ? 1 : -1,
   });
 }
