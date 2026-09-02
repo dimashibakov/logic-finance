@@ -1,14 +1,9 @@
+import { parseAlfaStatement, type ParsedTxn as AlfaParsedTxn } from "@/lib/parsers/alfa-ru";
 import { categorizeAll } from "./categorize";
 import { applyCommonRules } from "./rules";
 import type { ParseResult, ParsedTx } from "./types";
 import { detectAlfaRef } from "./account-detect";
-import {
-  extractRuStatementHeader,
-  isRuCurrentAccountTable,
-  iterRuCurrentAccountBlocks,
-  ruOperationDescription,
-  verifyRuStatementControl,
-} from "./ru-profile";
+import { extractRuStatementHeader, isRuCurrentAccountTable, verifyRuStatementControl } from "./ru-profile";
 import { assignExternalIds, isoFromRuDate, parseRuAmount, round2 } from "./utils";
 
 function extractHeader(text: string) {
@@ -25,32 +20,17 @@ function extractHeader(text: string) {
   };
 }
 
-function parseCurrentAccountLines(text: string, accountRef: string): ParsedTx[] {
-  const txs: ParsedTx[] = [];
-
-  for (const block of iterRuCurrentAccountBlocks(text)) {
-    const parsed = ruOperationDescription(block);
-    if (!parsed) continue;
-
-    const { description, signedAmount } = parsed;
-    const amount = Math.abs(signedAmount);
-    const isCredit = signedAmount > 0;
-
-    txs.push(
-      applyCommonRules({
-        date: block.date,
-        amount,
-        currency: "RUB",
-        type: isCredit ? "income" : "expense",
-        accountRef,
-        rawDescription: description,
-        externalId: block.code,
-        statementSign: isCredit ? 1 : -1,
-      })
-    );
-  }
-
-  return txs;
+function mapAlfaTxn(txn: AlfaParsedTxn, accountRef: string): ParsedTx {
+  return applyCommonRules({
+    date: txn.ts,
+    amount: txn.amount,
+    currency: "RUB",
+    type: txn.type,
+    accountRef,
+    rawDescription: txn.description,
+    externalId: txn.externalId ?? "",
+    statementSign: txn.type === "income" ? 1 : -1,
+  });
 }
 
 function parseCreditCardLines(text: string, accountRef: string): ParsedTx[] {
@@ -202,8 +182,31 @@ function usesBalanceEquation(text: string, accountRef: string): boolean {
 
 export function parse(text: string): ParseResult {
   const header = extractHeader(text);
-  const lineParser = isRuCurrentAccountTable(text) ? parseCurrentAccountLines : parseCreditCardLines;
-  let txs = categorizeAll(lineParser(text, header.ref));
+
+  if (isRuCurrentAccountTable(text)) {
+    const alfa = parseAlfaStatement(text);
+    let txs = categorizeAll(alfa.transactions.map((t) => mapAlfaTxn(t, header.ref)));
+    txs = assignExternalIds(txs);
+
+    return {
+      account: {
+        ref: header.ref,
+        currency: "RUB",
+        statementBalanceEnd: round2(header.balanceEnd),
+        periodStart: header.start,
+        periodEnd: header.end,
+      },
+      txs,
+      control: {
+        deposits: alfa.control.deposits ?? 0,
+        withdrawals: alfa.control.withdrawals ?? 0,
+        ok: alfa.controlOk,
+        notes: alfa.warnings,
+      },
+    };
+  }
+
+  let txs = categorizeAll(parseCreditCardLines(text, header.ref));
   txs = assignExternalIds(txs);
 
   const controlCheck = verifyRuStatementControl(
