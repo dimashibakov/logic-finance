@@ -2,26 +2,55 @@ import { categorizeAll } from "./categorize";
 import { applyCommonRules } from "./rules";
 import type { ParseResult, ParsedTx } from "./types";
 import { detectAlfaRef } from "./account-detect";
-import { assignExternalIds, isoFromRuDate, parseRuAmount, round2, verifyControl } from "./utils";
+import {
+  extractRuStatementHeader,
+  isRuCurrentAccountTable,
+  iterRuCurrentAccountBlocks,
+  ruOperationDescription,
+  verifyRuStatementControl,
+} from "./ru-profile";
+import { assignExternalIds, isoFromRuDate, parseRuAmount, round2 } from "./utils";
 
 function extractHeader(text: string) {
   const ref = detectAlfaRef(text);
-
-  const period = text.match(/(\d{2}\.\d{2}\.\d{4})\s*[-–]\s*(\d{2}\.\d{2}\.\d{4})/);
-  const incoming = parseRuAmount(text.match(/Входящий[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? "0");
-  const outgoing = parseRuAmount(text.match(/Исходящий[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? "0");
-  const receipts = parseRuAmount(text.match(/Поступления[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? incoming.toString());
-  const expenses = parseRuAmount(text.match(/Расходы[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? outgoing.toString());
-  const balanceEnd = parseRuAmount(text.match(/Исходящий[^\d]*([\d\s]+,\d{2})/i)?.[1] ?? "0");
-
+  const ru = extractRuStatementHeader(text);
   return {
     ref,
-    start: period ? isoFromRuDate(period[1]) : "",
-    end: period ? isoFromRuDate(period[2]) : "",
-    balanceEnd,
-    deposits: receipts || incoming,
-    withdrawals: expenses,
+    start: ru.start,
+    end: ru.end,
+    balanceEnd: ru.closing,
+    opening: ru.opening,
+    deposits: ru.deposits,
+    withdrawals: ru.withdrawals,
   };
+}
+
+function parseCurrentAccountLines(text: string, accountRef: string): ParsedTx[] {
+  const txs: ParsedTx[] = [];
+
+  for (const block of iterRuCurrentAccountBlocks(text)) {
+    const parsed = ruOperationDescription(block);
+    if (!parsed) continue;
+
+    const { description, signedAmount } = parsed;
+    const amount = Math.abs(signedAmount);
+    const isCredit = signedAmount > 0;
+
+    txs.push(
+      applyCommonRules({
+        date: block.date,
+        amount,
+        currency: "RUB",
+        type: isCredit ? "income" : "expense",
+        accountRef,
+        rawDescription: description,
+        externalId: block.code,
+        statementSign: isCredit ? 1 : -1,
+      })
+    );
+  }
+
+  return txs;
 }
 
 function parseCreditCardLines(text: string, accountRef: string): ParsedTx[] {
@@ -29,7 +58,7 @@ function parseCreditCardLines(text: string, accountRef: string): ParsedTx[] {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
   for (const line of lines) {
-    const row = line.match(/^(\d{2}\.\d{2}\.\d{4})\s*\|\s*(\S+)\s*\|\s*(.+?)\s*\|\s*([+-][\d\s]+,\d{2}|[+-][\d\s]+,\d{2})\s*$/);
+    const row = line.match(/^(\d{2}\.\d{2}\.\d{4})\s*\|\s*(\S+)\s*\|\s*(.+?)\s*\|\s*([+-][\d\s]+,\d{2})\s*$/);
     if (!row) continue;
 
     const date = isoFromRuDate(row[1]);
@@ -148,32 +177,47 @@ function parseCreditCardLines(text: string, accountRef: string): ParsedTx[] {
       continue;
     }
 
-    // Current account lines
-    const generic = applyCommonRules({
-      date,
-      amount,
-      currency: "RUB",
-      type: isCredit ? "income" : "expense",
-      accountRef,
-      rawDescription: desc,
-      externalId: "",
-      statementSign: isCredit ? 1 : -1,
-    });
-    txs.push(generic);
+    txs.push(
+      applyCommonRules({
+        date,
+        amount,
+        currency: "RUB",
+        type: isCredit ? "income" : "expense",
+        accountRef,
+        rawDescription: desc,
+        externalId: "",
+        statementSign: isCredit ? 1 : -1,
+      })
+    );
   }
 
   return txs;
 }
 
+function usesBalanceEquation(text: string, accountRef: string): boolean {
+  if (accountRef === "alfa-1916") return false;
+  if (/предоставление транша|кредитн/i.test(text)) return false;
+  return isRuCurrentAccountTable(text) || /(?:Входящий|Исходящий)\s+остаток/i.test(text);
+}
+
 export function parse(text: string): ParseResult {
   const header = extractHeader(text);
-  let txs = categorizeAll(parseCreditCardLines(text, header.ref));
+  const lineParser = isRuCurrentAccountTable(text) ? parseCurrentAccountLines : parseCreditCardLines;
+  let txs = categorizeAll(lineParser(text, header.ref));
   txs = assignExternalIds(txs);
 
-  const controlCheck = verifyControl(txs, {
-    deposits: header.deposits,
-    withdrawals: header.withdrawals,
-  });
+  const controlCheck = verifyRuStatementControl(
+    txs,
+    {
+      start: header.start,
+      end: header.end,
+      opening: header.opening,
+      closing: header.balanceEnd,
+      deposits: header.deposits,
+      withdrawals: header.withdrawals,
+    },
+    { checkBalance: usesBalanceEquation(text, header.ref) }
+  );
 
   return {
     account: {

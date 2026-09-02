@@ -4,7 +4,12 @@ import type { ParsedTx } from "./types";
 const TOLERANCE = 0.01;
 
 export function parseRuAmount(raw: string): number {
-  const cleaned = raw.replace(/\s/g, "").replace(",", ".").replace(/^\+/, "");
+  const cleaned = raw
+    .trim()
+    .replace(/\s*(?:RUR|RUB|₽)\s*$/i, "")
+    .replace(/\s/g, "")
+    .replace(",", ".")
+    .replace(/^\+/, "");
   const n = parseFloat(cleaned);
   return Number.isFinite(n) ? n : 0;
 }
@@ -96,6 +101,7 @@ export function seqByDate(txs: ParsedTx[]): Map<string, number> {
 export function assignExternalIds(txs: ParsedTx[]): ParsedTx[] {
   const daySeq = new Map<string, number>();
   return txs.map((tx) => {
+    if (tx.externalId) return tx;
     const seq = daySeq.get(tx.date) ?? 0;
     daySeq.set(tx.date, seq + 1);
     return {

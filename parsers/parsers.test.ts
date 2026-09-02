@@ -33,6 +33,39 @@ describe("alfa parser (credit card 1916)", () => {
   });
 });
 
+describe("alfa parser (current account 3883 RU)", () => {
+  it("parses one operation with operation code external_id and RU control totals", () => {
+    const result = parseAlfa(read("alfa-account-3883-aug2026.txt"));
+    expect(result.control.ok).toBe(true);
+    expect(result.control.deposits).toBe(0);
+    expect(result.control.withdrawals).toBe(85_000);
+    expect(result.account.ref).toBe("alfa-3883");
+    expect(result.txs).toHaveLength(1);
+    expect(result.txs[0]?.date).toBe("2026-08-29");
+    expect(result.txs[0]?.amount).toBe(85_000);
+    expect(result.txs[0]?.type).toBe("expense");
+    expect(result.txs[0]?.currency).toBe("RUB");
+    expect(result.txs[0]?.externalId).toBe("C162908260622382");
+  });
+
+  it("accepts zero deposits (0,00 RUR) without falling back to opening balance", () => {
+    const result = parseAlfa(read("alfa-account-3883-aug2026.txt"));
+    expect(result.control.deposits).toBe(0);
+    expect(result.control.ok).toBe(true);
+  });
+
+  it("merges multi-line descriptions without a leading date", () => {
+    const text = read("alfa-account-3883-aug2026.txt").replace(
+      "| Оплата по договору | -85 000,00 RUR",
+      "| Оплата по договору\nбез НДС | -85 000,00 RUR"
+    );
+    const result = parseAlfa(text);
+    expect(result.control.ok).toBe(true);
+    expect(result.txs[0]?.rawDescription).toMatch(/Оплата по договору/);
+    expect(result.txs[0]?.rawDescription).toMatch(/без НДС/);
+  });
+});
+
 describe("rshb parser", () => {
   it("passes control; principal vs interest split", () => {
     const result = parseRshb(read("rshb-aug2026.txt"));
