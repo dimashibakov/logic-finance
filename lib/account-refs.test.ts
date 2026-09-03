@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACCOUNT_REF_MAP, accountNameForRef, isKnownAccountRef } from "./account-refs";
+import { ACCOUNT_REF_MAP, accountIdForRef, accountNameForRef, isKnownAccountRef, normalizeAccountRef, RSHB_ACCOUNT_ID } from "./account-refs";
 
 describe("ACCOUNT_REF_MAP", () => {
   it("maps all parser refs to non-empty account names", () => {
@@ -19,5 +19,14 @@ describe("ACCOUNT_REF_MAP", () => {
 
   it("maps amex statement ending to AMEX card in DB", () => {
     expect(ACCOUNT_REF_MAP["amex-23009"]).toBe("AMEX - 7997");
+  });
+
+  it("normalizes RSHB requisites and account number to canonical rshb ref", () => {
+    for (const alias of ["40817810135450008526", "Россельхозбанк", "РСХБ", "RSHB", "rshb"]) {
+      expect(normalizeAccountRef(alias)).toBe("rshb");
+      expect(isKnownAccountRef(alias)).toBe(true);
+      expect(accountNameForRef(alias)).toBe("RSHB");
+      expect(accountIdForRef(alias)).toBe(RSHB_ACCOUNT_ID);
+    }
   });
 });

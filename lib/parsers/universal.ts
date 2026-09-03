@@ -2,7 +2,7 @@
 // Universal statement parser: Anthropic PDF extraction + deterministic control gate.
 
 import { z } from "zod";
-import { detectAlfaRef, detectSberRef } from "@/parsers/account-detect";
+import { detectAlfaRef, detectRshbRef, detectSberRef } from "@/parsers/account-detect";
 import type { AlfaParseResult } from "@/lib/parsers/alfa-ru";
 import type { SberParseResult } from "@/lib/parsers/sber-ru";
 
@@ -100,6 +100,7 @@ export function resolveAccountRef(extracted: ExtractedStatement, text: string): 
   const bank = extracted.bank.toLowerCase();
   if (/alfa|альфа/.test(bank) || /alfa|альфа/i.test(text)) return detectAlfaRef(text);
   if (/sber|сбер/.test(bank) || /sber|сбер/i.test(text)) return detectSberRef(text);
+  if (/rshb|рсхб|россель/i.test(bank) || /rshb|рсхб|россель/i.test(text)) return detectRshbRef(text);
   const hint = extracted.account_hint ?? "";
   const tail = hint.match(/(\d{4})/)?.[1];
   if (tail) return `${extracted.bank.toLowerCase().replace(/\s+/g, "")}-${tail}`;
@@ -237,12 +238,15 @@ export async function extractStatement(pdfBase64: string, promptExtra = ""): Pro
   const model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5";
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured");
 
+  const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID;
+
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "content-type": "application/json",
       "x-api-key": apiKey,
       "anthropic-version": "2023-06-01",
+      ...(workspaceId ? { "anthropic-workspace-id": workspaceId } : {}),
     },
     body: JSON.stringify({
       model,

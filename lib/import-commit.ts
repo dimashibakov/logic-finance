@@ -1,4 +1,4 @@
-import { accountNameForRef, isKnownAccountRef } from "@/lib/account-refs";
+import { accountIdForRef, accountNameForRef, isKnownAccountRef } from "@/lib/account-refs";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type CommitRow = {
@@ -28,6 +28,9 @@ export type CommitResult = {
 };
 
 async function resolveAccountId(supabase: SupabaseClient, accountRef: string): Promise<string | null> {
+  const directId = accountIdForRef(accountRef);
+  if (directId) return directId;
+
   const name = accountNameForRef(accountRef);
   if (!name) return null;
 
