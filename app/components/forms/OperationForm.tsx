@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { categorize } from "@/parsers/categorize";
 import type { ParsedTx } from "@/parsers/types";
+import SegTabs from "../desktop/SegTabs";
 import type { Preset } from "../AddSheetContext";
 
 type Account = { id: string; name: string; currency: string; zone: string };
@@ -119,12 +120,12 @@ export default function OperationForm({ preset, onDone, onBack }: Props) {
         </select>
       </div>
 
-      <div className="lf-seg" style={{ marginBottom: 10 }}>
-        {TYPES.map((t) => (
-          <button key={t} type="button" className={`lf-seg__btn${type === t ? " lf-seg__btn--on" : ""}`} onClick={() => setType(t)}>
-            {t}
-          </button>
-        ))}
+      <div style={{ marginBottom: 10 }}>
+        <SegTabs
+          tabs={TYPES.map((t) => ({ id: t, label: t }))}
+          active={type}
+          onChange={(id) => setType(id as (typeof TYPES)[number])}
+        />
       </div>
 
       <div className="lf-grid-2" style={{ marginBottom: 10 }}>

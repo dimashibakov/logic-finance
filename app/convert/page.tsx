@@ -5,6 +5,7 @@ import { computeExposure } from "@/lib/exposure";
 import { isLiquidType, isCardType } from "@/lib/liquidity";
 import RateHeader from "../components/RateHeader";
 import ConvertPlanner from "./ConvertPlanner";
+import ConvertDesktop from "../components/desktop/ConvertDesktop";
 
 function addDaysISO(days: number) {
   const d = new Date();
@@ -55,8 +56,9 @@ export default async function ConvertPage() {
   const exposure = computeExposure(exposureAccounts, exposureObligations, spot, eff);
 
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-wrap lf-wrap--desktop">
+      <ConvertDesktop spot={spot} eff={eff} timing={timing} rubRecommendation={rubRecommendation} />
+      <div className="lf-phone lf-page-mobile">
         <RateHeader title="Convert" />
         <ConvertPlanner
           timing={timing}

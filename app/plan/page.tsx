@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { rub, usd } from "@/lib/format";
 import { buildPlanFactSnapshot } from "@/lib/plan-fact";
 import { findUsReserveBalance, taxReserves } from "@/lib/taxes";
 import RateHeader from "../components/RateHeader";
 import TaxReservesBlock from "./TaxReservesBlock";
+import PlanDesktop from "../components/desktop/PlanDesktop";
 
 type CatJoin = { name: string; kind: string } | { name: string; kind: string }[] | null;
 type Tx = { amount: number; currency: string; type: string; ts: string; category_id: string | null; source: string | null; categories: CatJoin };
@@ -35,7 +37,7 @@ function monthKey(tsOrDate: string) {
   return `${tsOrDate.slice(0, 7)}-01`;
 }
 
-async function resolveDefaultMonth(supabase: ReturnType<typeof createClient>) {
+async function listPlanMonths(supabase: ReturnType<typeof createClient>) {
   const [{ data: planRows }, { data: txRows }] = await Promise.all([
     supabase.from("plan").select("month"),
     supabase.from("transactions").select("ts").in("source", ["statement", "manual"]),
@@ -43,8 +45,14 @@ async function resolveDefaultMonth(supabase: ReturnType<typeof createClient>) {
   const months = new Set<string>();
   for (const p of planRows ?? []) months.add(String(p.month).slice(0, 10));
   for (const t of txRows ?? []) months.add(monthKey(t.ts));
-  if (months.size === 0) return "2026-09-01";
-  return [...months].sort().reverse()[0]!;
+  if (months.size === 0) return ["2026-09-01"];
+  return [...months].sort().reverse();
+}
+
+async function resolveMonth(supabase: ReturnType<typeof createClient>, requested?: string) {
+  const months = await listPlanMonths(supabase);
+  if (requested && /^\d{4}-\d{2}-01$/.test(requested) && months.includes(requested)) return requested;
+  return months[0]!;
 }
 
 function fmtAmt(n: number, currency: string) {
@@ -120,11 +128,17 @@ function IncomeSection({ currency, fact, plan }: { currency: "RUB" | "USD"; fact
   );
 }
 
-export default async function PlanPage() {
+type PageProps = { searchParams?: { month?: string } };
+
+export default async function PlanPage({ searchParams }: PageProps) {
   const supabase = createClient();
-  const month = await resolveDefaultMonth(supabase);
+  const months = await listPlanMonths(supabase);
+  const month = await resolveMonth(supabase, searchParams?.month);
   const monthEndStr = monthEnd(month);
   const label = monthLabel(month);
+  const rates = await fetchFxRates();
+  const spot = getRubPerUsd(rates, "spot");
+  const eff = effRate(spot);
 
   const [{ data: txData }, { data: planData }, { data: accData }] = await Promise.all([
     supabase
@@ -163,8 +177,18 @@ export default async function PlanPage() {
   const hasAnyData = hasRubIncome || hasUsdIncome || rubExpenses.length > 0 || usdExpenses.length > 0;
 
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-wrap lf-wrap--desktop">
+      <PlanDesktop
+        spot={spot}
+        eff={eff}
+        month={month}
+        monthLabel={label}
+        months={months}
+        rubExpenses={rubExpenses}
+        incomeFactRub={incomeFact.RUB}
+        incomePlanRub={incomePlan.RUB}
+      />
+      <div className="lf-phone lf-page-mobile">
         <RateHeader title="Plan" subtitle={label} />
 
         <TaxReservesBlock reserves={taxReserveSnapshot} />

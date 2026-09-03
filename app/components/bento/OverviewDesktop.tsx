@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
 import { rub, toUsd } from "@/lib/format";
 import {
   buildCompositionSegments,
@@ -16,18 +14,10 @@ import { computeSensitivity, type ExposureAccount, type ExposureObligation, type
 import type { AccountGroups } from "@/lib/liquidity";
 import { tveFloatHint } from "@/lib/non-pnl";
 import type { PaymentEvent } from "@/lib/payments";
-import { useAddSheet } from "../AddSheetContext";
+import DesktopTopBar from "../desktop/DesktopTopBar";
 import AccountsTable from "./AccountsTable";
 import PaymentCard from "./PaymentCard";
 import Tile from "./Tile";
-
-const NAV = [
-  { href: "/", label: "Overview" },
-  { href: "/convert", label: "Convert" },
-  { href: "/debts", label: "Debts" },
-  { href: "/plan", label: "Plan" },
-  { href: "/import", label: "Import" },
-] as const;
 
 type Props = {
   spot: number;
@@ -78,8 +68,6 @@ export default function OverviewDesktop({
   tveFloat,
   showTveFloat,
 }: Props) {
-  const pathname = usePathname();
-  const { openView } = useAddSheet();
   const [baseCurrency, setBaseCurrency] = useState<BaseCurrency>("RUB");
 
   const rf = sumZoneBalances(groups.liquidRf);
@@ -128,45 +116,14 @@ export default function OverviewDesktop({
       : "none due";
 
   return (
-    <div className="lf-overview-desktop">
-      <header className="lf-bento-top">
-        <div className="lf-bento-wordmark">LOGIC FINANCE</div>
-        <nav className="lf-bento-nav" aria-label="Main">
-          {NAV.map((item) => {
-            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-            return (
-              <Link key={item.href} href={item.href} className={`lf-bento-nav__link${active ? " lf-bento-nav__link--on" : ""}`}>
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="lf-bento-top__spacer" />
-        <div className="lf-bento-ccy lf-bento-pressable" role="group" aria-label="Base currency">
-          <button
-            type="button"
-            className={baseCurrency === "RUB" ? "lf-bento-ccy__btn lf-bento-ccy__btn--on" : "lf-bento-ccy__btn"}
-            onClick={() => setBaseCurrency("RUB")}
-          >
-            ₽
-          </button>
-          <button
-            type="button"
-            className={baseCurrency === "USD" ? "lf-bento-ccy__btn lf-bento-ccy__btn--on" : "lf-bento-ccy__btn"}
-            onClick={() => setBaseCurrency("USD")}
-          >
-            $
-          </button>
-        </div>
-        <div className="lf-bento-fx lf-mono">
-          SPOT {spot.toFixed(2)}
-          <br />
-          EFF {eff.toFixed(2)} ₽/$
-        </div>
-        <button type="button" className="lf-bento-add lf-bento-pressable lf-mono" onClick={() => openView("operation")}>
-          + Add operation
-        </button>
-      </header>
+    <div className="lf-page-desktop">
+      <DesktopTopBar
+        spot={spot}
+        eff={eff}
+        showCurrencyToggle
+        baseCurrency={baseCurrency}
+        onBaseCurrencyChange={setBaseCurrency}
+      />
 
       <main className="lf-bento-grid">
         <Tile label="NET WORTH" hero>

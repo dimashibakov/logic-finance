@@ -93,7 +93,7 @@ export default async function Home() {
   const exposure = computeExposure(exposureAccounts, exposureObligations, spot, eff);
 
   return (
-    <div className="lf-wrap lf-wrap--overview">
+    <div className="lf-wrap lf-wrap--desktop">
       <OverviewDesktop
         spot={spot}
         eff={eff}
@@ -112,7 +112,7 @@ export default async function Home() {
         tveFloat={tveFloat}
         showTveFloat={showTveFloat}
       />
-      <div className="lf-phone lf-overview-mobile">
+      <div className="lf-phone lf-page-mobile">
         <RateHeader />
 
         {activeInsights.length > 0 && (

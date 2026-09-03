@@ -1636,26 +1636,32 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
   font-size: 11px;
 }
 
-/* ——— Overview desktop bento (≥1080px only) ——— */
-.lf-overview-desktop {
+/* ——— Desktop web (≥1080px only) ——— */
+.lf-page-desktop {
+  display: none;
+}
+
+.lf-only-desktop {
   display: none;
 }
 
 @media (min-width: 1080px) {
-  .lf-wrap--overview {
+  .lf-nav {
+    display: none !important;
+  }
+
+  .lf-wrap--desktop {
     display: block;
     min-height: 100vh;
     background: var(--paper);
   }
 
+  .lf-wrap--desktop .lf-page-mobile,
   .lf-wrap--overview .lf-overview-mobile {
     display: none !important;
   }
 
-  .lf-wrap--overview .lf-nav {
-    display: none;
-  }
-
+  .lf-page-desktop,
   .lf-overview-desktop {
     display: block;
     min-height: 100vh;
@@ -1664,6 +1670,298 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
     padding-bottom: 40px;
   }
 
+  .lf-only-desktop {
+    display: block;
+  }
+
+  .lf-only-mobile {
+    display: none !important;
+  }
+
+  .lf-desktop-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 22px 26px;
+  }
+
+  .lf-desktop-pagehead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .lf-desktop-pagehead h1 {
+    font-size: 22px;
+    margin: 0;
+    letter-spacing: 0.01em;
+    font-weight: 700;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-pagehead h1 {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .lf-desktop-pagehead__right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .lf-desktop-two {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
+  }
+
+  .lf-desktop-panel {
+    border: var(--card-border-w) solid var(--line);
+    background: var(--panel);
+    padding: 18px;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-panel {
+    border-width: 3px;
+    border-color: var(--ink);
+  }
+
+  .lf-desktop-panel--flush {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .lf-desktop-field {
+    margin-bottom: 14px;
+  }
+
+  .lf-desktop-field label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .lf-desktop-input {
+    width: 100%;
+    border: var(--card-border-w) solid var(--line);
+    background: var(--input-bg);
+    padding: 12px 14px;
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-input {
+    border-width: 3px;
+    border-color: var(--ink);
+  }
+
+  .lf-desktop-input--big {
+    font-size: 30px;
+    font-weight: 600;
+  }
+
+  .lf-desktop-input--sm {
+    width: auto;
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .lf-desktop-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 10px 0 16px;
+    flex-wrap: wrap;
+  }
+
+  .lf-desktop-btn {
+    width: 100%;
+    border: var(--card-border-w) solid var(--line);
+    box-shadow: var(--shadow-active);
+    padding: 14px;
+    font-size: 15px;
+    cursor: pointer;
+    background: var(--panel);
+    color: var(--ink);
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-btn {
+    border-width: 3px;
+    border-color: var(--ink);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .lf-desktop-btn--green {
+    background: var(--success);
+    color: #fff;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-btn--green {
+    background: var(--success);
+    color: #fff;
+  }
+
+  .lf-desktop-verdict {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 26px;
+    border: var(--card-border-w) solid var(--line);
+    padding: 14px;
+    text-align: center;
+    box-shadow: var(--shadow-active);
+    text-transform: uppercase;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-verdict {
+    border-width: 3px;
+    border-color: var(--ink);
+  }
+
+  .lf-desktop-verdict--fav {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-verdict--fav {
+    color: var(--ink);
+  }
+
+  .lf-desktop-verdict--hold {
+    background: var(--accent-weak);
+    color: var(--ink);
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-verdict--hold {
+    background: var(--accent);
+  }
+
+  .lf-desktop-mini-list {
+    margin-top: 14px;
+  }
+
+  .lf-desktop-spark {
+    height: 60px;
+    border: var(--card-border-w) solid var(--line);
+    background: var(--input-bg);
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding: 6px;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-spark {
+    border-width: 2px;
+    border-color: var(--ink);
+    background: var(--paper);
+  }
+
+  .lf-desktop-spark i {
+    flex: 1;
+    display: block;
+    background: var(--success);
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    min-height: 4px;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-spark i {
+    border-color: var(--ink);
+  }
+
+  .lf-desktop-debt-tiles.lf-bento-grid {
+    padding: 0;
+    max-width: none;
+    margin-bottom: 18px;
+  }
+
+  .lf-desktop-tile-accent {
+    background: var(--card);
+    box-shadow: var(--shadow-active);
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-tile-accent {
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .lf-desktop-plan-table .lf-progress {
+    margin-top: 0;
+  }
+
+  /* centered modals (desktop) */
+  .lf-sheet {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    right: auto;
+    bottom: auto;
+    max-width: 520px;
+    width: calc(100% - 32px);
+    margin: 0;
+    max-height: calc(100vh - 80px);
+    overflow: auto;
+    animation: none;
+    border-radius: var(--radius);
+    border: var(--card-border-w) solid var(--card-border);
+  }
+
+  html[data-theme="brutalist"] .lf-sheet {
+    border-radius: 0;
+  }
+
+  .lf-sheet--lg {
+    max-width: 760px;
+  }
+
+  .lf-sheet--form .lf-back {
+    display: none;
+  }
+
+  .lf-desktop-modal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: var(--card-border-w) solid var(--line);
+    padding: 14px 18px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-modal__head {
+    border-bottom-width: 3px;
+    border-bottom-color: var(--ink);
+    font-weight: 800;
+  }
+
+  .lf-desktop-modal__close {
+    border: var(--card-border-w) solid var(--line);
+    background: var(--panel);
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-modal__close {
+    border-width: 2px;
+    border-color: var(--ink);
+  }
+
+  /* ——— Overview bento grid ——— */
   .lf-bento-top {
     display: flex;
     align-items: center;

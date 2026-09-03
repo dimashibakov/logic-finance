@@ -1,19 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { fetchFxRates, getRubPerUsd } from "@/lib/fx";
+import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { fmtNative } from "@/lib/format";
 import RateHeader from "../components/RateHeader";
 import DebtSimulator from "./DebtSimulator";
+import DebtsDesktop from "../components/desktop/DebtsDesktop";
+import type { DebtObligation } from "@/lib/debts-summary";
 
-type Obligation = {
-  id: string;
-  name: string;
-  kind: string;
-  currency: string;
-  balance: number;
-  apr: number | null;
-  monthly_payment: number | null;
-  due_date: string | null;
-};
+type Obligation = DebtObligation;
 
 function displayName(name: string) {
   return name.replace(/\s*\(карта\)\s*$/i, "");
@@ -35,10 +28,14 @@ function AprPill({ apr }: { apr: number | null }) {
 
 export default async function DebtsPage() {
   const supabase = createClient();
-  const [{ data: accData }, { data: oblData }] = await Promise.all([
+  const [{ data: accData }, { data: oblData }, rates] = await Promise.all([
     supabase.from("accounts").select("currency, type, balance").eq("currency", "RUB"),
     supabase.from("obligations").select("*"),
+    fetchFxRates(),
   ]);
+  const spot = getRubPerUsd(rates, "spot");
+  const eff = effRate(spot);
+
   const rubCashMax = (accData ?? [])
     .filter((a) => ["cash", "checking", "savings"].includes(a.type))
     .reduce((s, a) => s + Math.max(0, Number(a.balance)), 0);
@@ -49,8 +46,9 @@ export default async function DebtsPage() {
   const target = sorted.find((o) => Number(o.balance) !== 0);
 
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-wrap lf-wrap--desktop">
+      <DebtsDesktop spot={spot} eff={eff} obligations={obligations} />
+      <div className="lf-phone lf-page-mobile">
         <RateHeader title="Debts" />
 
         <div className="lf-sec-label">
