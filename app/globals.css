@@ -1635,3 +1635,668 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
   padding: 8px 12px;
   font-size: 11px;
 }
+
+/* ——— Overview desktop bento (≥1080px only) ——— */
+.lf-overview-desktop {
+  display: none;
+}
+
+@media (min-width: 1080px) {
+  .lf-wrap--overview {
+    display: block;
+    min-height: 100vh;
+    background: var(--paper);
+  }
+
+  .lf-wrap--overview .lf-overview-mobile {
+    display: none !important;
+  }
+
+  .lf-wrap--overview .lf-nav {
+    display: none;
+  }
+
+  .lf-overview-desktop {
+    display: block;
+    min-height: 100vh;
+    background: var(--paper);
+    color: var(--ink);
+    padding-bottom: 40px;
+  }
+
+  .lf-bento-top {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 16px 26px;
+    border-bottom: var(--header-border, var(--card-border-w) solid var(--line));
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-top {
+    border-bottom-width: 3px;
+    border-bottom-color: var(--ink);
+  }
+
+  .lf-bento-wordmark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-wordmark {
+    font-weight: 900;
+    letter-spacing: 0.06em;
+  }
+
+  .lf-bento-nav {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+
+  .lf-bento-nav__link {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 13px;
+    border: 2px solid transparent;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-nav__link {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+  }
+
+  .lf-bento-nav__link--on {
+    background: var(--accent);
+    border-color: var(--line);
+    color: var(--accent-ink);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-nav__link--on {
+    color: var(--accent);
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .lf-bento-nav__link:hover:not(.lf-bento-nav__link--on) {
+    border-color: var(--line);
+  }
+
+  .lf-bento-top__spacer {
+    margin-left: auto;
+  }
+
+  .lf-bento-ccy {
+    display: flex;
+    border: var(--card-border-w) solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: var(--shadow-active);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-ccy {
+    border-width: 2px;
+    border-color: var(--ink);
+  }
+
+  .lf-bento-ccy__btn {
+    border: 0;
+    background: var(--panel);
+    padding: 7px 13px;
+    cursor: pointer;
+    font: inherit;
+    border-right: var(--card-border-w) solid var(--line);
+    color: var(--ink);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-ccy__btn {
+    border-right-width: 2px;
+    border-right-color: var(--ink);
+    font-weight: 800;
+  }
+
+  .lf-bento-ccy__btn:last-child {
+    border-right: 0;
+  }
+
+  .lf-bento-ccy__btn--on {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-ccy__btn--on {
+    background: var(--ink);
+    color: var(--accent);
+  }
+
+  .lf-bento-fx {
+    font-weight: 600;
+    font-size: 13px;
+    background: var(--fx-box-bg, var(--accent-weak));
+    border: var(--fx-box-border, var(--card-border-w) solid var(--line));
+    padding: 8px 12px;
+    line-height: 1.35;
+    box-shadow: var(--shadow-active);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-fx {
+    background: var(--accent);
+    border: 3px solid var(--ink);
+    font-size: 10.5px;
+  }
+
+  .lf-bento-add {
+    font-weight: 600;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: var(--card-border-w) solid var(--line);
+    box-shadow: var(--shadow-active);
+    padding: 9px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-add {
+    border-width: 3px;
+    border-color: var(--ink);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 12px;
+  }
+
+  .lf-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    padding: 22px 26px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .lf-bento-tile {
+    border: var(--card-border-w) solid var(--line);
+    background: var(--panel);
+    padding: 18px;
+    min-width: 0;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-tile {
+    border-width: 3px;
+    border-color: var(--ink);
+  }
+
+  .lf-bento-tile--hero {
+    grid-column: span 2;
+    grid-row: span 2;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-tile--hero {
+    box-shadow: var(--shadow);
+  }
+
+  .lf-bento-tile--wide {
+    grid-column: span 4;
+  }
+
+  .lf-bento-tile__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .lf-bento-tile__head .lf-bento-lab {
+    margin-bottom: 0;
+  }
+
+  .lf-bento-lab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-lab {
+    font-weight: 700;
+    opacity: 0.7;
+  }
+
+  .lf-bento-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-sub {
+    opacity: 0.55;
+  }
+
+  .lf-bento-hero__big {
+    font-weight: 700;
+    font-size: 52px;
+    line-height: 0.98;
+    margin-top: 4px;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-hero__big {
+    font-family: var(--font-display);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+  }
+
+  .lf-bento-hero__alt {
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .lf-bento-hero__row {
+    display: flex;
+    gap: 26px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .lf-bento-hero__num {
+    font-size: 17px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .lf-bento-compose {
+    margin-top: auto;
+    padding-top: 18px;
+  }
+
+  .lf-bento-bar {
+    height: 18px;
+    border: var(--bar-border, var(--card-border-w) solid var(--line));
+    display: flex;
+    overflow: hidden;
+    background: var(--line2);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-bar {
+    height: var(--bar-h);
+    border: 3px solid var(--ink);
+    background: var(--paper);
+  }
+
+  .lf-bento-bar i {
+    display: block;
+    height: 100%;
+    border-right: var(--card-border-w) solid var(--line);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-bar i {
+    border-right-width: 2px;
+    border-right-color: var(--ink);
+  }
+
+  .lf-bento-bar i:last-child {
+    border-right: 0;
+  }
+
+  .lf-bento-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .lf-bento-legend span {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .lf-bento-legend span b {
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--line);
+    display: inline-block;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-legend span b {
+    border-color: var(--ink);
+  }
+
+  .lf-bento-val {
+    font-weight: 600;
+    font-size: 30px;
+    line-height: 1;
+    margin-top: 8px;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-val {
+    font-family: var(--font-display);
+    font-weight: 900;
+  }
+
+  .lf-bento-foot {
+    margin-top: 10px;
+  }
+
+  .lf-bento-mini {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--line2);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-mini {
+    border-bottom-color: var(--faint);
+    opacity: 0.85;
+  }
+
+  .lf-bento-mini:last-child {
+    border-bottom: 0;
+  }
+
+  .lf-bento-pays {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .lf-bento-pcard {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: var(--card-border-w) solid var(--line);
+    background: var(--card);
+    padding: 12px;
+    min-width: 0;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-pcard {
+    border-width: 2px;
+    border-color: var(--ink);
+  }
+
+  .lf-bento-pcard--hot {
+    box-shadow: var(--shadow-active);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-pcard--hot {
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .lf-bento-pcard__due {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .lf-bento-pcard__name {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    margin: 6px 0;
+    line-height: 1.25;
+    min-height: 34px;
+  }
+
+  .lf-bento-pcard__badge {
+    flex-shrink: 0;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 11px !important;
+  }
+
+  .lf-bento-pcard__amt {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .lf-bento-pcard__tags {
+    margin-top: 8px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+  .lf-bento-tag {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border: 2px solid var(--line);
+    padding: 2px 5px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-tag {
+    border-color: var(--ink);
+    font-weight: 800;
+  }
+
+  .lf-bento-tag--hot {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-tag--hot {
+    color: var(--ink);
+  }
+
+  .lf-bento-tag--covered {
+    color: var(--muted);
+    border-color: var(--line2);
+  }
+
+  .lf-bento-tag--apr {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--line);
+  }
+
+  html[data-theme="brutalist"] .lf-bento-tag--apr {
+    border-color: var(--ink);
+  }
+
+  .lf-bento-table-wrap {
+    overflow-x: auto;
+  }
+
+  .lf-bento-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .lf-bento-table thead th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: var(--card-border-w) solid var(--line);
+    text-transform: uppercase;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-table thead th {
+    border-bottom-width: 3px;
+    border-bottom-color: var(--ink);
+  }
+
+  .lf-bento-r,
+  .lf-bento-table .lf-bento-num {
+    text-align: right;
+  }
+
+  .lf-bento-grp td {
+    background: var(--panel);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 7px 10px;
+    border-top: var(--card-border-w) solid var(--line);
+    border-bottom: var(--row-border-w) solid var(--line2);
+    text-transform: uppercase;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-grp td {
+    background: var(--panel);
+    border-top-width: 3px;
+    border-top-color: var(--ink);
+    border-bottom-width: 2px;
+    border-bottom-color: var(--ink);
+    font-weight: 800;
+  }
+
+  .lf-bento-table tbody td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line2);
+    font-size: 14px;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-table tbody td {
+    border-bottom-color: var(--faint);
+    opacity: 0.95;
+  }
+
+  .lf-bento-num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .lf-bento-num--alt {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .lf-bento-num--primary {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .lf-bento-num--pct {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .lf-bento-subtot td {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    border-top: 2px solid var(--line);
+    border-bottom: 0;
+    background: var(--card);
+    padding: 9px 10px;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-subtot td {
+    border-top-color: var(--ink);
+    font-weight: 800;
+  }
+
+  .lf-bento-acct {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    min-width: 0;
+  }
+
+  .lf-bento-acct__name {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .lf-bento-badge {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border: var(--card-border-w) solid var(--line);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-badge {
+    border-width: 2px;
+    border-color: var(--ink);
+    font-weight: 900;
+  }
+
+  .lf-bento-badge--sm {
+    font-size: 11px;
+  }
+
+  .lf-bento-pressable {
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+
+  .lf-bento-pressable:active {
+    transform: var(--btn-transform-active);
+    box-shadow: var(--btn-shadow-active);
+  }
+
+  .lf-bento-pressable:focus-visible,
+  .lf-bento-nav__link:focus-visible,
+  .lf-bento-ccy__btn:focus-visible,
+  .lf-bento-add:focus-visible {
+    outline: 3px solid var(--line);
+    outline-offset: 2px;
+  }
+
+  html[data-theme="brutalist"] .lf-bento-pressable:focus-visible,
+  html[data-theme="brutalist"] .lf-bento-nav__link:focus-visible,
+  html[data-theme="brutalist"] .lf-bento-ccy__btn:focus-visible,
+  html[data-theme="brutalist"] .lf-bento-add:focus-visible {
+    outline-color: var(--ink);
+  }
+}
+
+@media (min-width: 1080px) and (prefers-reduced-motion: reduce) {
+  .lf-bento-pressable {
+    transition: none !important;
+  }
+
+  .lf-bento-pressable:active {
+    transform: none;
+  }
+}

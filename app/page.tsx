@@ -2,9 +2,10 @@ import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { sortInsights, type AgentInsightRow } from "@/lib/agent/types";
-import { fetchFxRates, getRubPerUsd, toUsd } from "@/lib/fx";
+import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { groupAccounts, illiquidUsdTotal, liquidUsdTotal, type AccountRow } from "@/lib/liquidity";
 import { computeNetWorth } from "@/lib/networth";
+import { computeExposure } from "@/lib/exposure";
 import {
   coverageByZone,
   fmtDueShort,
@@ -12,12 +13,13 @@ import {
   urgentAlertEvent,
   type ObligationRow,
 } from "@/lib/payments";
-import { fmtNative, rub, usd } from "@/lib/format";
+import { fmtNative, rub, toUsd, usd } from "@/lib/format";
 import { computeTveFloatBalance, tveFloatHint, TVE_FLOAT_CATEGORY } from "@/lib/non-pnl";
 import { V } from "@/lib/tokens";
 import RateHeader from "./components/RateHeader";
 import AccountGroup from "./components/AccountGroup";
 import UpcomingPaymentsSection from "./components/UpcomingPaymentsSection";
+import OverviewDesktop from "./components/bento/OverviewDesktop";
 
 export default async function Home() {
   const supabase = createClient();
@@ -36,6 +38,7 @@ export default async function Home() {
   ]);
 
   const spot = getRubPerUsd(rates, "spot");
+  const eff = effRate(spot);
   const toUsdSpot = (n: number, c: string) => toUsd(n, c, spot);
 
   const accounts = (accData ?? []) as AccountRow[];
@@ -76,9 +79,40 @@ export default async function Home() {
     return name === TVE_FLOAT_CATEGORY;
   });
 
+  const exposureAccounts = accounts.map((a) => ({
+    balance: Number(a.balance),
+    currency: a.currency,
+    type: a.type,
+    zone: a.zone,
+  }));
+  const exposureObligations = obligations.map((o) => ({
+    balance: Number(o.balance),
+    currency: o.currency,
+    kind: o.kind,
+  }));
+  const exposure = computeExposure(exposureAccounts, exposureObligations, spot, eff);
+
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-wrap lf-wrap--overview">
+      <OverviewDesktop
+        spot={spot}
+        eff={eff}
+        assets={assets}
+        debt={debt}
+        net={net}
+        liquid={liquid}
+        accountCount={accounts.length}
+        groups={groups}
+        exposure={exposure}
+        exposureAccounts={exposureAccounts}
+        exposureObligations={exposureObligations}
+        upcoming={upcoming}
+        shortByCurrency={shortByCurrency}
+        accountByObligation={accountByObligation}
+        tveFloat={tveFloat}
+        showTveFloat={showTveFloat}
+      />
+      <div className="lf-phone lf-overview-mobile">
         <RateHeader />
 
         {activeInsights.length > 0 && (
