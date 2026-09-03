@@ -33,8 +33,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone" style={{ paddingTop: 48 }}>
+    <div className="lf-auth-page">
+      <div className="lf-auth-card lf-phone" style={{ paddingTop: 48 }}>
         <div className="lf-eyebrow">Sign in</div>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: "8px 0 6px" }}>Logic Finance</h1>
         <p className="lf-hint" style={{ marginBottom: 24 }}>

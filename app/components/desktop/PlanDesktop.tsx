@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import DesktopTopBar from "./DesktopTopBar";
+import DesktopPageBridge from "./DesktopPageBridge";
 import { rub } from "@/lib/format";
 import type { CategoryLine } from "@/lib/plan-fact";
 
@@ -39,10 +39,9 @@ export default function PlanDesktop({
 
   return (
     <div className="lf-page-desktop">
-      <DesktopTopBar spot={spot} eff={eff} />
+      <DesktopPageBridge title="Plan · Fact" spot={spot} eff={eff}>
       <div className="lf-desktop-page">
         <div className="lf-desktop-pagehead">
-          <h1>Plan · Fact</h1>
           <div className="lf-desktop-pagehead__right">
             <span className="lf-bento-sub">month</span>
             <select
@@ -120,6 +119,7 @@ export default function PlanDesktop({
           </table>
         </div>
       </div>
+      </DesktopPageBridge>
     </div>
   );
 }

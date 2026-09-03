@@ -47,7 +47,21 @@ export default async function DebtsPage() {
 
   return (
     <div className="lf-wrap lf-wrap--desktop">
-      <DebtsDesktop spot={spot} eff={eff} obligations={obligations} />
+      <DebtsDesktop
+        spot={spot}
+        eff={eff}
+        obligations={obligations}
+        maxExtra={maxPrepay}
+        target={
+          target
+            ? {
+                apr: Number(target.apr ?? 0),
+                name: displayName(target.name),
+                currency: target.currency,
+              }
+            : null
+        }
+      />
       <div className="lf-phone lf-page-mobile">
         <RateHeader title="Debts" />
 

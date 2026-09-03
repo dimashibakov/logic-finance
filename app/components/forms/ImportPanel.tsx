@@ -21,7 +21,12 @@ type PreviewRow = {
   excluded?: boolean;
 };
 
-type Props = { onBack: () => void; onDone: () => void };
+type Props = {
+  onBack: () => void;
+  onDone: () => void;
+  variant?: "default" | "split";
+  hideBack?: boolean;
+};
 
 const PARSE_TIMEOUT_MS = 120_000;
 const COMMIT_TIMEOUT_MS = 30_000;
@@ -40,7 +45,7 @@ function categoryKind(type: string): "income" | "expense" | null {
   return null;
 }
 
-export default function ImportPanel({ onBack, onDone }: Props) {
+export default function ImportPanel({ onBack, onDone, variant = "default", hideBack = false }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [dragOver, setDragOver] = useState(false);
@@ -152,15 +157,23 @@ export default function ImportPanel({ onBack, onDone }: Props) {
   }
 
   const canSave = rows.length > 0 && controlOk && parseOk && reviewComplete;
+  const isSplit = variant === "split";
+  const dropCls = isSplit ? "lf-drop lf-desktop-panel" : "lf-drop lf-card";
+  const previewBoxCls = isSplit ? "lf-desktop-panel" : "lf-card lf-card--pad";
+  const previewMaxH = isSplit ? 520 : 280;
+  const parseBtnCls = isSplit ? "lf-desktop-btn lf-bento-pressable lf-mono" : "lf-btn";
+  const saveBtnCls = isSplit ? "lf-desktop-btn lf-desktop-btn--green lf-bento-pressable lf-mono" : "lf-btn";
 
-  return (
-    <div>
-      <button type="button" onClick={onBack} className="lf-back">
-        ‹ Import statement
-      </button>
+  const uploadSection = (
+    <>
+      {!hideBack && (
+        <button type="button" onClick={onBack} className="lf-back">
+          ‹ Import statement
+        </button>
+      )}
 
       <div
-        className="lf-drop lf-card"
+        className={dropCls}
         style={{ borderColor: dragOver ? "var(--accent)" : undefined, marginBottom: 10, cursor: "pointer" }}
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => {
@@ -178,10 +191,26 @@ export default function ImportPanel({ onBack, onDone }: Props) {
         <input ref={inputRef} type="file" accept=".pdf" multiple hidden onChange={(e) => e.target.files && addFiles(e.target.files)} />
       </div>
 
-      <button type="button" className="lf-btn" disabled={loading || !files.length} onClick={handleParse} style={{ marginTop: 0 }}>
+      {files.length > 0 && (
+        <div className="lf-mono lf-note" style={{ marginBottom: 8 }}>
+          {files.length} file{files.length === 1 ? "" : "s"} selected
+        </div>
+      )}
+
+      <button
+        type="button"
+        className={parseBtnCls}
+        disabled={loading || !files.length}
+        onClick={handleParse}
+        style={{ marginTop: 0 }}
+      >
         {loading ? "Parsing…" : "Parse"}
       </button>
+    </>
+  );
 
+  const previewSection = (
+    <>
       {rows.length > 0 && (
         <>
           <div className={`lf-mono lf-note${controlOk && parseOk ? "" : " lf-text-danger"}`}>
@@ -189,7 +218,7 @@ export default function ImportPanel({ onBack, onDone }: Props) {
             {!parseOk && " · parse incomplete"}
             {!reviewComplete && " · confirm categories marked for review"}
           </div>
-          <div className="lf-card lf-card--pad" style={{ maxHeight: 280, overflow: "auto", marginBottom: 10, padding: 8 }}>
+          <div className={previewBoxCls} style={{ maxHeight: previewMaxH, overflow: "auto", marginBottom: 10, padding: 8 }}>
             {rows.map((r, i) => (
               <div
                 key={`${r.externalId}-${i}`}
@@ -228,16 +257,32 @@ export default function ImportPanel({ onBack, onDone }: Props) {
           </div>
           <button
             type="button"
-            className="lf-btn"
+            className={saveBtnCls}
             disabled={committing || !canSave}
             onClick={handleCommit}
-            style={{ background: canSave ? "var(--success)" : "var(--line)" }}
+            style={isSplit ? undefined : { background: canSave ? "var(--success)" : "var(--line)" }}
           >
             {committing ? "Saving…" : "Confirm & save"}
           </button>
         </>
       )}
       {message && <div className={`lf-note${parseOk && controlOk ? "" : " lf-text-danger"}`}>{message}</div>}
+    </>
+  );
+
+  if (isSplit) {
+    return (
+      <div className="lf-desktop-two">
+        <section className="lf-desktop-panel">{uploadSection}</section>
+        <section className="lf-desktop-panel">{previewSection}</section>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {uploadSection}
+      {previewSection}
     </div>
   );
 }

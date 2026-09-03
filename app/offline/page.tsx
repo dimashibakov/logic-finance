@@ -1,7 +1,7 @@
 export default function OfflinePage() {
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-auth-page">
+      <div className="lf-auth-card lf-phone">
         <header className="lf-header" style={{ marginTop: 8 }}>
           <div>
             <div className="lf-header__title">Offline</div>

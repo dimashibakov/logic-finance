@@ -1645,15 +1645,218 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
   display: none;
 }
 
+.lf-app-root {
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+.lf-app-main {
+  min-width: 0;
+}
+
+.lf-app-content {
+  min-width: 0;
+}
+
 @media (min-width: 1080px) {
+  .lf-app-root {
+    display: grid;
+    grid-template-columns: 236px 1fr;
+  }
+
+  .lf-app-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .lf-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: auto;
+    border-right: var(--card-border-w) solid var(--line);
+    background: var(--panel2, var(--panel));
+    padding: 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  html[data-theme="brutalist"] .lf-sidebar {
+    border-right-width: 3px;
+    border-right-color: var(--ink);
+  }
+
+  .lf-sidebar__wordmark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 19px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: 0.01em;
+  }
+
+  html[data-theme="brutalist"] .lf-sidebar__wordmark {
+    font-weight: 900;
+    letter-spacing: 0.06em;
+  }
+
+  .lf-sidebar__grp {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 12px 6px 4px;
+    text-transform: uppercase;
+  }
+
+  .lf-sidebar__link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 10px;
+    border: 2px solid transparent;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  html[data-theme="brutalist"] .lf-sidebar__link {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .lf-sidebar__link--on {
+    background: var(--accent);
+    border-color: var(--line);
+    color: var(--accent-ink);
+  }
+
+  html[data-theme="brutalist"] .lf-sidebar__link--on {
+    color: var(--ink);
+  }
+
+  .lf-sidebar__link:hover:not(.lf-sidebar__link--on) {
+    border-color: var(--line);
+  }
+
+  .lf-sidebar__ic {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .lf-sidebar__add {
+    margin-top: 14px;
+    width: 100%;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--accent);
+    border: var(--card-border-w) solid var(--line);
+    box-shadow: var(--shadow-active);
+    padding: 11px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  html[data-theme="brutalist"] .lf-sidebar__add {
+    border-width: 3px;
+    border-color: var(--ink);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 12px;
+  }
+
+  .lf-sidebar__foot {
+    margin-top: auto;
+    padding-top: 14px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .lf-sidebar__foot .lf-sign-out {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .lf-topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
+    border-bottom: var(--card-border-w) solid var(--line);
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  html[data-theme="brutalist"] .lf-topbar {
+    border-bottom-width: 3px;
+    border-bottom-color: var(--ink);
+  }
+
+  .lf-topbar__title {
+    font-size: 19px;
+    margin: 0;
+    letter-spacing: 0.01em;
+    font-weight: 700;
+  }
+
+  html[data-theme="brutalist"] .lf-topbar__title {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .lf-topbar__spacer {
+    margin-left: auto;
+  }
+
+  .lf-topbar__fx {
+    font-weight: 600;
+    font-size: 12px;
+    background: var(--accent-weak, var(--accent));
+    border: var(--card-border-w) solid var(--line);
+    padding: 6px 10px;
+    line-height: 1.3;
+    box-shadow: var(--shadow-active);
+  }
+
+  html[data-theme="brutalist"] .lf-topbar__fx {
+    border-width: 3px;
+    border-color: var(--ink);
+  }
+
+  .lf-mobile-chrome {
+    display: none !important;
+  }
+
   .lf-nav {
     display: none !important;
   }
 
   .lf-wrap--desktop {
     display: block;
-    min-height: 100vh;
-    background: var(--paper);
+    width: 100%;
+    min-height: 0;
+    background: transparent;
+  }
+
+  .lf-wrap.lf-wrap--desktop {
+    justify-content: stretch;
   }
 
   .lf-wrap--desktop .lf-page-mobile,
@@ -1664,7 +1867,6 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
   .lf-page-desktop,
   .lf-overview-desktop {
     display: block;
-    min-height: 100vh;
     background: var(--paper);
     color: var(--ink);
     padding-bottom: 40px;
@@ -1899,7 +2101,16 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
   }
 
   /* centered modals (desktop) */
-  .lf-sheet {
+  .lf-scrim--modal {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 56px 16px;
+    overflow: auto;
+  }
+
+  .lf-scrim--modal + .lf-sheet,
+  .lf-only-desktop .lf-sheet {
     position: fixed;
     left: 50%;
     top: 50%;
@@ -2587,6 +2798,127 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
   html[data-theme="brutalist"] .lf-bento-add:focus-visible {
     outline-color: var(--ink);
   }
+
+  .lf-desktop-band {
+    background: var(--band, var(--panel2));
+    border: var(--card-border-w) solid var(--line);
+    border-bottom: 0;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-band {
+    border-width: 3px;
+    border-color: var(--ink);
+    border-bottom: 0;
+    font-weight: 800;
+  }
+
+  .lf-desktop-chart {
+    height: 180px;
+    border: var(--card-border-w) solid var(--line);
+    background: var(--input-bg);
+    padding: 8px;
+    margin-top: 10px;
+  }
+
+  html[data-theme="brutalist"] .lf-desktop-chart {
+    border-width: 2px;
+    border-color: var(--ink);
+  }
+
+  .lf-desktop-chart .lf-sparkline {
+    height: 100%;
+    width: 100%;
+  }
+
+  .lf-insight {
+    border: var(--card-border-w) solid var(--line);
+    background: var(--panel2, var(--panel));
+    padding: 13px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  html[data-theme="brutalist"] .lf-insight {
+    border-width: 2px;
+    border-color: var(--ink);
+  }
+
+  .lf-insight__dot {
+    width: 12px;
+    height: 12px;
+    flex: 0 0 12px;
+    border: 2px solid var(--line);
+    margin-top: 4px;
+  }
+
+  .lf-insight__dot--urgent {
+    background: var(--danger);
+  }
+
+  .lf-insight__dot--warn {
+    background: var(--warn);
+  }
+
+  .lf-insight__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .lf-insight__kind {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .lf-insight__title {
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .lf-insight__text {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 6px 0 0;
+    line-height: 1.45;
+  }
+
+  .lf-insight__dismiss {
+    border: var(--card-border-w) solid var(--line);
+    background: var(--panel);
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .lf-import-split {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .lf-desktop-btn--sm {
+    width: auto;
+    padding: 8px 12px;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .lf-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
 }
 
 @media (min-width: 1080px) and (prefers-reduced-motion: reduce) {
@@ -2596,5 +2928,41 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
 
   .lf-bento-pressable:active {
     transform: none;
+  }
+}
+
+/* Auth / offline full-screen (desktop centered) */
+.lf-auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 20px;
+  background: var(--paper);
+}
+
+.lf-auth-card {
+  width: 100%;
+  max-width: 430px;
+}
+
+@media (min-width: 1080px) {
+  .lf-auth-page {
+    align-items: center;
+  }
+
+  .lf-auth-card {
+    max-width: 360px;
+    border: var(--card-border-w) solid var(--line);
+    background: var(--panel2, var(--panel));
+    box-shadow: var(--shadow-active);
+    padding: 30px;
+    text-align: center;
+  }
+
+  html[data-theme="brutalist"] .lf-auth-card {
+    border-width: 3px;
+    border-color: var(--ink);
+    box-shadow: var(--shadow);
   }
 }

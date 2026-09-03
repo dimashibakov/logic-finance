@@ -1,15 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { FileUp, PenLine, Scale } from "lucide-react";
-
-export type AddSheetView = "menu" | "operation" | "balance" | "import";
-
-const VIEW_TITLES: Record<Exclude<AddSheetView, "menu">, string> = {
-  operation: "OPERATION",
-  balance: "BALANCE ADJUSTMENT",
-  import: "IMPORT STATEMENT",
-};
+import Modal, { AddMenuItems, VIEW_TITLES } from "./desktop/Modal";
+import type { AddSheetView } from "./AddSheetContext";
 
 type Props = {
   open: boolean;
@@ -22,6 +15,8 @@ type Props = {
 export default function AddSheet({ open, view, onClose, onNavigate, children }: Props) {
   useEffect(() => {
     if (!open) return;
+    const mq = window.matchMedia("(max-width: 1079px)");
+    if (!mq.matches) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
@@ -31,50 +26,36 @@ export default function AddSheet({ open, view, onClose, onNavigate, children }: 
     };
   }, [open, onClose]);
 
-  if (!open) return null;
-
   const isForm = view !== "menu";
-  const sheetClass = ["lf-sheet", isForm ? "lf-sheet--form" : "", view === "import" ? "lf-sheet--lg" : ""]
-    .filter(Boolean)
-    .join(" ");
+  const title = isForm ? VIEW_TITLES[view] : "ADD";
 
   return (
     <>
-      <div className="lf-scrim" onClick={onClose} />
-      <div className={sheetClass} role="dialog" aria-modal="true">
-        {isForm && (
-          <div className="lf-desktop-modal__head lf-only-desktop">
-            <span className="lf-mono">{VIEW_TITLES[view]}</span>
-            <button type="button" className="lf-desktop-modal__close lf-bento-pressable" onClick={onClose} aria-label="Close">
-              ✕
-            </button>
+      <div className="lf-scrim lf-only-mobile" onClick={onClose} aria-hidden />
+      <div className="lf-only-mobile">
+        {!open ? null : (
+          <div
+            className={["lf-sheet", isForm ? "lf-sheet--form" : "", view === "import" ? "lf-sheet--lg" : ""].filter(Boolean).join(" ")}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="lf-sheet__grab" />
+            {view === "menu" ? (
+              <AddMenuItems onNavigate={onNavigate} />
+            ) : (
+              <div>{children}</div>
+            )}
           </div>
         )}
-        <div className="lf-sheet__grab lf-only-mobile" />
+      </div>
 
-        {view === "menu" ? (
-          <div>
-            <h3 style={{ margin: "2px 2px 12px", fontSize: 15, fontWeight: 600 }}>Add</h3>
-            {[
-              { id: "operation" as const, label: "Operation", desc: "income · expense · conversion · transfer", Icon: PenLine },
-              { id: "balance" as const, label: "Balance adjustment", desc: "reconcile account balance", Icon: Scale },
-              { id: "import" as const, label: "Import statement", desc: "PDF → parse → preview", Icon: FileUp },
-            ].map(({ id, label, desc, Icon }) => (
-              <button key={id} type="button" onClick={() => onNavigate(id)} className="lf-action">
-                <span className="lf-action__icon">
-                  <Icon size={20} />
-                </span>
-                <span>
-                  <span style={{ display: "block", fontSize: 14.5, fontWeight: 600 }}>{label}</span>
-                  <span className="lf-note">{desc}</span>
-                </span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div>{children}</div>
-        )}
+      <div className="lf-only-desktop">
+        <Modal open={open} title={title} onClose={onClose} large={view === "import"} menu={view === "menu"}>
+          {view === "menu" ? <AddMenuItems onNavigate={onNavigate} /> : <div>{children}</div>}
+        </Modal>
       </div>
     </>
   );
 }
+
+export type { AddSheetView } from "./AddSheetContext";

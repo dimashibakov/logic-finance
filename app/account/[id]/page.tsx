@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { fetchFxRates, getRubPerUsd, toUsd } from "@/lib/fx";
+import { fetchFxRates, getRubPerUsd, effRate, toUsd } from "@/lib/fx";
 import { fmtNative, formatTxDate, formatUpdatedDate, rub, usd } from "@/lib/format";
 import { isCardType, type AccountRow } from "@/lib/liquidity";
 import RateHeader from "@/app/components/RateHeader";
 import AccountBadge from "@/app/components/AccountBadge";
+import AccountDesktop from "@/app/components/desktop/AccountDesktop";
 
 type TxRow = {
   id: string;
@@ -56,6 +57,7 @@ export default async function AccountPage({ params }: { params: { id: string } }
 
   const acct = account as AccountRow;
   const spot = getRubPerUsd(rates, "spot");
+  const eff = effRate(spot);
   const bal = Number(acct.balance);
   const isDebt = bal < 0;
   const usdEq = toUsd(Math.abs(bal), acct.currency, spot);
@@ -83,8 +85,16 @@ export default async function AccountPage({ params }: { params: { id: string } }
   const obligations = (oblData ?? []) as OblRow[];
 
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-wrap lf-wrap--desktop">
+      <AccountDesktop
+        account={acct}
+        spot={spot}
+        eff={eff}
+        txs={txs.map((tx) => ({ ...tx, categoryName: categoryName(tx.categories) }))}
+        obligations={obligations}
+        nativeSecondary={isDebt ? `−${nativeSecondary}` : nativeSecondary}
+      />
+      <div className="lf-phone lf-page-mobile">
         <RateHeader title={acct.name} subtitle={formatUpdatedDate(acct.updated_at, true)} />
 
         <div className="lf-card lf-card--pad lf-card--shadow" style={{ marginTop: 12 }}>

@@ -1,18 +1,23 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { accountNameForRef } from "@/lib/account-refs";
 import { daysToDeadline, provisionalSettlement, windDownItems, type WindDownItem } from "@/lib/winddown";
 import RateHeader from "../components/RateHeader";
 import WindDownClient from "./WindDownClient";
+import WindDownDesktop from "../components/desktop/WindDownDesktop";
 
 export default async function WindDownPage() {
   const supabase = createClient();
   const jointName = accountNameForRef("bofa-5927")!;
 
-  const [{ data: itemsData }, { data: accData }] = await Promise.all([
+  const [{ data: itemsData }, { data: accData }, rates] = await Promise.all([
     supabase.from("joint_winddown").select("*").order("created_at", { ascending: true }),
     supabase.from("accounts").select("id, balance").eq("name", jointName).maybeSingle(),
+    fetchFxRates(),
   ]);
+  const spot = getRubPerUsd(rates, "spot");
+  const eff = effRate(spot);
 
   let txRows: { amount: number; type: string; ts: string; notes: string | null }[] = [];
   if (accData?.id) {
@@ -39,8 +44,9 @@ export default async function WindDownPage() {
   );
 
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-wrap lf-wrap--desktop">
+      <WindDownDesktop spot={spot} eff={eff} items={items} summary={summary} daysLeft={daysLeft} provisional={provisional} />
+      <div className="lf-phone lf-page-mobile">
         <RateHeader title="5927 wind-down" />
         <div className="lf-sec-label">
           <span className="lf-sec-label__h">Joint account closure</span>

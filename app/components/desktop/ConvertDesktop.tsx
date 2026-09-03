@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useAddSheet } from "../AddSheetContext";
-import DesktopTopBar from "./DesktopTopBar";
+import DesktopPageBridge from "./DesktopPageBridge";
 import { fmtRate, rub, usd } from "@/lib/format";
 import type { FxTimingStats } from "@/lib/fx-timing";
 
@@ -48,10 +48,9 @@ export default function ConvertDesktop({ spot, eff, timing, rubRecommendation }:
 
   return (
     <div className="lf-page-desktop">
-      <DesktopTopBar spot={spot} eff={eff} />
+      <DesktopPageBridge title="Convert ₽ → $" spot={spot} eff={eff}>
       <div className="lf-desktop-page">
         <div className="lf-desktop-pagehead">
-          <h1>Convert ₽ → $</h1>
           <span className="lf-bento-sub">route: {CONVERSION_ROUTE}</span>
         </div>
         <div className="lf-desktop-two">
@@ -139,6 +138,7 @@ export default function ConvertDesktop({ spot, eff, timing, rubRecommendation }:
           </section>
         </div>
       </div>
+      </DesktopPageBridge>
     </div>
   );
 }

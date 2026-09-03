@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
-import type { AddSheetView } from "./AddSheet";
+
+export type AddSheetView = "menu" | "operation" | "balance" | "import";
 
 type Preset = {
   type?: "income" | "expense" | "conversion" | "transfer";

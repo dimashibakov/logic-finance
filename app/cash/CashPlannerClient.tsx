@@ -15,6 +15,7 @@ import type { ObligationRow } from "@/lib/payments";
 type Props = {
   projection: RubBalanceProjection;
   obligations: ObligationRow[];
+  variant?: "default" | "desktop";
 };
 
 function BalanceSparkline({ projection }: { projection: RubBalanceProjection }) {
@@ -57,7 +58,7 @@ function BalanceSparkline({ projection }: { projection: RubBalanceProjection }) 
   );
 }
 
-export default function CashPlannerClient({ projection, obligations }: Props) {
+export default function CashPlannerClient({ projection, obligations, variant = "default" }: Props) {
   const [ratePct, setRatePct] = useState("");
   const rate = Number(ratePct) || 0;
   const idle = idleRubAboveBuffer(projection);
@@ -65,10 +66,85 @@ export default function CashPlannerClient({ projection, obligations }: Props) {
     () => depositScenarios(projection, obligations, rate),
     [projection, obligations, rate]
   );
+  const isDesktop = variant === "desktop";
+  const panelCls = isDesktop ? "lf-desktop-panel" : "lf-card lf-card--pad lf-card--shadow";
+  const flushCls = isDesktop ? "lf-desktop-panel lf-desktop-panel--flush" : "lf-card lf-card--flush";
+  const inputCls = isDesktop ? "lf-desktop-input lf-mono" : "lf-input lf-mono";
+
+  if (isDesktop) {
+    return (
+      <div className="lf-desktop-two">
+        <div>
+          <div className={panelCls}>
+            <div className="lf-bento-lab">RUB BALANCE FORECAST · 90D</div>
+            <div className="lf-desktop-chart">
+              <BalanceSparkline projection={projection} />
+            </div>
+            <div className="lf-mono lf-bento-sub" style={{ marginTop: 8, lineHeight: 1.45 }}>
+              min {rub(Math.round(projection.minBalance))} · {fmtDueShort(projection.minDate)}
+              {" · "}
+              stress {rub(Math.round(projection.stressBalance))} · {fmtDueShort(projection.stressDate)}
+            </div>
+          </div>
+          <div className={flushCls} style={{ marginTop: 16 }}>
+            <div className="lf-row">
+              <div>
+                <div style={{ fontSize: 13.5 }}>Idle now</div>
+                <div className="lf-mono lf-bento-sub" style={{ fontSize: 10.5, marginTop: 2 }}>
+                  RUB liquid − {rub(LIQUIDITY_CONFIG.SAFETY_BUFFER_RUB)} buffer
+                </div>
+              </div>
+              <div className="lf-mono" style={{ fontSize: 14, fontWeight: 600 }}>
+                {rub(idle)}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className={panelCls}>
+            <div className="lf-bento-lab">DEPOSIT SCENARIOS</div>
+            <label className="lf-bento-sub" htmlFor="deposit-rate">
+              Rate, % APR
+            </label>
+            <input
+              id="deposit-rate"
+              className={inputCls}
+              type="number"
+              min={0}
+              step={0.1}
+              placeholder="0"
+              value={ratePct}
+              onChange={(e) => setRatePct(e.target.value)}
+              style={{ marginTop: 8, width: "100%" }}
+            />
+          </div>
+          <div className={flushCls} style={{ marginTop: 16 }}>
+            {scenarios.map((s) => (
+              <div key={s.termDays} className={`lf-row${s.overlapsMajorOutflow ? " lf-wd-row--risk" : ""}`}>
+                <div>
+                  <div style={{ fontSize: 13.5, fontWeight: 550 }}>
+                    {s.termDays} days
+                    {s.overlapsMajorOutflow && <span className="lf-hot">risk</span>}
+                  </div>
+                  <div className="lf-mono lf-bento-sub" style={{ fontSize: 10.5, marginTop: 3, lineHeight: 1.4 }}>
+                    matures {fmtDueShort(s.maturityDate)}
+                    {s.illustrativeIncome != null && <> · +{rub(s.illustrativeIncome)} est.</>}
+                  </div>
+                </div>
+                <div className="lf-mono" style={{ fontSize: 14, fontWeight: 600, textAlign: "right" }}>
+                  {rub(s.safeAmount)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="lf-card lf-card--pad lf-card--shadow">
+      <div className={panelCls}>
         <div className="lf-eyebrow">RUB balance forecast · 90 days</div>
         <div className="lf-sparkline-wrap">
           <BalanceSparkline projection={projection} />
@@ -80,7 +156,7 @@ export default function CashPlannerClient({ projection, obligations }: Props) {
         </div>
       </div>
 
-      <div className="lf-card lf-card--flush" style={{ marginTop: 10 }}>
+      <div className={flushCls} style={{ marginTop: 10 }}>
         <div className="lf-row">
           <div>
             <div style={{ fontSize: 13.5 }}>Idle now</div>
@@ -98,13 +174,13 @@ export default function CashPlannerClient({ projection, obligations }: Props) {
         <span className="lf-sec-label__h">Deposit scenarios</span>
       </div>
 
-      <div className="lf-card lf-card--pad">
+      <div className={isDesktop ? "lf-desktop-panel" : "lf-card lf-card--pad"}>
         <label className="lf-eyebrow" htmlFor="deposit-rate">
           Deposit rate, % APR
         </label>
         <input
           id="deposit-rate"
-          className="lf-input lf-mono"
+          className={inputCls}
           type="number"
           min={0}
           step={0.1}
@@ -118,7 +194,7 @@ export default function CashPlannerClient({ projection, obligations }: Props) {
         </div>
       </div>
 
-      <div className="lf-card lf-card--flush">
+      <div className={flushCls}>
         {scenarios.map((s) => (
           <div key={s.termDays} className={`lf-row${s.overlapsMajorOutflow ? " lf-wd-row--risk" : ""}`}>
             <div>
@@ -151,11 +227,13 @@ export default function CashPlannerClient({ projection, obligations }: Props) {
         liquidity planning, not investment advice; rates and terms — check with your bank
       </div>
 
-      <div className="lf-sec-label" style={{ marginTop: 16 }}>
-        <Link href="/" className="lf-sec-label__m">
-          ← overview
-        </Link>
-      </div>
+      {!isDesktop && (
+        <div className="lf-sec-label" style={{ marginTop: 16 }}>
+          <Link href="/" className="lf-sec-label__m">
+            ← overview
+          </Link>
+        </div>
+      )}
     </>
   );
 }

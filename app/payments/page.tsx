@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { fmtNative } from "@/lib/format";
 import {
   coverageByZone,
@@ -11,13 +12,17 @@ import {
 import type { AccountRow } from "@/lib/liquidity";
 import RateHeader from "../components/RateHeader";
 import PaymentEventRow from "../components/PaymentEventRow";
+import PaymentsDesktop from "../components/desktop/PaymentsDesktop";
 
 export default async function PaymentsPage() {
   const supabase = createClient();
-  const [{ data: oblData }, { data: accData }] = await Promise.all([
+  const [{ data: oblData }, { data: accData }, rates] = await Promise.all([
     supabase.from("obligations").select("id, name, kind, currency, balance, apr, due_date, due_day, monthly_payment, status, account_id").eq("status", "active"),
     supabase.from("accounts").select("currency, type, balance").eq("in_net_worth", true),
+    fetchFxRates(),
   ]);
+  const spot = getRubPerUsd(rates, "spot");
+  const eff = effRate(spot);
 
   const obligations = (oblData ?? []) as ObligationRow[];
   const accounts = (accData ?? []) as Pick<AccountRow, "currency" | "type" | "balance">[];
@@ -34,8 +39,17 @@ export default async function PaymentsPage() {
   }
 
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-wrap lf-wrap--desktop">
+      <PaymentsDesktop
+        spot={spot}
+        eff={eff}
+        coverage={coverage}
+        events={events}
+        undated={undated}
+        shortByCurrency={shortByCurrency}
+        accountByObligation={accountByObligation}
+      />
+      <div className="lf-phone lf-page-mobile">
         <RateHeader title="Payments" />
 
         <div className="lf-sec-label">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { rub, toUsd } from "@/lib/format";
 import {
   buildCompositionSegments,
@@ -14,7 +14,7 @@ import { computeSensitivity, type ExposureAccount, type ExposureObligation, type
 import type { AccountGroups } from "@/lib/liquidity";
 import { tveFloatHint } from "@/lib/non-pnl";
 import type { PaymentEvent } from "@/lib/payments";
-import DesktopTopBar from "../desktop/DesktopTopBar";
+import { useDesktopShell } from "../desktop/DesktopShellContext";
 import AccountsTable from "./AccountsTable";
 import PaymentCard from "./PaymentCard";
 import Tile from "./Tile";
@@ -69,6 +69,19 @@ export default function OverviewDesktop({
   showTveFloat,
 }: Props) {
   const [baseCurrency, setBaseCurrency] = useState<BaseCurrency>("RUB");
+  const { setMeta, resetMeta } = useDesktopShell();
+
+  useEffect(() => {
+    setMeta({
+      title: "Overview",
+      spot,
+      eff,
+      showCurrencyToggle: true,
+      baseCurrency,
+      onBaseCurrencyChange: setBaseCurrency,
+    });
+    return () => resetMeta();
+  }, [spot, eff, baseCurrency, setMeta, resetMeta]);
 
   const rf = sumZoneBalances(groups.liquidRf);
   const us = sumZoneBalances(groups.liquidUs);
@@ -117,14 +130,6 @@ export default function OverviewDesktop({
 
   return (
     <div className="lf-page-desktop">
-      <DesktopTopBar
-        spot={spot}
-        eff={eff}
-        showCurrencyToggle
-        baseCurrency={baseCurrency}
-        onBaseCurrencyChange={setBaseCurrency}
-      />
-
       <main className="lf-bento-grid">
         <Tile label="NET WORTH" hero>
           <div className="lf-bento-hero__big lf-mono">{netPair.primary}</div>

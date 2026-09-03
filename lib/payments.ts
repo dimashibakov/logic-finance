@@ -257,6 +257,22 @@ export function groupEventsByMonth(events: PaymentEvent[]) {
   return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
 }
 
+/** Split upcoming events into this calendar week vs later (grouped by month). */
+export function groupEventsTimeline(events: PaymentEvent[], now = new Date()) {
+  const today = now.toISOString().slice(0, 10);
+  const weekEnd = new Date(now);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  const weekEndStr = weekEnd.toISOString().slice(0, 10);
+
+  const thisWeek: PaymentEvent[] = [];
+  const later: PaymentEvent[] = [];
+  for (const e of events) {
+    if (e.date >= today && e.date < weekEndStr) thisWeek.push(e);
+    else later.push(e);
+  }
+  return { thisWeek, laterByMonth: groupEventsByMonth(later) };
+}
+
 export function monthLabel(ym: string) {
   const d = new Date(`${ym}-01T12:00:00`);
   return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });

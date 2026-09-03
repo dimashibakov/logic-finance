@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
 import { fmtNative, formatTxDate } from "@/lib/format";
 import RateHeader from "@/app/components/RateHeader";
+import HistoryDesktop from "@/app/components/desktop/HistoryDesktop";
 
 type TxRow = {
   id: string;
@@ -32,14 +34,25 @@ function signedAmount(tx: TxRow) {
   return `${prefix}${fmtNative(amt, tx.currency)}`;
 }
 
-export default async function HistoryPage({ searchParams }: { searchParams: { account?: string } }) {
+type PageProps = { searchParams?: { account?: string; type?: string; month?: string } };
+
+export default async function HistoryPage({ searchParams }: PageProps) {
   const supabase = createClient();
-  const accountFilter = searchParams.account;
+  const accountFilter = searchParams?.account;
+  const typeFilter = searchParams?.type;
+  const monthFilter = searchParams?.month;
+
+  const [{ data: accData }, rates] = await Promise.all([
+    supabase.from("accounts").select("id, name").order("name"),
+    fetchFxRates(),
+  ]);
+  const spot = getRubPerUsd(rates, "spot");
+  const eff = effRate(spot);
+  const accounts = (accData ?? []).map((a) => ({ id: a.id, name: a.name }));
 
   let accountName: string | null = null;
   if (accountFilter) {
-    const { data } = await supabase.from("accounts").select("name").eq("id", accountFilter).maybeSingle();
-    accountName = data?.name ?? null;
+    accountName = accounts.find((a) => a.id === accountFilter)?.name ?? null;
   }
 
   let query = supabase
@@ -49,13 +62,35 @@ export default async function HistoryPage({ searchParams }: { searchParams: { ac
     .limit(200);
 
   if (accountFilter) query = query.eq("account_id", accountFilter);
+  if (typeFilter) query = query.eq("type", typeFilter);
+  if (monthFilter && /^\d{4}-\d{2}$/.test(monthFilter)) {
+    query = query.gte("ts", `${monthFilter}-01`).lte("ts", `${monthFilter}-31`);
+  }
 
   const { data: txData } = await query;
-  const txs = (txData ?? []) as TxRow[];
+  const txs = ((txData ?? []) as TxRow[]).map((tx) => ({
+    id: tx.id,
+    ts: tx.ts,
+    amount: Number(tx.amount),
+    currency: tx.currency,
+    type: tx.type,
+    merchant: tx.merchant,
+    notes: tx.notes,
+    account_id: tx.account_id,
+    accountName: relName(tx.accounts),
+    categoryName: relName(tx.categories),
+  }));
 
   return (
-    <div className="lf-wrap">
-      <div className="lf-phone">
+    <div className="lf-wrap lf-wrap--desktop">
+      <HistoryDesktop
+        spot={spot}
+        eff={eff}
+        txs={txs}
+        accounts={accounts}
+        initialFilters={{ account: accountFilter, type: typeFilter, month: monthFilter }}
+      />
+      <div className="lf-phone lf-page-mobile">
         <RateHeader title="History" subtitle={accountName ? accountName : "all accounts"} />
 
         <div className="lf-sec-label">
@@ -76,17 +111,21 @@ export default async function HistoryPage({ searchParams }: { searchParams: { ac
         ) : (
           <div className="lf-card lf-card--flush">
             {txs.map((tx) => {
+              const label = tx.merchant || tx.categoryName || tx.notes || tx.type;
+              const amt = Math.abs(Number(tx.amount));
+              const prefix = tx.type === "income" ? "+" : tx.type === "expense" ? "−" : "";
+              const amountStr = `${prefix}${fmtNative(amt, tx.currency)}`;
               const row = (
                 <>
                   <div style={{ minWidth: 0, paddingRight: 8 }}>
-                    <div style={{ fontSize: 14, fontWeight: 550, lineHeight: 1.35 }}>{txLabel(tx)}</div>
+                    <div style={{ fontSize: 14, fontWeight: 550, lineHeight: 1.35 }}>{label}</div>
                     <div className="lf-mono lf-text-faint" style={{ fontSize: 11, marginTop: 3 }}>
                       {formatTxDate(tx.ts)} · {tx.type}
-                      {!accountFilter && relName(tx.accounts) ? ` · ${relName(tx.accounts)}` : ""}
+                      {!accountFilter && tx.accountName ? ` · ${tx.accountName}` : ""}
                     </div>
                   </div>
                   <div className="lf-mono" style={{ fontSize: 14, fontWeight: 600, textAlign: "right", flexShrink: 0 }}>
-                    {signedAmount(tx)}
+                    {amountStr}
                   </div>
                 </>
               );
