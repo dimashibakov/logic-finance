@@ -1,18 +1,57 @@
+import { existsSync, readFileSync } from "fs";
 import withPWAInit from "@ducanh2912/next-pwa";
+
+function getPwaCacheId() {
+  if (process.env.VERCEL_GIT_COMMIT_SHA) {
+    return `lf-${process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 12)}`;
+  }
+  try {
+    if (existsSync(".next/BUILD_ID")) {
+      return `lf-${readFileSync(".next/BUILD_ID", "utf8").trim()}`;
+    }
+  } catch {
+    /* ignore */
+  }
+  return "lf-dev";
+}
+
+const PWA_CACHE_ID = getPwaCacheId();
+
+const PWA_PRECACHE_SKIP =
+  /\/_next\/static\/(?:chunks|css)\/|\/_next\/static\/[^/]+\/_(?:build|ssg)Manifest\.js$|\/_next\/static\/media\//;
 
 const withPWA = withPWAInit({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
   register: true,
+  cacheStartUrl: false,
+  dynamicStartUrl: false,
   fallbacks: {
     document: "/offline",
   },
   cacheOnFrontendNav: false,
   aggressiveFrontEndNavCaching: false,
   workboxOptions: {
+    cacheId: PWA_CACHE_ID,
     skipWaiting: true,
     clientsClaim: true,
     cleanupOutdatedCaches: true,
+    manifestTransforms: [
+      async (manifestEntries) => ({
+        manifest: manifestEntries.filter(({ url }) => !PWA_PRECACHE_SKIP.test(url)),
+        warnings: [],
+      }),
+    ],
+    exclude: [
+      /\.map$/,
+      /^manifest.*\.js$/,
+      /\/_next\/static\/.*(?<!\.p)\.woff2/,
+      /\/_next\/static\/chunks\//,
+      /\/_next\/static\/css\//,
+      /\/_next\/static\/[^/]+\/_buildManifest\.js$/,
+      /\/_next\/static\/[^/]+\/_ssgManifest\.js$/,
+      /\/_next\/static\/media\//,
+    ],
     runtimeCaching: [
       {
         urlPattern: ({ url }) => url.pathname.startsWith("/api/"),
@@ -34,7 +73,7 @@ const withPWA = withPWAInit({
         handler: "StaleWhileRevalidate",
         options: {
           cacheName: "next-static",
-          expiration: { maxEntries: 64, maxAgeSeconds: 30 * 24 * 60 * 60 },
+          expiration: { maxEntries: 64, maxAgeSeconds: 7 * 24 * 60 * 60 },
         },
       },
       {
@@ -52,8 +91,8 @@ const withPWA = withPWAInit({
         handler: "NetworkFirst",
         options: {
           cacheName: "pages-shell",
-          networkTimeoutSeconds: 5,
-          expiration: { maxEntries: 8, maxAgeSeconds: 15 * 60 },
+          networkTimeoutSeconds: 3,
+          expiration: { maxEntries: 4, maxAgeSeconds: 60 },
         },
       },
     ],

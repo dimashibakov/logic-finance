@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import AppChrome from "./components/AppChrome";
+import PwaUpdate from "./components/PwaUpdate";
 import { archivo, spaceMono } from "@/lib/fonts";
 import { PWA_THEME } from "@/lib/pwa-theme";
 import { themeInitScript } from "@/lib/theme";
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={fontVars}>
+        <PwaUpdate />
         <AppChrome>{children}</AppChrome>
       </body>
     </html>

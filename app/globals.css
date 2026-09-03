@@ -2984,3 +2984,33 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
     box-shadow: var(--shadow);
   }
 }
+
+.lf-pwa-update {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(-50%);
+  padding: 10px 14px;
+  border: var(--card-border-w) solid var(--line);
+  background: var(--panel2, var(--panel));
+  box-shadow: var(--shadow-active);
+  font-size: 13px;
+}
+
+.lf-pwa-update__btn {
+  border: var(--card-border-w) solid var(--line);
+  background: var(--lime, #d4ff00);
+  color: var(--ink);
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+@media (min-width: 1080px) {
+  .lf-pwa-update {
+    bottom: 24px;
+  }
+}
