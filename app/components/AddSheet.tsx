@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import Modal, { AddMenuItems, VIEW_TITLES } from "./desktop/Modal";
+import { AddMenuItems } from "./desktop/Modal";
 import type { AddSheetView } from "./AddSheetContext";
 
 type Props = {
@@ -27,7 +27,6 @@ export default function AddSheet({ open, view, onClose, onNavigate, children }: 
   }, [open, onClose]);
 
   const isForm = view !== "menu";
-  const title = isForm ? VIEW_TITLES[view] : "ADD";
 
   return (
     <>
@@ -47,12 +46,6 @@ export default function AddSheet({ open, view, onClose, onNavigate, children }: 
             )}
           </div>
         )}
-      </div>
-
-      <div className="lf-only-desktop">
-        <Modal open={open} title={title} onClose={onClose} large={view === "import"} menu={view === "menu"}>
-          {view === "menu" ? <AddMenuItems onNavigate={onNavigate} /> : <div>{children}</div>}
-        </Modal>
       </div>
     </>
   );

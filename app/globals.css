@@ -1673,12 +1673,26 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    position: relative;
+    isolation: isolate;
+  }
+
+  .lf-app-overlays {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+  }
+
+  .lf-app-overlays .lf-scrim--modal,
+  .lf-app-overlays .lf-sheet {
+    pointer-events: auto;
   }
 
   .lf-sidebar {
     position: sticky;
     top: 0;
-    z-index: 25;
+    z-index: 50;
     height: 100vh;
     overflow: auto;
     border-right: var(--card-border-w) solid var(--line);
@@ -1687,6 +1701,7 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    pointer-events: auto;
   }
 
   html[data-theme="brutalist"] .lf-sidebar {
@@ -1851,6 +1866,7 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
 
   .lf-mobile-chrome {
     display: none !important;
+    pointer-events: none !important;
   }
 
   .lf-nav {
@@ -2118,8 +2134,10 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
     margin-top: 0;
   }
 
-  /* centered modals (desktop) */
-  .lf-scrim--modal {
+  /* centered modals (desktop) — scoped to main pane, not sidebar */
+  .lf-app-overlays .lf-scrim--modal {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -2127,8 +2145,7 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
     overflow: auto;
   }
 
-  .lf-scrim--modal + .lf-sheet,
-  .lf-only-desktop .lf-sheet {
+  .lf-app-overlays .lf-sheet {
     position: fixed;
     left: 50%;
     top: 50%;

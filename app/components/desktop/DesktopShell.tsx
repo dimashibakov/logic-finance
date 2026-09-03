@@ -5,7 +5,13 @@ import { DesktopShellProvider } from "./DesktopShellContext";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 
-export default function DesktopShell({ children }: { children: React.ReactNode }) {
+export default function DesktopShell({
+  children,
+  overlay,
+}: {
+  children: React.ReactNode;
+  overlay?: React.ReactNode;
+}) {
   const pathname = usePathname();
 
   return (
@@ -15,6 +21,7 @@ export default function DesktopShell({ children }: { children: React.ReactNode }
         <div className="lf-app-main">
           <TopBar />
           <div className="lf-app-content">{children}</div>
+          {overlay ? <div className="lf-app-overlays lf-only-desktop">{overlay}</div> : null}
         </div>
       </div>
     </DesktopShellProvider>
