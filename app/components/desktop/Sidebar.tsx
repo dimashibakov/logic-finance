@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAddSheet } from "../AddSheetContext";
 import SignOutButton from "../SignOutButton";
@@ -58,7 +57,7 @@ export default function Sidebar() {
           {group.items.map((item) => {
             const active = isActive(pathname, item.href);
             return (
-              <Link
+              <a
                 key={item.href}
                 href={item.href}
                 className={`lf-sidebar__link${active ? " lf-sidebar__link--on" : ""}`}
@@ -68,7 +67,7 @@ export default function Sidebar() {
                   {item.icon}
                 </span>
                 {item.label}
-              </Link>
+              </a>
             );
           })}
         </div>

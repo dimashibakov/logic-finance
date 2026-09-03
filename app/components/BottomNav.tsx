@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutGrid, ArrowLeftRight, Landmark, CalendarRange, Plus } from "lucide-react";
 
@@ -22,14 +21,14 @@ export default function BottomNav({ onFabClick }: Props) {
         {tabs.slice(0, 2).map((tab) => {
           const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
           return (
-            <Link
+            <a
               key={tab.href}
               href={tab.href}
               className={`lf-nav__tab${active ? " lf-nav__tab--on" : ""}`}
             >
               <tab.Icon size={21} strokeWidth={1.9} />
               <span className="lf-nav__tab-label">{tab.label}</span>
-            </Link>
+            </a>
           );
         })}
 
@@ -42,14 +41,14 @@ export default function BottomNav({ onFabClick }: Props) {
         {tabs.slice(2).map((tab) => {
           const active = pathname.startsWith(tab.href);
           return (
-            <Link
+            <a
               key={tab.href}
               href={tab.href}
               className={`lf-nav__tab${active ? " lf-nav__tab--on" : ""}`}
             >
               <tab.Icon size={21} strokeWidth={1.9} />
               <span className="lf-nav__tab-label">{tab.label}</span>
-            </Link>
+            </a>
           );
         })}
       </div>
