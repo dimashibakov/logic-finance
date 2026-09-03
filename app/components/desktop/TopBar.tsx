@@ -11,7 +11,7 @@ export default function TopBar() {
   const eff = meta.eff;
 
   return (
-    <header className="lf-topbar lf-only-desktop">
+    <header className="lf-topbar">
       <h1 className="lf-topbar__title">{title}</h1>
       <div className="lf-topbar__spacer" />
       {meta.showCurrencyToggle && meta.onBaseCurrencyChange && (

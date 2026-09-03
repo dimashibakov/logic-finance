@@ -1658,6 +1658,11 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
   min-width: 0;
 }
 
+.lf-sidebar,
+.lf-topbar {
+  display: none;
+}
+
 @media (min-width: 1080px) {
   .lf-app-root {
     display: grid;
@@ -1673,6 +1678,7 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
   .lf-sidebar {
     position: sticky;
     top: 0;
+    z-index: 25;
     height: 100vh;
     overflow: auto;
     border-right: var(--card-border-w) solid var(--line);
@@ -1721,6 +1727,9 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
     border: 2px solid transparent;
     color: var(--ink);
     text-decoration: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
   }
 
   html[data-theme="brutalist"] .lf-sidebar__link {
@@ -1800,7 +1809,7 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
     background: var(--paper);
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 20;
   }
 
   html[data-theme="brutalist"] .lf-topbar {
@@ -1874,6 +1883,15 @@ html[data-theme="brutalist"] .lf-wd-row--risk {
 
   .lf-only-desktop {
     display: block;
+  }
+
+  aside.lf-sidebar,
+  header.lf-topbar {
+    display: flex;
+  }
+
+  header.lf-topbar {
+    flex-direction: row;
   }
 
   .lf-only-mobile {

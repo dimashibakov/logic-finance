@@ -31,7 +31,7 @@ export default function AddSheet({ open, view, onClose, onNavigate, children }: 
 
   return (
     <>
-      <div className="lf-scrim lf-only-mobile" onClick={onClose} aria-hidden />
+      {open && <div className="lf-scrim lf-only-mobile" onClick={onClose} aria-hidden />}
       <div className="lf-only-mobile">
         {!open ? null : (
           <div
