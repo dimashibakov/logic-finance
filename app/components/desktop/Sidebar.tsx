@@ -18,6 +18,7 @@ const SIDEBAR_GROUPS = [
     items: [
       { href: "/debts", label: "Debts", icon: "▧" },
       { href: "/cash", label: "Cash planner", icon: "₽" },
+      { href: "/funds", label: "Фонды", icon: "◎" },
       { href: "/plan", label: "Plan · Fact", icon: "▥" },
     ],
   },
