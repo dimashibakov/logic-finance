@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Logic Finance — LF split icon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#d9d2c0;font-family:'Archivo',"Arial Black",system-ui,sans-serif;color:#14110c;padding:34px 16px 60px}
+  h1{font-size:20px;font-weight:900;text-transform:uppercase;text-align:center;margin-bottom:6px}
+  .sub{font-family:ui-monospace,monospace;font-size:11px;color:#6b6250;text-align:center;letter-spacing:.1em;text-transform:uppercase;margin-bottom:30px}
+  .wrap{max-width:760px;margin:0 auto;background:#f7f3e9;border:3px solid #14110c;box-shadow:8px 8px 0 #14110c;padding:26px}
+  .row{display:flex;align-items:flex-end;gap:30px;flex-wrap:wrap;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:9px}
+  .lbl{font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#9b8f73}
+  .hero{width:210px;height:210px;border:2px solid #14110c}
+  .full{width:120px;height:120px;border:2px solid #14110c}
+  .ios{width:120px;height:120px;border-radius:27px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.28)}
+  svg{display:block;width:100%;height:100%}
+  .home{width:160px;border-radius:20px;padding:16px 10px 12px;background:
+     radial-gradient(120% 90% at 20% 0%, #3a4a63 0%, #1b2333 55%, #0e1420 100%);
+     display:flex;flex-direction:column;align-items:center;gap:7px}
+  .home .app{width:62px;height:62px;border-radius:14px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+  .home .cap{font-family:system-ui,sans-serif;font-size:11px;color:#fff;font-weight:500}
+  .home .row2{display:flex;gap:14px}
+  .home .ghost{width:62px;height:62px;border-radius:14px;background:rgba(255,255,255,.08)}
+  .note{max-width:760px;margin:22px auto 0;font-family:ui-monospace,monospace;font-size:11px;color:#6b6250;line-height:1.6;text-align:center}
+</style>
+</head>
+<body>
+<h1>Logic Finance · LF split</h1>
+<div class="sub">вариант B · L / F вместо ₽ / $ · без рамки, full-bleed</div>
+
+<div class="wrap">
+  <div class="row">
+    <div class="cell"><div class="lbl">hero</div><div class="hero" id="hero"></div></div>
+    <div class="cell"><div class="lbl">source</div><div class="full" id="full"></div></div>
+    <div class="cell"><div class="lbl">ios mask</div><div class="ios" id="ios"></div></div>
+    <div class="cell"><div class="lbl">home screen</div>
+      <div class="home"><div class="app" id="app"></div><div class="cap">Logic</div>
+        <div class="row2"><div class="ghost"></div><div class="ghost"></div></div></div>
+    </div>
+  </div>
+  <div class="note">Мастер-SVG 1024×1024 → в твой generate-icons.mjs (192/512/maskable/apple-touch). Углы прямые (iOS скруглит), фон полный. Для maskable-версии буквы стоит чуть подвинуть к центру — под круглую маску Android края могут подрезаться (для iPhone-скругления всё ок).</div>
+</div>
+
+<script>
+  const SVG = `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1024" height="1024" fill="#14110c"/>
+    <rect x="512" y="0" width="512" height="1024" fill="#c6f24e"/>
+    <rect x="502" y="0" width="20" height="1024" fill="#14110c"/>
+    <text x="256" y="524" font-family="Archivo, 'Arial Black', sans-serif" font-weight="900"
+      font-size="600" fill="#c6f24e" text-anchor="middle" dominant-baseline="central">L</text>
+    <text x="770" y="524" font-family="Archivo, 'Arial Black', sans-serif" font-weight="900"
+      font-size="600" fill="#14110c" text-anchor="middle" dominant-baseline="central">F</text>
+  </svg>`;
+  ['hero','full','ios','app'].forEach(id => document.getElementById(id).innerHTML = SVG);
+</script>
+</body>
+</html>

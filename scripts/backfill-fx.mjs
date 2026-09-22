@@ -1,6 +1,9 @@
 import { readFileSync, existsSync } from "fs";
 import { createClient } from "@supabase/supabase-js";
 
+const FETCH_TIMEOUT_MS = 8000;
+const RETRY_BACKOFF_MS = [300, 800];
+
 function loadEnvLocal() {
   if (!existsSync(".env.local")) return;
   for (const line of readFileSync(".env.local", "utf8").split("\n")) {
@@ -14,72 +17,133 @@ function loadEnvLocal() {
   }
 }
 
-function ruDateToIso(d: string) {
-  const [dd, mm, yyyy] = d.split(".");
-  return `${yyyy}-${mm}-${dd}`;
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function parseCbrValue(raw: string) {
-  return parseFloat(raw.replace(",", ".").replace(/\s/g, ""));
+function archiveUrl(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `https://www.cbr-xml-daily.ru/archive/${y}/${m}/${day}/daily_json.js`;
 }
 
-async function fetchRange(from: Date, to: Date) {
-  const fmt = (d: Date) =>
-    `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
-  const url = `https://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=${fmt(from)}&date_req2=${fmt(to)}&VAL_NM_RQ=R01235`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`CBR archive HTTP ${res.status}`);
-  return res.text();
+function isoDate(d) {
+  return d.toISOString().slice(0, 10);
 }
 
-function parseRecords(xml: string) {
-  const rows: { rate_date: string; rub_per_usd: number }[] = [];
-  const re = /<Record\s+Date="([^"]+)"[^>]*>[\s\S]*?<Value>([^<]+)<\/Value>/gi;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(xml)) !== null) {
-    const rate = parseCbrValue(m[2]);
-    if (!Number.isFinite(rate)) continue;
-    rows.push({ rate_date: ruDateToIso(m[1]), rub_per_usd: rate });
+async function fetchWithTimeout(url) {
+  let lastErr;
+  const attempts = RETRY_BACKOFF_MS.length + 1;
+
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    try {
+      const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+      clearTimeout(timer);
+      return res;
+    } catch (err) {
+      clearTimeout(timer);
+      lastErr = err;
+      if (attempt < RETRY_BACKOFF_MS.length) {
+        await sleep(RETRY_BACKOFF_MS[attempt]);
+      }
+    }
   }
-  return rows;
+
+  throw lastErr;
 }
 
 loadEnvLocal();
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!url || !key) {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!supabaseUrl || !serviceKey) {
   console.error("Need NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local");
   process.exit(1);
 }
 
-const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+const supabase = createClient(supabaseUrl, serviceKey, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
 
-const to = new Date();
-const from = new Date();
-from.setDate(from.getDate() - 180);
+const end = new Date();
+const start = new Date();
+start.setDate(start.getDate() - 180);
 
-console.log(`Fetching CBR USD spot ${from.toISOString().slice(0, 10)} → ${to.toISOString().slice(0, 10)}…`);
-const xml = await fetchRange(from, to);
-const records = parseRecords(xml);
-console.log(`Parsed ${records.length} records`);
+console.log(`Backfill CBR spot via cbr-xml-daily.ru ${isoDate(start)} → ${isoDate(end)}…`);
 
-const payload = records.map((r) => ({
-  ...r,
-  kind: "spot",
-  notes: "CBR archive (backfill)",
-}));
+const rows = [];
+let skipped = 0;
+let errors = 0;
 
+for (let offset = 180; offset >= 0; offset--) {
+  const day = new Date();
+  day.setDate(day.getDate() - offset);
+  const label = isoDate(day);
+  const url = archiveUrl(day);
+
+  try {
+    const res = await fetchWithTimeout(url);
+
+    if (res.status === 404) {
+      skipped++;
+      console.log(`${label} skip`);
+      continue;
+    }
+
+    if (!res.ok) {
+      errors++;
+      console.log(`${label} skip`);
+      continue;
+    }
+
+    const payload = await res.json();
+    const usd = payload.Valute?.USD;
+    if (!usd?.Value) {
+      skipped++;
+      console.log(`${label} skip`);
+      continue;
+    }
+
+    const rubPerUsd = usd.Value / (usd.Nominal || 1);
+    const rateDate = payload.Date ? String(payload.Date).slice(0, 10) : label;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(rateDate) || !Number.isFinite(rubPerUsd)) {
+      skipped++;
+      console.log(`${label} skip`);
+      continue;
+    }
+
+    rows.push({
+      rate_date: rateDate,
+      rub_per_usd: rubPerUsd,
+      kind: "spot",
+      notes: "CBR backfill",
+    });
+    console.log(`${label} ok ${rubPerUsd.toFixed(2)}`);
+  } catch {
+    skipped++;
+    console.log(`${label} skip`);
+  }
+}
+
+const byDate = new Map();
+for (const row of rows) {
+  byDate.set(row.rate_date, row);
+}
+const uniqueRows = [...byDate.values()];
+
+let written = 0;
 const chunkSize = 100;
-let upserted = 0;
-for (let i = 0; i < payload.length; i += chunkSize) {
-  const chunk = payload.slice(i, i + chunkSize);
+for (let i = 0; i < uniqueRows.length; i += chunkSize) {
+  const chunk = uniqueRows.slice(i, i + chunkSize);
   const { error } = await supabase.from("fx_rates").upsert(chunk, { onConflict: "rate_date,kind" });
   if (error) {
     console.error(error.message);
     process.exit(1);
   }
-  upserted += chunk.length;
+  written += chunk.length;
 }
 
-console.log(`Upserted ${upserted} spot rows.`);
+console.log(`записано ${written}, пропущено ${skipped}, ошибок ${errors}`);
