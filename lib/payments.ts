@@ -8,6 +8,7 @@ export type ObligationRow = {
   currency: string;
   balance: number;
   apr: number | null;
+  min_payment?: number | null;
   monthly_payment: number | null;
   due_date: string | null;
   due_day: number | null;
@@ -54,8 +55,14 @@ const LIQUID_TYPES = new Set(["cash", "checking"]);
 const NPD_RENT_PLAN_RUB = 43_000;
 const NPD_RENT_RATE = 0.04;
 
-/** How many calendar months ahead to project recurring obligation payments. */
+/** How many calendar months ahead to project recurring obligation payments (Overview). */
 export const MONTHS_AHEAD = 6;
+
+/** Payments page default horizon. */
+export const PAYMENTS_MONTHS_AHEAD = 3;
+
+/** HOT tag threshold on Payments page (days). */
+export const PAYMENTS_HOT_DAYS = 7;
 
 export function paymentHorizonDays(monthsAhead = MONTHS_AHEAD, now = new Date()): number {
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
@@ -77,11 +84,11 @@ export function daysUntil(dateStr: string, now = new Date()) {
   return Math.ceil((target.getTime() - today.getTime()) / 86400000);
 }
 
-function eventFlags(dateStr: string, apr: number | null, now = new Date()) {
+function eventFlags(dateStr: string, apr: number | null, hotDays = 14, now = new Date()) {
   const d = daysUntil(dateStr, now);
   return {
     daysUntil: d,
-    hot: d <= 14,
+    hot: d >= 0 && d <= hotDays,
     highApr: apr != null && apr >= 25,
   };
 }
@@ -100,6 +107,8 @@ function oneOffAmount(o: ObligationRow): { amount: number; estimated: boolean } 
     if (explicit > 0) return { amount: Math.abs(explicit), estimated: false };
     return { amount: Math.round(NPD_RENT_PLAN_RUB * NPD_RENT_RATE), estimated: true };
   }
+  const min = Number(o.min_payment);
+  if (min > 0) return { amount: Math.abs(min), estimated: false };
   const bal = Math.abs(Number(o.balance));
   if (bal > 0) return { amount: bal, estimated: false };
   const mp = Number(o.monthly_payment);
@@ -140,7 +149,8 @@ function isUndated(o: ObligationRow) {
 export function upcomingPayments(
   obligations: ObligationRow[],
   horizonDays = 90,
-  now = new Date()
+  now = new Date(),
+  hotDays = 14,
 ): { events: PaymentEvent[]; undated: UndatedObligation[] } {
   const active = obligations.filter((o) => o.status !== "inactive");
   const todayStr = isoDate(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
@@ -168,7 +178,7 @@ export function upcomingPayments(
     if (o.due_date && o.due_date >= todayStr && o.due_date <= horizonEndStr) {
       const { amount, estimated } = oneOffAmount(o);
       if (amount > 0) {
-        const flags = eventFlags(o.due_date, o.apr != null ? Number(o.apr) : null, now);
+        const flags = eventFlags(o.due_date, o.apr != null ? Number(o.apr) : null, hotDays, now);
         events.push({
           id: `${o.id}:${o.due_date}`,
           obligationId: o.id,
@@ -190,7 +200,7 @@ export function upcomingPayments(
     const monthly = Number(o.monthly_payment);
     if (monthly > 0 && o.due_day != null && o.due_day >= 1 && o.due_day <= 31) {
       for (const date of projectMonthlyDates(o.due_day, horizonDays, now)) {
-        const flags = eventFlags(date, o.apr != null ? Number(o.apr) : null, now);
+        const flags = eventFlags(date, o.apr != null ? Number(o.apr) : null, hotDays, now);
         events.push({
           id: `${o.id}:${date}`,
           obligationId: o.id,
@@ -285,6 +295,11 @@ export function groupEventsTimeline(events: PaymentEvent[], now = new Date()) {
 export function monthLabel(ym: string) {
   const d = new Date(`${ym}-01T12:00:00`);
   return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+export function monthDividerLabel(ym: string) {
+  const d = new Date(`${ym}-01T12:00:00`);
+  return d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
 }
 
 export function fmtDueShort(dateStr: string) {
