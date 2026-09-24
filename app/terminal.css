@@ -1467,6 +1467,133 @@ html:not([data-theme]) .t-btn:disabled {
   cursor: not-allowed;
 }
 
+html[data-theme="terminal"] .t-page--fill,
+html:not([data-theme]) .t-page--fill {
+  min-height: calc(100dvh - 52px - 44px - 28px);
+  display: flex;
+  flex-direction: column;
+}
+
+html[data-theme="terminal"] .t-page--fill .t-panel--fill,
+html:not([data-theme]) .t-page--fill .t-panel--fill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+html[data-theme="terminal"] .t-page--fill .t-panel--fill .t-panel__body,
+html:not([data-theme]) .t-page--fill .t-panel--fill .t-panel__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+html[data-theme="terminal"] .t-scroll-fill,
+html:not([data-theme]) .t-scroll-fill {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+html[data-theme="terminal"] .t-page__stack,
+html:not([data-theme]) .t-page__stack {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+}
+
+html[data-theme="terminal"] .t-page__pager,
+html:not([data-theme]) .t-page__pager {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--ink3);
+}
+
+html[data-theme="terminal"] .t-progress,
+html:not([data-theme]) .t-progress {
+  width: 100%;
+  height: 7px;
+  background: #f0eff5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+html[data-theme="terminal"] .t-progress__fill,
+html:not([data-theme]) .t-progress__fill {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+}
+
+html[data-theme="terminal"] .t-progress__fill--over,
+html:not([data-theme]) .t-progress__fill--over {
+  background: var(--down);
+}
+
+html[data-theme="terminal"] .t-plan-pct,
+html:not([data-theme]) .t-plan-pct {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+  min-width: 88px;
+}
+
+html[data-theme="terminal"] .t-tx-mini,
+html:not([data-theme]) .t-tx-mini {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+html[data-theme="terminal"] .t-tx-mini__row,
+html:not([data-theme]) .t-tx-mini__row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid #f0eff5;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+html[data-theme="terminal"] .t-tx-mini__row:hover,
+html:not([data-theme]) .t-tx-mini__row:hover {
+  background: #faf9fd;
+}
+
+html[data-theme="terminal"] .t-tx-mini__label,
+html:not([data-theme]) .t-tx-mini__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+
+html[data-theme="terminal"] .t-tx-mini__date,
+html:not([data-theme]) .t-tx-mini__date {
+  font-size: 0.72rem;
+  color: var(--ink3);
+}
+
+html[data-theme="terminal"] .t-tx-mini__amt,
+html:not([data-theme]) .t-tx-mini__amt {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 html[data-theme="terminal"] .t-amort,
 html:not([data-theme]) .t-amort {
   margin-top: 16px;

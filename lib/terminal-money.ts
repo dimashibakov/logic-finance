@@ -1,6 +1,13 @@
 import type { BaseCurrency } from "@/lib/bento-overview";
 import { fmtNative, rub, toUsd, usd } from "@/lib/format";
 
+export type ZoneFilter = "RF" | "US" | "ALL";
+
+export function matchesZone(zone: string | null | undefined, filter: ZoneFilter) {
+  if (filter === "ALL") return true;
+  return zone === filter;
+}
+
 export function obligationZone(currency: string): "RF" | "US" {
   return currency === "USD" ? "US" : "RF";
 }

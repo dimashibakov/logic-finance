@@ -1,7 +1,9 @@
 import { displayDebtName } from "@/lib/debts-summary";
+import type { DrawerFieldConfig } from "@/lib/drawer-fields";
 import { fmtDateShort } from "@/lib/format";
 import { obligationZone, toRubEquiv } from "@/lib/terminal-money";
 
+export type { DrawerFieldConfig } from "@/lib/drawer-fields";
 export { obligationZone } from "@/lib/terminal-money";
 
 export type ObligationRecord = {
@@ -19,16 +21,6 @@ export type ObligationRecord = {
   status: string;
   notes: string | null;
   account_id?: string | null;
-};
-
-export type DrawerFieldType = "text" | "number" | "date" | "select" | "textarea";
-
-export type DrawerFieldConfig = {
-  key: keyof ObligationRecord;
-  label: string;
-  type: DrawerFieldType;
-  options?: { value: string; label: string }[];
-  step?: string;
 };
 
 export const OBLIGATION_DRAWER_FIELDS: DrawerFieldConfig[] = [

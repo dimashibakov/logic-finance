@@ -2,8 +2,9 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { BaseCurrency } from "@/lib/bento-overview";
+import { matchesZone as matchZoneFilter, type ZoneFilter } from "@/lib/terminal-money";
 
-export type ZoneFilter = "RF" | "US" | "ALL";
+export type { ZoneFilter } from "@/lib/terminal-money";
 
 export type TickerItem = {
   key: string;
@@ -69,6 +70,5 @@ export function useTerminalShell() {
 
 /** Filter helper for account/obligation zone. */
 export function matchesZone(zone: string | null | undefined, filter: ZoneFilter) {
-  if (filter === "ALL") return true;
-  return zone === filter;
+  return matchZoneFilter(zone, filter);
 }

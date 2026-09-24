@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import type { DrawerFieldConfig } from "@/lib/obligations";
+import type { DrawerFieldConfig } from "@/lib/drawer-fields";
 
-type Props<T extends Record<string, unknown>> = {
+type Props<T extends object> = {
   open: boolean;
   title: string;
   subtitle?: ReactNode;
@@ -15,16 +15,20 @@ type Props<T extends Record<string, unknown>> = {
   extra?: ReactNode;
   footerExtra?: ReactNode;
   readOnlyKeys?: string[];
+  createMode?: boolean;
+  readOnly?: boolean;
 };
 
-function fieldValue(record: Record<string, unknown>, key: string): string {
-  const v = record[key];
+function fieldValue(record: object, key: string, field?: DrawerFieldConfig): string {
+  const v = (record as Record<string, unknown>)[key];
+  if (field?.key === "reconciled") return v ? "true" : "false";
   if (v == null || v === "") return "";
   return String(v);
 }
 
-function formatViewValue(record: Record<string, unknown>, field: DrawerFieldConfig): string {
-  const v = record[field.key as string];
+function formatViewValue(record: object, field: DrawerFieldConfig): string {
+  const v = (record as Record<string, unknown>)[field.key];
+  if (field.key === "reconciled") return v ? "Yes" : "No";
   if (v == null || v === "") return "—";
   if (field.type === "select") {
     const opt = field.options?.find((o) => o.value === String(v));
@@ -33,7 +37,7 @@ function formatViewValue(record: Record<string, unknown>, field: DrawerFieldConf
   return String(v);
 }
 
-export default function DetailDrawer<T extends Record<string, unknown>>({
+export default function DetailDrawer<T extends object>({
   open,
   title,
   subtitle,
@@ -45,8 +49,10 @@ export default function DetailDrawer<T extends Record<string, unknown>>({
   extra,
   footerExtra,
   readOnlyKeys = [],
+  createMode = false,
+  readOnly = false,
 }: Props<T>) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(createMode);
   const [form, setForm] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,11 +60,11 @@ export default function DetailDrawer<T extends Record<string, unknown>>({
   useEffect(() => {
     if (!open || !record) return;
     const next: Record<string, string> = {};
-    for (const f of fields) next[f.key as string] = fieldValue(record, f.key as string);
+    for (const f of fields) next[f.key] = fieldValue(record, f.key, f);
     setForm(next);
-    setEditing(false);
+    setEditing(createMode);
     setError(null);
-  }, [open, record, fields]);
+  }, [open, record, fields, createMode]);
 
   useEffect(() => {
     if (!open) return;
@@ -78,11 +84,13 @@ export default function DetailDrawer<T extends Record<string, unknown>>({
       for (const f of fields) {
         const raw = form[f.key as string] ?? "";
         if (f.type === "number") {
-          (patch as Record<string, unknown>)[f.key as string] = raw === "" ? null : Number(raw);
+          (patch as Record<string, unknown>)[f.key] = raw === "" ? null : Number(raw);
+        } else if (f.key === "reconciled") {
+          (patch as Record<string, unknown>)[f.key] = raw === "true";
         } else if (f.type === "date") {
-          (patch as Record<string, unknown>)[f.key as string] = raw || null;
+          (patch as Record<string, unknown>)[f.key] = raw || null;
         } else {
-          (patch as Record<string, unknown>)[f.key as string] = raw || null;
+          (patch as Record<string, unknown>)[f.key] = raw || null;
         }
       }
       await onSave(patch);
@@ -188,18 +196,24 @@ export default function DetailDrawer<T extends Record<string, unknown>>({
             {editing ? (
               <>
                 <button type="button" className="t-btn t-btn--primary" disabled={busy} onClick={() => void handleSave()}>
-                  {busy ? "Saving…" : "Save"}
+                  {busy ? "Saving…" : createMode ? "Create" : "Save"}
                 </button>
                 <button type="button" className="t-btn t-btn--ghost" disabled={busy} onClick={() => setEditing(false)}>
                   Cancel
                 </button>
               </>
+            ) : readOnly ? (
+              <button type="button" className="t-btn t-btn--ghost" disabled={busy} onClick={onClose}>
+                Close
+              </button>
             ) : (
               <>
-                <button type="button" className="t-btn t-btn--primary" disabled={busy} onClick={() => setEditing(true)}>
-                  Edit
-                </button>
-                {onDelete ? (
+                {!createMode ? (
+                  <button type="button" className="t-btn t-btn--primary" disabled={busy} onClick={() => setEditing(true)}>
+                    Edit
+                  </button>
+                ) : null}
+                {onDelete && !createMode ? (
                   <button type="button" className="t-btn t-btn--danger" disabled={busy} onClick={() => void handleDelete()}>
                     Delete
                   </button>
