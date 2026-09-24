@@ -1795,3 +1795,219 @@ html:not([data-theme]) .t-amort__foot {
     grid-column: 3;
   }
 }
+
+/* Import wizard */
+html[data-theme="terminal"] .t-import-steps,
+html:not([data-theme]) .t-import-steps {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+html[data-theme="terminal"] .t-import-step,
+html:not([data-theme]) .t-import-step {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink3);
+}
+
+html[data-theme="terminal"] .t-import-step--on,
+html:not([data-theme]) .t-import-step--on {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+html[data-theme="terminal"] .t-import-step--done,
+html:not([data-theme]) .t-import-step--done {
+  color: var(--brand);
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
+}
+
+html[data-theme="terminal"] .t-import-upload,
+html:not([data-theme]) .t-import-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+html[data-theme="terminal"] .t-import-drop,
+html:not([data-theme]) .t-import-drop {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--ink2);
+  cursor: pointer;
+  background: var(--panel);
+}
+
+html[data-theme="terminal"] .t-import-drop--has,
+html:not([data-theme]) .t-import-drop--has {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+html[data-theme="terminal"] .t-import-files,
+html:not([data-theme]) .t-import-files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+html[data-theme="terminal"] .t-import-files li,
+html:not([data-theme]) .t-import-files li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+html[data-theme="terminal"] .t-import-table .t-drawer__input,
+html:not([data-theme]) .t-import-table .t-drawer__input {
+  padding: 4px 6px;
+  font-size: 0.72rem;
+  min-width: 0;
+  width: 100%;
+}
+
+html[data-theme="terminal"] .t-import-row--dup,
+html:not([data-theme]) .t-import-row--dup {
+  background: color-mix(in srgb, var(--warn) 8%, transparent);
+}
+
+html[data-theme="terminal"] .t-import-actions,
+html:not([data-theme]) .t-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+}
+
+html[data-theme="terminal"] .t-import-balance,
+html:not([data-theme]) .t-import-balance {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+html[data-theme="terminal"] .t-import-radio,
+html:not([data-theme]) .t-import-radio {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.74rem;
+  color: var(--ink2);
+}
+
+html[data-theme="terminal"] .t-import-done,
+html:not([data-theme]) .t-import-done {
+  padding: 8px 0;
+  font-size: 0.82rem;
+}
+
+/* Agent feed */
+html[data-theme="terminal"] .t-filter-row,
+html:not([data-theme]) .t-filter-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+html[data-theme="terminal"] .t-agent-feed,
+html:not([data-theme]) .t-agent-feed {
+  overflow: auto;
+}
+
+html[data-theme="terminal"] .t-agent-row,
+html:not([data-theme]) .t-agent-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  border-bottom: 1px solid #f0eff5;
+  border-left: 3px solid var(--line);
+}
+
+html[data-theme="terminal"] .t-agent-row--urgent,
+html:not([data-theme]) .t-agent-row--urgent {
+  border-left-color: var(--down);
+}
+
+html[data-theme="terminal"] .t-agent-row--warn,
+html:not([data-theme]) .t-agent-row--warn {
+  border-left-color: var(--warn);
+}
+
+html[data-theme="terminal"] .t-agent-row--info,
+html:not([data-theme]) .t-agent-row--info {
+  border-left-color: var(--brand);
+}
+
+html[data-theme="terminal"] .t-agent-row__main,
+html:not([data-theme]) .t-agent-row__main {
+  flex: 1;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 12px 12px 12px 10px;
+  cursor: pointer;
+  color: inherit;
+}
+
+html[data-theme="terminal"] .t-agent-row__main:hover,
+html:not([data-theme]) .t-agent-row__main:hover {
+  background: #faf9fd;
+}
+
+html[data-theme="terminal"] .t-agent-row__title,
+html:not([data-theme]) .t-agent-row__title {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+html[data-theme="terminal"] .t-agent-row__body,
+html:not([data-theme]) .t-agent-row__body {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--ink2);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+html[data-theme="terminal"] .t-agent-row__date,
+html:not([data-theme]) .t-agent-row__date {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--ink3);
+  margin-top: 6px;
+}
+
+html[data-theme="terminal"] .t-agent-row__actions,
+html:not([data-theme]) .t-agent-row__actions {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px 8px 0;
+}
+
+@media (max-width: 767px) {
+  html[data-theme="terminal"] .t-filter-row,
+  html:not([data-theme]) .t-filter-row {
+    grid-template-columns: 1fr;
+  }
+}

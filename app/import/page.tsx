@@ -1,20 +1,25 @@
+import { createClient } from "@/lib/supabase/server";
 import { fetchFxRates, getRubPerUsd, effRate } from "@/lib/fx";
-import ImportPageClient from "./ImportPageClient";
-import ImportDesktop from "../components/desktop/ImportDesktop";
-import RateHeader from "../components/RateHeader";
+import type { AccountOption, CategoryOption } from "@/lib/transactions";
+import ImportTerminal from "../components/terminal/ImportTerminal";
 
 export default async function ImportPage() {
-  const rates = await fetchFxRates();
+  const supabase = createClient();
+  const [{ data: accData }, { data: catData }, rates] = await Promise.all([
+    supabase.from("accounts").select("id, name, currency, zone").eq("in_net_worth", true).order("name"),
+    supabase.from("categories").select("id, name, kind, zone").order("name"),
+    fetchFxRates(),
+  ]);
+
   const spot = getRubPerUsd(rates, "spot");
   const eff = effRate(spot);
 
   return (
-    <div className="lf-wrap lf-wrap--desktop">
-      <ImportDesktop spot={spot} eff={eff} />
-      <div className="lf-phone lf-page-mobile">
-        <RateHeader title="Import" />
-        <ImportPageClient />
-      </div>
-    </div>
+    <ImportTerminal
+      accounts={(accData ?? []) as AccountOption[]}
+      categories={(catData ?? []) as CategoryOption[]}
+      spot={spot}
+      eff={eff}
+    />
   );
 }

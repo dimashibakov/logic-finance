@@ -14,30 +14,19 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-export type ImportRow = {
-  date: string;
-  amount: number;
-  currency: string;
-  type: string;
-  merchant: string | null;
-  bank: string;
-  accountRef: string;
-  categoryGuess?: string | null;
-  suggestedCategory?: string | null;
-  needsReview?: boolean;
-  excluded?: boolean;
-  excludeReason?: string;
-  externalId: string;
-  rawDescription?: string;
-};
+import { parseCsvStatement } from "@/lib/import-csv";
+import type { ImportRow } from "@/lib/import-types";
+
+export type { ImportRow } from "@/lib/import-types";
 
 type ParsedFile = {
   filename: string;
   bank: BankId | string | null;
-  parser: "regex" | "llm";
+  parser: "regex" | "llm" | "csv";
   result: ParseResult | null;
   importRows: ImportRow[];
   warnings: string[];
+  closingBalance?: number | null;
 };
 
 function rowsFromParseResult(result: ParseResult, bank: string): ImportRow[] {
@@ -132,6 +121,8 @@ export async function POST(request: NextRequest) {
     }
 
     const files: ParsedFile[] = [];
+    const accountRef = String(formData.get("accountRef") ?? "manual-import");
+    const currencyHint = formData.get("currency")?.toString() === "USD" ? "USD" : "RUB";
 
     for (const entry of entries) {
       if (!(entry instanceof File)) continue;
@@ -142,9 +133,23 @@ export async function POST(request: NextRequest) {
 
       const buffer = Buffer.from(await entry.arrayBuffer());
       if (buffer.length === 0) {
-        warnings.push("Empty PDF file");
+        warnings.push("Empty file");
         importLog("parse:file:empty", { filename: entry.name, reportedSize: entry.size });
         files.push({ filename: entry.name, bank: null, parser: "regex", result: null, importRows: [], warnings });
+        continue;
+      }
+
+      if (entry.name.toLowerCase().endsWith(".csv")) {
+        const csvRows = parseCsvStatement(buffer.toString("utf8"), accountRef, currencyHint);
+        if (csvRows.length === 0) warnings.push("No rows parsed from CSV");
+        files.push({
+          filename: entry.name,
+          bank: "csv",
+          parser: "csv",
+          result: null,
+          importRows: csvRows,
+          warnings,
+        });
         continue;
       }
 
@@ -240,9 +245,14 @@ export async function POST(request: NextRequest) {
     }
 
     const rows = files.flatMap((f) => f.importRows);
-    const controlOk = files.every((f) => f.result?.control.ok !== false);
-    const parseOk = files.every((f) => f.result !== null && f.warnings.length === 0);
+    const controlOk = files.every((f) => f.parser === "csv" || f.result?.control.ok !== false);
+    const parseOk = files.every((f) => {
+      if (f.parser === "csv") return f.importRows.length > 0 && f.warnings.length === 0;
+      return f.result !== null && f.warnings.length === 0;
+    });
     const allWarnings = files.flatMap((f) => f.warnings.map((w) => `${f.filename}: ${w}`));
+    const closingBalance =
+      files.map((f) => f.result?.account.statementBalanceEnd).find((v) => v != null && Number(v) !== 0) ?? null;
 
     importLog("parse:response", {
       ms: Date.now() - started,
@@ -259,6 +269,7 @@ export async function POST(request: NextRequest) {
       warnings: allWarnings,
       controlOk,
       parseOk,
+      closingBalance,
     });
   } catch (e) {
     const { error: msg, stack } = serializeImportError(e);

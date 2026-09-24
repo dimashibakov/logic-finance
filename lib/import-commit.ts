@@ -1,4 +1,5 @@
 import { accountIdForRef, accountNameForRef, isKnownAccountRef } from "@/lib/account-refs";
+import type { BalanceMode } from "@/lib/import-terminal";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type CommitRow = {
@@ -17,14 +18,17 @@ export type CommitRow = {
 export type CommitPayload = {
   rows?: CommitRow[];
   controlOk?: boolean;
-  /** Set true only when every uploaded file parsed successfully (no partial import). */
   parseOk?: boolean;
+  accountId?: string;
+  balanceMode?: BalanceMode;
+  closingBalance?: number | null;
 };
 
 export type CommitResult = {
   inserted: number;
   skipped: number;
   total: number;
+  balanceUpdated: boolean;
 };
 
 async function resolveAccountId(supabase: SupabaseClient, accountRef: string): Promise<string | null> {
@@ -47,9 +51,15 @@ async function resolveCategoryId(supabase: SupabaseClient, name?: string): Promi
   return data?.id ?? null;
 }
 
+function txDelta(row: CommitRow): number {
+  if (row.type === "income") return row.amount;
+  if (row.type === "expense") return -row.amount;
+  return 0;
+}
+
 export async function commitImportRows(
   supabase: SupabaseClient,
-  body: CommitPayload
+  body: CommitPayload,
 ): Promise<
   | { ok: true; result: CommitResult }
   | { ok: false; status: number; error: string; unresolved?: string[]; detail?: string }
@@ -67,26 +77,33 @@ export async function commitImportRows(
     return { ok: false, status: 400, error: "No rows to import" };
   }
 
-  const unknownRefs = [...new Set(rows.map((r) => r.accountRef).filter((ref) => !isKnownAccountRef(ref)))];
-  if (unknownRefs.length > 0) {
-    return {
-      ok: false,
-      status: 422,
-      error: "Unknown accountRef — add mapping in lib/account-refs.ts",
-      unresolved: unknownRefs,
-    };
+  if (!body.accountId) {
+    const unknownRefs = [...new Set(rows.map((r) => r.accountRef).filter((ref) => !isKnownAccountRef(ref)))];
+    if (unknownRefs.length > 0) {
+      return {
+        ok: false,
+        status: 422,
+        error: "Unknown accountRef — add mapping in lib/account-refs.ts",
+        unresolved: unknownRefs,
+      };
+    }
   }
 
   const accountCache = new Map<string, string | null>();
   const categoryCache = new Map<string, string | null>();
   const payload: Record<string, unknown>[] = [];
   const unresolved: string[] = [];
+  const insertedRows: CommitRow[] = [];
 
   for (const row of rows) {
-    if (!accountCache.has(row.accountRef)) {
-      accountCache.set(row.accountRef, await resolveAccountId(supabase, row.accountRef));
+    let accountId = body.accountId ?? null;
+    if (!accountId) {
+      if (!accountCache.has(row.accountRef)) {
+        accountCache.set(row.accountRef, await resolveAccountId(supabase, row.accountRef));
+      }
+      accountId = accountCache.get(row.accountRef) ?? null;
     }
-    const accountId = accountCache.get(row.accountRef);
+
     if (!accountId) {
       unresolved.push(row.accountRef);
       continue;
@@ -113,6 +130,7 @@ export async function commitImportRows(
       reconciled: false,
       notes: row.rawDescription ? `stmt: ${row.rawDescription.slice(0, 200)}` : null,
     });
+    insertedRows.push(row);
   }
 
   if (unresolved.length > 0) {
@@ -127,12 +145,47 @@ export async function commitImportRows(
   const { data, error } = await supabase
     .from("transactions")
     .upsert(payload, { onConflict: "account_id,external_id", ignoreDuplicates: true })
-    .select("id");
+    .select("id, external_id");
 
   if (error) {
     return { ok: false, status: 500, error: "Supabase insert failed", detail: error.message };
   }
 
   const inserted = data?.length ?? 0;
-  return { ok: true, result: { inserted, skipped: payload.length - inserted, total: payload.length } };
+  const insertedExternal = new Set((data ?? []).map((r) => String(r.external_id)));
+  const newlyInserted = insertedRows.filter((r) => insertedExternal.has(r.externalId));
+
+  let balanceUpdated = false;
+  const balanceMode = body.balanceMode ?? "none";
+  const resolvedAccountId =
+    body.accountId ??
+    (rows[0] ? accountCache.get(rows[0].accountRef) ?? null : null);
+
+  if (balanceMode !== "none" && resolvedAccountId) {
+    const { data: acc } = await supabase.from("accounts").select("balance").eq("id", resolvedAccountId).maybeSingle();
+    if (acc) {
+      const today = new Date().toISOString().slice(0, 10);
+      if (balanceMode === "closing" && body.closingBalance != null) {
+        await supabase
+          .from("accounts")
+          .update({ balance: body.closingBalance, balance_date: today })
+          .eq("id", resolvedAccountId);
+        balanceUpdated = true;
+      } else if (balanceMode === "delta") {
+        const delta = newlyInserted.reduce((s, row) => s + txDelta(row), 0);
+        if (delta !== 0) {
+          await supabase
+            .from("accounts")
+            .update({ balance: Number(acc.balance) + delta, balance_date: today })
+            .eq("id", resolvedAccountId);
+          balanceUpdated = true;
+        }
+      }
+    }
+  }
+
+  return {
+    ok: true,
+    result: { inserted, skipped: payload.length - inserted, total: payload.length, balanceUpdated },
+  };
 }

@@ -9,6 +9,13 @@ type Body = {
   id: string;
   status?: WindDownStatus;
   cycle?: boolean;
+  label?: string;
+  amount?: number | null;
+  currency?: string;
+  split?: string;
+  target_account?: string | null;
+  moved_on?: string | null;
+  note?: string | null;
 };
 
 function isoToday() {
@@ -31,14 +38,26 @@ export async function PATCH(request: NextRequest) {
     status = nextWindDownStatus(row.status as WindDownStatus);
   }
 
-  if (!status || !["todo", "moved", "na"].includes(status)) {
-    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+  const patch: Record<string, unknown> = {};
+  if (status) {
+    if (!["todo", "moved", "na"].includes(status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+    }
+    patch.status = status;
+    if (status === "moved" && body.moved_on == null) patch.moved_on = isoToday();
+    if (status !== "moved" && body.moved_on === undefined && body.cycle) patch.moved_on = null;
   }
+  if (body.label != null) patch.label = body.label;
+  if (body.amount !== undefined) patch.amount = body.amount;
+  if (body.currency != null) patch.currency = body.currency;
+  if (body.split != null) patch.split = body.split;
+  if (body.target_account !== undefined) patch.target_account = body.target_account;
+  if (body.moved_on !== undefined) patch.moved_on = body.moved_on;
+  if (body.note !== undefined) patch.note = body.note;
 
-  const patch: { status: WindDownStatus; moved_on: string | null } = {
-    status,
-    moved_on: status === "moved" ? isoToday() : null,
-  };
+  if (Object.keys(patch).length === 0) {
+    return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
+  }
 
   const { data, error } = await supabase.from("joint_winddown").update(patch).eq("id", body.id).select("*").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
