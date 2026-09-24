@@ -1,7 +1,7 @@
 import type { BaseCurrency } from "@/lib/bento-overview";
 import { displayMoneyValue } from "@/lib/terminal-money";
 import type { Fund } from "@/lib/funds";
-import { upcomingPayments, paymentHorizonDays, type ObligationRow, type PaymentEvent } from "@/lib/payments";
+import { forecastObligationPayments, type ObligationRow, type PaymentEvent } from "@/lib/payments";
 import type { ZoneFilter } from "@/lib/terminal-money";
 
 export type PlanRowInput = {
@@ -85,6 +85,27 @@ function sumItems(items: CashLineItem[], display: BaseCurrency, spot: number): n
   return items.reduce((s, i) => s + toDisplay(i.amount, i.currency, display, spot), 0);
 }
 
+function planCategoryKey(p: PlanRowInput): string {
+  return `${p.categoryName}\0${p.categoryKind}\0${p.currency}`;
+}
+
+function normalizeCategory(name: string): string {
+  return name.trim().toLowerCase();
+}
+
+/** Latest plan row per category with month <= targetMonth (carry-forward). */
+export function resolveCarriedPlans(allPlans: PlanRowInput[], targetMonth: string): PlanRowInput[] {
+  const byCategory = new Map<string, PlanRowInput>();
+  for (const p of allPlans) {
+    const month = p.month.slice(0, 10);
+    if (month > targetMonth) continue;
+    const key = planCategoryKey(p);
+    const prev = byCategory.get(key);
+    if (!prev || month > prev.month.slice(0, 10)) byCategory.set(key, { ...p, month });
+  }
+  return [...byCategory.values()];
+}
+
 export function forecastMonthKeys(monthsAhead: number, now = new Date()): string[] {
   const keys: string[] = [];
   for (let i = 0; i < monthsAhead; i++) {
@@ -104,24 +125,22 @@ export function buildCashForecast(
   zone: ZoneFilter = "ALL",
   now = new Date(),
 ): { months: CashForecastMonth[]; kpis: CashForecastKpis } {
-  const horizonDays = paymentHorizonDays(monthKeys.length, now);
-  const { events } = upcomingPayments(obligations, horizonDays, now);
-
-  const plansByMonth = new Map<string, PlanRowInput[]>();
-  for (const p of plans) {
-    const k = p.month.slice(0, 10);
-    if (!monthKeys.includes(k)) continue;
-    if (!plansByMonth.has(k)) plansByMonth.set(k, []);
-    plansByMonth.get(k)!.push(p);
-  }
+  const events = forecastObligationPayments(obligations, monthKeys, now);
 
   const months: CashForecastMonth[] = monthKeys.map((key) => {
-    const planRows = plansByMonth.get(key) ?? [];
+    const planRows = resolveCarriedPlans(plans, key);
     const incomeItems: CashLineItem[] = [];
     const livingItems: CashLineItem[] = [];
 
+    const fundsDue = funds.filter(
+      (f) => f.status !== "paid" && inMonth(f.due_date, key) && passesZone(f.currency, zone),
+    );
+    const fundCategoryKeys = new Set(fundsDue.map((f) => normalizeCategory(f.category)));
+
     for (const p of planRows) {
       if (!passesZone(p.currency, zone)) continue;
+      if (p.categoryKind === "expense" && fundCategoryKeys.has(normalizeCategory(p.categoryName))) continue;
+
       const item: CashLineItem = {
         id: `${key}:${p.categoryName}:${p.categoryKind}`,
         name: p.categoryName,
@@ -129,7 +148,7 @@ export function buildCashForecast(
         currency: p.currency === "USD" ? "USD" : "RUB",
       };
       if (p.categoryKind === "income") incomeItems.push(item);
-      else livingItems.push(item);
+      else if (p.categoryKind === "expense") livingItems.push(item);
     }
 
     const loanItems: CashLineItem[] = events
@@ -142,15 +161,13 @@ export function buildCashForecast(
         date: e.date,
       }));
 
-    const fundItems: CashLineItem[] = funds
-      .filter((f) => f.status !== "paid" && inMonth(f.due_date, key) && passesZone(f.currency, zone))
-      .map((f) => ({
-        id: f.id,
-        name: f.label,
-        amount: Number(f.amount),
-        currency: f.currency,
-        date: f.due_date ?? undefined,
-      }));
+    const fundItems: CashLineItem[] = fundsDue.map((f) => ({
+      id: f.id,
+      name: f.label,
+      amount: Number(f.amount),
+      currency: f.currency,
+      date: f.due_date ?? undefined,
+    }));
 
     const income = sumItems(incomeItems, displayCurrency, spot);
     const loans = sumItems(loanItems, displayCurrency, spot);
@@ -176,9 +193,7 @@ export function buildCashForecast(
   const avgIncome = months.reduce((s, m) => s + m.income, 0) / n;
   const avgOutflow = months.reduce((s, m) => s + m.outflow, 0) / n;
   const avgBuffer = months.reduce((s, m) => s + m.buffer, 0) / n;
-  const tightest = months.length
-    ? months.reduce((a, b) => (a.buffer < b.buffer ? a : b))
-    : null;
+  const tightest = months.length ? months.reduce((a, b) => (a.buffer < b.buffer ? a : b)) : null;
 
   return {
     months,

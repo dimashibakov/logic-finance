@@ -225,6 +225,91 @@ export function upcomingPayments(
   return { events, undated };
 }
 
+function paymentDateInMonth(monthKey: string, dueDay: number): string {
+  const base = new Date(`${monthKey}T12:00:00`);
+  const y = base.getFullYear();
+  const m = base.getMonth();
+  const lastDay = new Date(y, m + 1, 0).getDate();
+  const day = Math.min(dueDay, lastDay);
+  return `${y}-${String(m + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+/** Cash Planner: full calendar-month obligations (incl. past dates in current month). */
+export function forecastObligationPayments(
+  obligations: ObligationRow[],
+  monthKeys: string[],
+  now = new Date(),
+): PaymentEvent[] {
+  const active = obligations.filter((o) => o.status !== "inactive");
+  const monthSet = new Set(monthKeys);
+  const lastKey = monthKeys[monthKeys.length - 1];
+  const horizonEnd = lastKey ? monthEndIso(lastKey) : isoDate(now);
+  const events: PaymentEvent[] = [];
+
+  for (const o of active) {
+    if (isUndated(o)) continue;
+
+    if (o.due_date && o.due_date <= horizonEnd) {
+      const mk = `${o.due_date.slice(0, 7)}-01`;
+      if (monthSet.has(mk)) {
+        const { amount, estimated } = oneOffAmount(o);
+        if (amount > 0) {
+          const flags = eventFlags(o.due_date, o.apr != null ? Number(o.apr) : null, 14, now);
+          events.push({
+            id: `${o.id}:${o.due_date}`,
+            obligationId: o.id,
+            date: o.due_date,
+            name: o.name,
+            amount,
+            currency: currencyZone(o.currency),
+            apr: o.apr != null ? Number(o.apr) : null,
+            kind: o.kind,
+            oneOff: true,
+            recurring: false,
+            estimated,
+            zone: currencyZone(o.currency),
+            ...flags,
+          });
+        }
+      }
+    }
+
+    if (o.kind === "credit_card") continue;
+
+    const monthly = Number(o.monthly_payment);
+    if (monthly > 0 && o.due_day != null && o.due_day >= 1 && o.due_day <= 31) {
+      for (const mk of monthKeys) {
+        const date = paymentDateInMonth(mk, o.due_day);
+        const flags = eventFlags(date, o.apr != null ? Number(o.apr) : null, 14, now);
+        events.push({
+          id: `${o.id}:${date}`,
+          obligationId: o.id,
+          date,
+          name: o.name,
+          amount: Math.abs(monthly),
+          currency: currencyZone(o.currency),
+          apr: o.apr != null ? Number(o.apr) : null,
+          kind: o.kind,
+          oneOff: false,
+          recurring: true,
+          zone: currencyZone(o.currency),
+          ...flags,
+        });
+      }
+    }
+  }
+
+  events.sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name));
+  return events;
+}
+
+function monthEndIso(monthStartKey: string): string {
+  const d = new Date(`${monthStartKey}T12:00:00`);
+  d.setMonth(d.getMonth() + 1);
+  d.setDate(0);
+  return isoDate(d);
+}
+
 export function liquidByCurrency(accounts: Pick<AccountRow, "currency" | "type" | "balance">[]) {
   const rub = accounts
     .filter((a) => a.currency === "RUB" && LIQUID_TYPES.has(a.type))

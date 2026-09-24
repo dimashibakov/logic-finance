@@ -23,15 +23,14 @@ function monthEndIso(monthStart: string): string {
 export default async function CashPlannerPage() {
   const supabase = createClient();
   const monthKeys = forecastMonthKeys(12);
-  const rangeStart = monthKeys[0]!;
   const rangeEnd = monthEndIso(monthKeys[monthKeys.length - 1]!);
 
   const [{ data: planData }, { data: oblData }, { data: fundData }, rates] = await Promise.all([
     supabase
       .from("plan")
       .select("month, planned_amount, currency, categories(name, kind)")
-      .gte("month", rangeStart)
-      .lte("month", rangeEnd),
+      .lte("month", rangeEnd)
+      .order("month", { ascending: true }),
     supabase
       .from("obligations")
       .select("id, name, kind, currency, balance, apr, due_date, due_day, monthly_payment, min_payment, status, account_id")
