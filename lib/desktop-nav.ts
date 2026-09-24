@@ -15,7 +15,7 @@ export const DESKTOP_NAV: NavGroup[] = [
     label: "MONEY",
     items: [
       { href: "/debts", label: "Debts", icon: "▧" },
-      { href: "/cash", label: "Cash Planner", icon: "₽" },
+      { href: "/cash-planner", label: "Cash Planner", icon: "₽" },
       { href: "/funds", label: "Funds", icon: "◎" },
       { href: "/plan", label: "Plan · Fact", icon: "▥" },
     ],

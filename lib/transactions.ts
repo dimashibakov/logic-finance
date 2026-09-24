@@ -18,6 +18,7 @@ export type TransactionRecord = {
   notes: string | null;
   reconciled: boolean;
   source?: string | null;
+  fx_rate?: number | null;
   account_name: string | null;
   account_zone: string | null;
   category_name: string | null;
@@ -66,6 +67,7 @@ export function parseTransactionRow(row: Record<string, unknown>): TransactionRe
     notes: row.notes != null ? String(row.notes) : null,
     reconciled: Boolean(row.reconciled),
     source: row.source != null ? String(row.source) : null,
+    fx_rate: row.fx_rate != null ? Number(row.fx_rate) : null,
     account_name: accounts?.name != null ? String(accounts.name) : null,
     account_zone: accounts?.zone != null ? String(accounts.zone) : null,
     category_name: categories?.name != null ? String(categories.name) : null,

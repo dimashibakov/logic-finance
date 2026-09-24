@@ -276,13 +276,13 @@ export default function OverviewTerminal(props: Props) {
         key: "lrf",
         label: "LIQUID·RF",
         value: fmtCompactMoney(rfUsdTotal * spot, "RUB"),
-        href: "/cash",
+        href: "/cash-planner",
       },
       {
         key: "lus",
         label: "LIQUID·US",
         value: fmtCompactMoney(usUsdTotal * spot, "RUB"),
-        href: "/cash",
+        href: "/cash-planner",
       },
       { key: "debt", label: "DEBT", value: debtPair.primary, dir: "down", href: "/debts" },
       {

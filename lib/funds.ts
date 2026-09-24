@@ -46,6 +46,30 @@ export function dueUrgencyClass(days: number | null): string {
   return "lf-fund-due lf-fund-due--ok";
 }
 
+export function dueUrgencyTag(days: number | null): { className: string; label: string } {
+  if (days === null) return { className: "t-tag t-tag--cov", label: "no deadline" };
+  if (days < 14) return { className: "t-tag t-tag--down", label: `${days}d` };
+  if (days < 30) return { className: "t-tag t-tag--hot", label: `${days}d` };
+  return { className: "t-tag t-tag--up", label: `${days}d` };
+}
+
+export const FUND_DRAWER_FIELDS = [
+  { key: "amount", label: "Target amount", type: "number" as const, step: "0.01" },
+  { key: "saved", label: "Saved", type: "number" as const, step: "0.01" },
+  { key: "due_date", label: "Due date", type: "date" as const },
+  {
+    key: "status",
+    label: "Status",
+    type: "select" as const,
+    options: [
+      { value: "planned", label: "Planned" },
+      { value: "funded", label: "Funded" },
+      { value: "paid", label: "Paid" },
+    ],
+  },
+  { key: "notes", label: "Notes", type: "textarea" as const },
+];
+
 export function formatDueBadge(due: string | null, days: number | null): string {
   if (!due) return "no deadline";
   const date = new Date(`${due}T00:00:00`).toLocaleDateString(EN_LOCALE);
