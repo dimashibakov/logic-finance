@@ -47,7 +47,10 @@ export default function Sidebar() {
 
   return (
     <aside className="lf-sidebar" aria-label="Main navigation">
-      <div className="lf-sidebar__wordmark">Logic Finance</div>
+      <div className="lf-sidebar__wordmark">
+        <span className="lf-sidebar__logo" aria-hidden />
+        Logic Finance
+      </div>
       {SIDEBAR_GROUPS.map((group) => (
         <div key={group.label}>
           <div className="lf-sidebar__grp">{group.label}</div>
@@ -69,10 +72,10 @@ export default function Sidebar() {
           })}
         </div>
       ))}
-      <button type="button" className="lf-sidebar__add lf-bento-pressable lf-mono" onClick={() => openMenu()}>
+      <button type="button" className="lf-sidebar__add" onClick={() => openMenu()}>
         + Add operation
       </button>
-      <div className="lf-sidebar__foot lf-mono">
+      <div className="lf-sidebar__foot">
         <SignOutButton compact />
       </div>
     </aside>

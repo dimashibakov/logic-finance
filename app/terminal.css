@@ -166,6 +166,14 @@ html:not([data-theme]) .t-hdr {
   z-index: 30;
 }
 
+html[data-theme="terminal"] .t-hdr__brand--mobile,
+html:not([data-theme]) .t-hdr__brand--mobile {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
 html[data-theme="terminal"] .t-hdr__brand,
 html:not([data-theme]) .t-hdr__brand {
   display: flex;
@@ -317,7 +325,7 @@ html:not([data-theme]) .t-ticker__val {
 
 html[data-theme="terminal"] .lf-sidebar,
 html:not([data-theme]) .lf-sidebar {
-  background: var(--panel);
+  background: var(--bg);
   border-right: 1px solid var(--line);
   padding: 16px 12px;
   box-sizing: border-box;
@@ -325,6 +333,9 @@ html:not([data-theme]) .lf-sidebar {
 
 html[data-theme="terminal"] .lf-sidebar__wordmark,
 html:not([data-theme]) .lf-sidebar__wordmark {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   font-family: var(--font-inter), Inter, sans-serif;
   font-weight: 800;
   font-size: 0.95rem;
@@ -332,6 +343,15 @@ html:not([data-theme]) .lf-sidebar__wordmark {
   text-transform: none;
   color: var(--ink);
   margin-bottom: 14px;
+}
+
+html[data-theme="terminal"] .lf-sidebar__logo,
+html:not([data-theme]) .lf-sidebar__logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
 }
 
 html[data-theme="terminal"] .lf-sidebar__grp,
@@ -357,15 +377,34 @@ html:not([data-theme]) .lf-sidebar__link {
 
 html[data-theme="terminal"] .lf-sidebar__link--on,
 html:not([data-theme]) .lf-sidebar__link--on {
-  background: #efe6fb;
+  background: rgba(95, 1, 209, 0.08);
   color: var(--brand);
   border: none;
 }
 
 html[data-theme="terminal"] .lf-sidebar__link:hover:not(.lf-sidebar__link--on),
 html:not([data-theme]) .lf-sidebar__link:hover:not(.lf-sidebar__link--on) {
-  background: #faf9fd;
+  background: rgba(95, 1, 209, 0.04);
   border: none;
+}
+
+html[data-theme="terminal"] .lf-sidebar__foot,
+html:not([data-theme]) .lf-sidebar__foot {
+  color: var(--ink3);
+  font-size: 0.78rem;
+}
+
+html[data-theme="terminal"] .lf-sidebar__foot .lf-sign-out,
+html:not([data-theme]) .lf-sidebar__foot .lf-sign-out {
+  color: var(--ink3);
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 0.78rem;
+  text-decoration: none;
+}
+
+html[data-theme="terminal"] .lf-sidebar__foot .lf-sign-out:hover,
+html:not([data-theme]) .lf-sidebar__foot .lf-sign-out:hover {
+  color: var(--ink2);
 }
 
 html[data-theme="terminal"] .lf-sidebar__add,
@@ -555,16 +594,59 @@ html:not([data-theme]) .lf-topbar {
     height: 100vh;
     width: 240px;
     overflow: auto;
+    background: var(--bg) !important;
+    border-right: 1px solid var(--line) !important;
+    padding: 16px 12px !important;
+    gap: 0;
+  }
+
+  html[data-theme="terminal"] .lf-sidebar__link,
+  html:not([data-theme]) .lf-sidebar__link {
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  html[data-theme="terminal"] .lf-sidebar__link--on,
+  html:not([data-theme]) .lf-sidebar__link--on {
+    background: rgba(95, 1, 209, 0.08) !important;
+    color: var(--brand) !important;
+    border: none !important;
   }
 
   html[data-theme="terminal"] .lf-sidebar__add,
   html:not([data-theme]) .lf-sidebar__add {
     margin-top: auto;
+    background: var(--brand) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 10px 12px;
   }
 
   html[data-theme="terminal"] .lf-sidebar__foot,
   html:not([data-theme]) .lf-sidebar__foot {
-    margin-top: 10px;
+    margin-top: 10px !important;
+    padding-top: 0;
+  }
+
+  html[data-theme="terminal"] .t-hdr__brand--mobile,
+  html:not([data-theme]) .t-hdr__brand--mobile {
+    display: none !important;
+  }
+
+  html[data-theme="terminal"] .t-hdr__search,
+  html:not([data-theme]) .t-hdr__search {
+    flex: 1;
+    max-width: none;
+  }
+
+  html[data-theme="terminal"] .lf-bento-nav,
+  html:not([data-theme]) .lf-bento-nav,
+  html[data-theme="terminal"] .lf-bento-top,
+  html:not([data-theme]) .lf-bento-top {
+    display: none !important;
   }
 
   html[data-theme="terminal"] .lf-mobile-chrome,
@@ -709,6 +791,22 @@ html:not([data-theme]) .t-chart-foot {
   font-size: 0.6rem;
   color: var(--ink3);
   margin-top: 6px;
+}
+
+html[data-theme="terminal"] .t-nw-chart,
+html:not([data-theme]) .t-nw-chart {
+  height: 220px;
+  max-height: 220px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+html[data-theme="terminal"] .t-nw-chart svg,
+html:not([data-theme]) .t-nw-chart svg {
+  display: block;
+  width: 100%;
+  height: 220px;
+  max-height: 220px;
 }
 
 /* Summary grid */

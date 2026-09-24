@@ -11,7 +11,7 @@ export default function TerminalHeader() {
 
   return (
     <header className="t-hdr">
-      <div className="t-hdr__brand">
+      <div className="t-hdr__brand t-hdr__brand--mobile">
         <div className="t-hdr__logo" aria-hidden />
         <span className="t-hdr__name">Logic Finance</span>
       </div>

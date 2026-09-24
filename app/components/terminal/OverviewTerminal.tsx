@@ -91,7 +91,8 @@ function NetWorthChart({ series }: { series: number[] }) {
   const last = series[series.length - 1]!;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="200" preserveAspectRatio="none" aria-hidden>
+    <div className="t-nw-chart">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="220" preserveAspectRatio="xMidYMid meet" aria-hidden>
       <defs>
         <linearGradient id="t-nw-grad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#5f01d1" stopOpacity="0.22" />
@@ -101,7 +102,8 @@ function NetWorthChart({ series }: { series: number[] }) {
       <path d={area} fill="url(#t-nw-grad)" />
       <path d={d} fill="none" stroke="#5f01d1" strokeWidth="2.5" strokeLinejoin="round" />
       <circle cx={x(series.length - 1)} cy={y(last)} r="4" fill="#5f01d1" />
-    </svg>
+      </svg>
+    </div>
   );
 }
 
