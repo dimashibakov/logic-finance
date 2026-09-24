@@ -1,13 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { fetchFxRates, fetchSpotHistory, getRubPerUsd, effRate } from "@/lib/fx";
 import ConvertTerminal from "../components/terminal/ConvertTerminal";
-import { parseTransactionRow, type AccountOption, type CategoryOption } from "@/lib/transactions";
+import { parseTransactionRow, type AccountOption } from "@/lib/transactions";
 
 export default async function ConvertPage() {
   const supabase = createClient();
-  const [{ data: accData }, { data: catData }, { data: txData }, rates, spotHistory] = await Promise.all([
+  const [{ data: accData }, { data: txData }, rates, spotHistory] = await Promise.all([
     supabase.from("accounts").select("id, name, currency, zone").eq("in_net_worth", true).order("name"),
-    supabase.from("categories").select("id, name, kind, zone").order("name"),
     supabase
       .from("transactions")
       .select(
@@ -26,7 +25,6 @@ export default async function ConvertPage() {
   return (
     <ConvertTerminal
       accounts={(accData ?? []) as AccountOption[]}
-      categories={(catData ?? []) as CategoryOption[]}
       initialConversions={(txData ?? []).map((r) => parseTransactionRow(r as Record<string, unknown>))}
       spot={spot}
       eff={eff}
