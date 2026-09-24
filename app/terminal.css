@@ -128,10 +128,8 @@ html:not([data-theme]) .t-tag--brand {
   color: var(--brand);
 }
 
-html[data-theme="terminal"] .t-app,
-html:not([data-theme]) .t-app {
-  display: grid;
-  grid-template-columns: 220px 1fr;
+html[data-theme="terminal"] .lf-app-root.t-app,
+html:not([data-theme]) .lf-app-root.t-app {
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
@@ -322,6 +320,7 @@ html:not([data-theme]) .lf-sidebar {
   background: var(--panel);
   border-right: 1px solid var(--line);
   padding: 16px 12px;
+  box-sizing: border-box;
 }
 
 html[data-theme="terminal"] .lf-sidebar__wordmark,
@@ -380,6 +379,8 @@ html:not([data-theme]) .lf-sidebar__add {
   font-weight: 700;
   font-size: 0.82rem;
   text-transform: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 html[data-theme="terminal"] .t-table,
@@ -510,12 +511,7 @@ html:not([data-theme]) .lf-topbar {
   display: none !important;
 }
 
-@media (max-width: 1079px) {
-  html[data-theme="terminal"] .t-app,
-  html:not([data-theme]) .t-app {
-    grid-template-columns: 1fr;
-  }
-
+@media (max-width: 1023px) {
   html[data-theme="terminal"] .lf-sidebar,
   html:not([data-theme]) .lf-sidebar {
     display: none !important;
@@ -530,17 +526,56 @@ html:not([data-theme]) .lf-topbar {
   html:not([data-theme]) .t-hdr__search {
     display: none;
   }
+
+  html[data-theme="terminal"] .lf-mobile-chrome,
+  html:not([data-theme]) .lf-mobile-chrome {
+    display: block;
+  }
+
+  html[data-theme="terminal"] .t-content,
+  html:not([data-theme]) .t-content {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
-@media (min-width: 1080px) {
+@media (min-width: 1024px) {
+  html[data-theme="terminal"] .lf-app-root.t-app,
+  html:not([data-theme]) .lf-app-root.t-app {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+
+  html[data-theme="terminal"] .lf-sidebar,
+  html:not([data-theme]) .lf-sidebar {
+    display: flex !important;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: 100vh;
+    width: 240px;
+    overflow: auto;
+  }
+
+  html[data-theme="terminal"] .lf-sidebar__add,
+  html:not([data-theme]) .lf-sidebar__add {
+    margin-top: auto;
+  }
+
+  html[data-theme="terminal"] .lf-sidebar__foot,
+  html:not([data-theme]) .lf-sidebar__foot {
+    margin-top: 10px;
+  }
+
   html[data-theme="terminal"] .lf-mobile-chrome,
   html:not([data-theme]) .lf-mobile-chrome {
     display: none !important;
+    pointer-events: none !important;
   }
 
-  html[data-theme="terminal"] .lf-app-root,
-  html:not([data-theme]) .lf-app-root {
-    display: contents;
+  html[data-theme="terminal"] .lf-nav,
+  html:not([data-theme]) .lf-nav {
+    display: none !important;
   }
 }
 

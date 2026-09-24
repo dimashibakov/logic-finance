@@ -15,7 +15,7 @@ type Props = {
 export default function AddSheet({ open, view, onClose, onNavigate, children }: Props) {
   useEffect(() => {
     if (!open) return;
-    const mq = window.matchMedia("(max-width: 1079px)");
+    const mq = window.matchMedia("(max-width: 1023px)");
     if (!mq.matches) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.body.style.overflow = "hidden";

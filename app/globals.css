@@ -1810,7 +1810,7 @@ html[data-theme="brutalist"] .lf-fund-summary__cell--accent {
   margin-top: 12px;
 }
 
-@media (min-width: 1080px) {
+@media (min-width: 1024px) {
   .lf-fund-summary__cell {
     padding: 14px 16px;
   }
@@ -1820,7 +1820,7 @@ html[data-theme="brutalist"] .lf-fund-summary__cell--accent {
   }
 }
 
-/* ——— Desktop web (≥1080px only) ——— */
+/* ——— Desktop web (≥1024px only) ——— */
 .lf-page-desktop {
   display: none;
 }
@@ -1847,10 +1847,10 @@ html[data-theme="brutalist"] .lf-fund-summary__cell--accent {
   display: none;
 }
 
-@media (min-width: 1080px) {
+@media (min-width: 1024px) {
   .lf-app-root {
     display: grid;
-    grid-template-columns: 236px 1fr;
+    grid-template-columns: 240px 1fr;
   }
 
   .lf-app-main {
@@ -3140,7 +3140,7 @@ html[data-theme="brutalist"] .lf-fund-summary__cell--accent {
   }
 }
 
-@media (min-width: 1080px) and (prefers-reduced-motion: reduce) {
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
   .lf-bento-pressable {
     transition: none !important;
   }
@@ -3165,7 +3165,7 @@ html[data-theme="brutalist"] .lf-fund-summary__cell--accent {
   max-width: 430px;
 }
 
-@media (min-width: 1080px) {
+@media (min-width: 1024px) {
   .lf-auth-page {
     align-items: center;
   }
@@ -3210,7 +3210,7 @@ html[data-theme="brutalist"] .lf-fund-summary__cell--accent {
   cursor: pointer;
 }
 
-@media (min-width: 1080px) {
+@media (min-width: 1024px) {
   .lf-pwa-update {
     bottom: 24px;
   }
