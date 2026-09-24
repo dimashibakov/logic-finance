@@ -16,7 +16,7 @@ export default function AddSheetDesktop({ open, view, onClose, onNavigate, child
   const title = isForm ? VIEW_TITLES[view] : "ADD";
 
   return (
-    <Modal open={open} title={title} onClose={onClose} large={view === "import"} menu={view === "menu"}>
+    <Modal open={open} title={title} onClose={onClose} large={false} menu={view === "menu"}>
       {view === "menu" ? <AddMenuItems onNavigate={onNavigate} /> : <div>{children}</div>}
     </Modal>
   );

@@ -34,7 +34,7 @@ export default function AddSheet({ open, view, onClose, onNavigate, children }: 
       <div className="lf-only-mobile">
         {!open ? null : (
           <div
-            className={["lf-sheet", isForm ? "lf-sheet--form" : "", view === "import" ? "lf-sheet--lg" : ""].filter(Boolean).join(" ")}
+            className={["lf-sheet", isForm ? "lf-sheet--form" : ""].filter(Boolean).join(" ")}
             role="dialog"
             aria-modal="true"
           >

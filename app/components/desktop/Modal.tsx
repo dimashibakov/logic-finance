@@ -61,7 +61,7 @@ export function AddMenuItems({ onNavigate }: { onNavigate: (view: AddSheetView) 
       {[
         { id: "operation" as const, label: "Operation", desc: "income · expense · conversion · transfer", Icon: PenLine },
         { id: "balance" as const, label: "Balance adjustment", desc: "reconcile account balance", Icon: Scale },
-        { id: "import" as const, label: "Import statement", desc: "PDF → parse → preview", Icon: FileUp },
+        { id: "import" as const, label: "Import statement", desc: "PDF/CSV · preview · confirm", Icon: FileUp },
       ].map(({ id, label, desc, Icon }) => (
         <button key={id} type="button" onClick={() => onNavigate(id)} className="lf-action">
           <span className="lf-action__icon">
