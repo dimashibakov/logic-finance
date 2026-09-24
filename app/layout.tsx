@@ -27,10 +27,6 @@ export const metadata: Metadata = {
     title: APP_SHORT,
     statusBarStyle: "default",
   },
-  icons: {
-    icon: [{ url: "/icons/favicon.png", sizes: "32x32", type: "image/png" }],
-    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-  },
   formatDetection: { telephone: false },
 };
 
@@ -42,7 +38,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={fontVars}>
