@@ -340,7 +340,7 @@ export default function OverviewTerminal(props: Props) {
     <>
       <TerminalFxSync spot={spot} eff={eff} ticker={ticker} />
       <div className="t-overview">
-        <div className="t-overview__col">
+        <div className="t-overview__col t-overview__col--main">
           <TerminalPanel className="t-panel--hero">
             <div className="t-nw-head">
               <div>
@@ -382,7 +382,7 @@ export default function OverviewTerminal(props: Props) {
             </div>
           </TerminalPanel>
 
-          <TerminalPanel title="Upcoming payments" subtitle={paySummary} flush>
+          <TerminalPanel title="Upcoming payments" subtitle={paySummary} flush className="t-panel--fill">
             <div className="t-pay-feed t-overview__scroll">
               {filteredUpcoming.length === 0 ? (
                 <div className="t-pay-empty">No upcoming payments in this zone</div>

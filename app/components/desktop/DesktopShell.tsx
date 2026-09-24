@@ -22,9 +22,11 @@ export default function DesktopShell({
       <div className={`t-app${isDesktop ? " t-app--desktop" : " t-app--mobile"}`}>
         {isDesktop ? <TerminalSidebar /> : null}
         <div className="t-main lf-app-main">
-          <TerminalHeader />
-          <TerminalTicker />
-          <div className="t-content lf-app-content">{children}</div>
+          <div className="t-shell">
+            <TerminalHeader />
+            <TerminalTicker />
+            <div className="t-content lf-app-content">{children}</div>
+          </div>
           {overlay ? <div className="lf-app-overlays lf-only-desktop">{overlay}</div> : null}
         </div>
       </div>

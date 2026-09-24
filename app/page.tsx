@@ -6,6 +6,8 @@ import { computeNetWorth } from "@/lib/networth";
 import { computeExposure } from "@/lib/exposure";
 import {
   coverageByZone,
+  MONTHS_AHEAD,
+  paymentHorizonDays,
   upcomingPayments,
   type ObligationRow,
 } from "@/lib/payments";
@@ -43,13 +45,13 @@ export default async function Home() {
   const liquid = liquidUsdTotal(accounts, toUsdSpot);
   const groups = groupAccounts(accounts);
 
-  const { events } = upcomingPayments(obligations, 180);
+  const paymentHorizon = paymentHorizonDays(MONTHS_AHEAD);
+  const { events } = upcomingPayments(obligations, paymentHorizon);
   const coverage = coverageByZone(events, accounts, 30);
   const shortByCurrency = Object.fromEntries(coverage.map((c) => [c.currency, c.short])) as Record<
     "RUB" | "USD",
     boolean
   >;
-  const upcoming = events.slice(0, 12);
   const accountByObligation = Object.fromEntries(obligations.map((o) => [o.id, o.account_id ?? null]));
 
   type FloatCat = { name: string } | { name: string }[] | null;
@@ -94,7 +96,7 @@ export default async function Home() {
         exposure={exposure}
         exposureAccounts={exposureAccounts}
         exposureObligations={exposureObligations}
-        upcoming={upcoming}
+        upcoming={events}
         allEvents={events}
         shortByCurrency={shortByCurrency}
         accountByObligation={accountByObligation}

@@ -54,6 +54,15 @@ const LIQUID_TYPES = new Set(["cash", "checking"]);
 const NPD_RENT_PLAN_RUB = 43_000;
 const NPD_RENT_RATE = 0.04;
 
+/** How many calendar months ahead to project recurring obligation payments. */
+export const MONTHS_AHEAD = 6;
+
+export function paymentHorizonDays(monthsAhead = MONTHS_AHEAD, now = new Date()): number {
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+  const end = new Date(now.getFullYear(), now.getMonth() + monthsAhead + 1, 0, 12, 0, 0);
+  return Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000));
+}
+
 function isoDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }

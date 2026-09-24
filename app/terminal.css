@@ -154,6 +154,16 @@ html:not([data-theme]) .t-main {
   min-height: 100vh;
   position: relative;
   isolation: isolate;
+  --t-shell-x: 14px;
+}
+
+html[data-theme="terminal"] .t-shell,
+html:not([data-theme]) .t-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
 }
 
 html[data-theme="terminal"] .t-content,
@@ -171,8 +181,8 @@ html:not([data-theme]) .t-hdr {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 0 16px;
-  padding-top: env(safe-area-inset-top, 0px);
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top, 0px) var(--t-shell-x) 0;
   position: sticky;
   top: 0;
   z-index: 30;
@@ -212,7 +222,8 @@ html:not([data-theme]) .t-hdr__name {
 html[data-theme="terminal"] .t-hdr__search,
 html:not([data-theme]) .t-hdr__search {
   flex: 1;
-  max-width: 520px;
+  min-width: 0;
+  max-width: none;
   position: relative;
 }
 
@@ -304,6 +315,8 @@ html:not([data-theme]) .t-ticker {
   height: 44px;
   align-items: stretch;
   flex-shrink: 0;
+  box-sizing: border-box;
+  padding-left: var(--t-shell-x);
 }
 
 html[data-theme="terminal"] .t-ticker__cell,
@@ -545,6 +558,30 @@ html:not([data-theme]) .t-overview__scroll {
   overflow: auto;
 }
 
+html[data-theme="terminal"] .t-panel--fill,
+html:not([data-theme]) .t-panel--fill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+html[data-theme="terminal"] .t-panel--fill .t-panel__body,
+html:not([data-theme]) .t-panel--fill .t-panel__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+html[data-theme="terminal"] .t-panel--fill .t-pay-feed,
+html:not([data-theme]) .t-panel--fill .t-pay-feed {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  max-height: none;
+}
+
 html[data-theme="terminal"] .lf-card,
 html:not([data-theme]) .lf-card {
   background: var(--panel);
@@ -644,10 +681,14 @@ html:not([data-theme]) .lf-topbar {
     display: none;
   }
 
-  html[data-theme="terminal"] .t-hdr__search,
-  html:not([data-theme]) .t-hdr__search {
-    flex: 1;
-    max-width: none;
+  html[data-theme="terminal"] .t-overview,
+  html:not([data-theme]) .t-overview {
+    align-items: stretch;
+  }
+
+  html[data-theme="terminal"] .t-overview__col--main,
+  html:not([data-theme]) .t-overview__col--main {
+    min-height: 100%;
   }
 
   html[data-theme="terminal"] .lf-bento-top,
