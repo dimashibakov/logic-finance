@@ -1,8 +1,9 @@
 import "./globals.css";
+import "./terminal.css";
 import type { Metadata, Viewport } from "next";
 import AppChrome from "./components/AppChrome";
 import PwaUpdate from "./components/PwaUpdate";
-import { archivo, spaceMono } from "@/lib/fonts";
+import { inter } from "@/lib/fonts";
 import { PWA_THEME } from "@/lib/pwa-theme";
 import { themeInitScript } from "@/lib/theme";
 
@@ -13,7 +14,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: PWA_THEME.brutalist.themeColor,
+  themeColor: PWA_THEME.terminal.themeColor,
 };
 
 export const metadata: Metadata = {
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const fontVars = `${archivo.variable} ${spaceMono.variable}`;
+  const fontVars = inter.variable;
 
   return (
     <html lang="en" suppressHydrationWarning className={fontVars}>

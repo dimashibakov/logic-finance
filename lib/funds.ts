@@ -11,18 +11,27 @@ export type Fund = {
   notes: string | null;
 };
 
-export const RU_LOCALE = "ru-RU";
+export const EN_LOCALE = "en-US";
 
-export function rubRu(n: number) {
-  return `${Math.round(n).toLocaleString(RU_LOCALE)} ₽`;
+/** @deprecated use rubEn */
+export const RU_LOCALE = EN_LOCALE;
+
+export function rubEn(n: number) {
+  return `₽${Math.round(n).toLocaleString(EN_LOCALE)}`;
 }
 
-export function moneyRu(n: number, currency: string) {
+/** @deprecated use rubEn */
+export const rubRu = rubEn;
+
+export function moneyEn(n: number, currency: string) {
   if (currency === "USD") {
-    return `$${Math.round(n).toLocaleString("en-US")}`;
+    return `$${Math.round(n).toLocaleString(EN_LOCALE)}`;
   }
-  return rubRu(n);
+  return rubEn(n);
 }
+
+/** @deprecated use moneyEn */
+export const moneyRu = moneyEn;
 
 export function daysLeft(due: string | null): number | null {
   if (!due) return null;
@@ -38,10 +47,10 @@ export function dueUrgencyClass(days: number | null): string {
 }
 
 export function formatDueBadge(due: string | null, days: number | null): string {
-  if (!due) return "без срока";
-  const date = new Date(`${due}T00:00:00`).toLocaleDateString(RU_LOCALE);
+  if (!due) return "no deadline";
+  const date = new Date(`${due}T00:00:00`).toLocaleDateString(EN_LOCALE);
   if (days === null) return date;
-  return `${date} · ${days} дн.`;
+  return `${date} · ${days}d`;
 }
 
 export function toRubAmount(n: number, currency: string, spot: number) {

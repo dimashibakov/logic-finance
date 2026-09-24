@@ -17,7 +17,7 @@ const SIDEBAR_GROUPS = [
     label: "MONEY",
     items: [
       { href: "/debts", label: "Debts", icon: "▧" },
-      { href: "/cash", label: "Cash planner", icon: "₽" },
+      { href: "/cash", label: "Cash Planner", icon: "₽" },
       { href: "/funds", label: "Funds", icon: "◎" },
       { href: "/plan", label: "Plan · Fact", icon: "▥" },
     ],
@@ -32,7 +32,7 @@ const SIDEBAR_GROUPS = [
   },
   {
     label: "ADMIN",
-    items: [{ href: "/winddown", label: "BoFA wind-down", icon: "✕" }],
+    items: [{ href: "/winddown", label: "BoFA Wind-down", icon: "✕" }],
   },
 ] as const;
 
@@ -47,11 +47,7 @@ export default function Sidebar() {
 
   return (
     <aside className="lf-sidebar" aria-label="Main navigation">
-      <div className="lf-sidebar__wordmark">
-        LOGIC
-        <br />
-        FINANCE
-      </div>
+      <div className="lf-sidebar__wordmark">Logic Finance</div>
       {SIDEBAR_GROUPS.map((group) => (
         <div key={group.label}>
           <div className="lf-sidebar__grp">{group.label}</div>

@@ -52,12 +52,12 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
     ]);
 
     if (fundErr) {
-      setError(`Не удалось загрузить фонды: ${fundErr.message}`);
+      setError(`Failed to load funds: ${fundErr.message}`);
       setLoading(false);
       return;
     }
     if (fxErr) {
-      setError(`Не удалось загрузить курс: ${fxErr.message}`);
+      setError(`Failed to load FX rate: ${fxErr.message}`);
     }
 
     if (fxRows?.[0]?.rub_per_usd) setSpot(Number(fxRows[0].rub_per_usd));
@@ -70,13 +70,13 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
 
   const allocate = async (fund: Fund) => {
     const raw = window.prompt(
-      `Сколько отложить в «${fund.label}» (${fund.currency})?`,
+      `How much to allocate to "${fund.label}" (${fund.currency})?`,
       fund.monthly_contribution > 0 ? String(fund.monthly_contribution) : "",
     );
     if (raw === null) return;
     const add = Number(raw.replace(",", ".").replace(/\s/g, ""));
     if (!Number.isFinite(add) || add <= 0) {
-      setError("Введите положительную сумму.");
+      setError("Enter a positive amount.");
       return;
     }
 
@@ -89,7 +89,7 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
       .eq("id", fund.id);
     setBusyId(null);
     if (updErr) {
-      setError(`Не удалось отложить: ${updErr.message}`);
+      setError(`Failed to allocate: ${updErr.message}`);
       return;
     }
     await load();
@@ -103,7 +103,7 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
     const { error: updErr } = await supabase.from("funds").update({ status: next }).eq("id", fund.id);
     setBusyId(null);
     if (updErr) {
-      setError(`Не удалось обновить статус: ${updErr.message}`);
+      setError(`Failed to update status: ${updErr.message}`);
       return;
     }
     await load();
@@ -112,7 +112,7 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
   const submitAdd = async () => {
     const amount = Number(form.amount.replace(",", ".").replace(/\s/g, ""));
     if (!form.category.trim() || !form.label.trim() || !Number.isFinite(amount) || amount <= 0) {
-      setError("Заполните категорию, название и сумму.");
+      setError("Fill in category, label, and amount.");
       return;
     }
 
@@ -128,7 +128,7 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
     });
     setAddSaving(false);
     if (insErr) {
-      setError(`Не удалось добавить фонд: ${insErr.message}`);
+      setError(`Failed to add fund: ${insErr.message}`);
       return;
     }
     setForm(EMPTY_FORM);
@@ -142,7 +142,7 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
     return (
       <div className={shellClass}>
         <p className="lf-hint" style={{ padding: variant === "desktop" ? 0 : "8px 2px" }}>
-          Загрузка фондов…
+          Loading funds…
         </p>
       </div>
     );
@@ -152,16 +152,16 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
     return (
       <div className={shellClass}>
         <header className="lf-fund-head">
-          <h1 className="lf-fund-title">Фонды</h1>
-          <p className="lf-hint">Копим на предстоящие крупные траты — авиабилеты, медицина, подарки.</p>
+          <h1 className="lf-fund-title">Funds</h1>
+          <p className="lf-hint">Save for upcoming large expenses — flights, medical, gifts.</p>
         </header>
         {error && <p className="lf-fund-error">{error}</p>}
         <div className="lf-card lf-card--pad">
           <p className="lf-hint" style={{ marginBottom: 12 }}>
-            Пока нет ни одного фонда. Заведите первый — например, «Авиабилеты» или «Медицина».
+            No funds yet. Add your first — e.g. Flights or Medical.
           </p>
           <button type="button" className="lf-btn lf-btn--sm" style={{ marginTop: 0 }} onClick={() => setAddOpen(true)}>
-            + Добавить фонд
+            + Add fund
           </button>
         </div>
         {addOpen && (
@@ -184,15 +184,15 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
     <div className={shellClass}>
       {variant === "mobile" && (
         <header className="lf-fund-head">
-          <h1 className="lf-fund-title">Фонды</h1>
-          <p className="lf-hint">Копим на предстоящие крупные траты, чтобы они не били по месяцу.</p>
+          <h1 className="lf-fund-title">Funds</h1>
+          <p className="lf-hint">Save ahead so large expenses do not hit one month.</p>
         </header>
       )}
 
       {variant === "desktop" && (
         <div className="lf-desktop-pagehead">
-          <h1>Фонды</h1>
-          <span className="lf-bento-sub">накопления на крупные траты</span>
+          <h1>Funds</h1>
+          <span className="lf-bento-sub">sinking funds for large expenses</span>
         </div>
       )}
 
@@ -200,19 +200,19 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
 
       <div className="lf-fund-summary">
         <div className="lf-fund-summary__cell">
-          <div className="lf-label">Нужно</div>
+          <div className="lf-label">Needed</div>
           <div className="lf-mono" style={{ fontSize: 18, fontWeight: 600 }}>
             {rubRu(totals.need)}
           </div>
         </div>
         <div className="lf-fund-summary__cell">
-          <div className="lf-label">Отложено</div>
+          <div className="lf-label">Saved</div>
           <div className="lf-mono" style={{ fontSize: 18, fontWeight: 600 }}>
             {rubRu(totals.saved)}
           </div>
         </div>
         <div className="lf-fund-summary__cell lf-fund-summary__cell--accent">
-          <div className="lf-label">Осталось</div>
+          <div className="lf-label">Remaining</div>
           <div className="lf-mono" style={{ fontSize: 18, fontWeight: 600 }}>
             {rubRu(totals.remaining)}
           </div>
@@ -266,7 +266,7 @@ export default function FundsClient({ initialFunds, initialSpot, initialError, v
         />
       ) : (
         <button type="button" className="lf-btn lf-btn--ghost" onClick={() => setAddOpen(true)}>
-          + Добавить фонд
+          + Add fund
         </button>
       )}
     </div>
@@ -302,7 +302,7 @@ function FundRow({
         <div className="lf-fund-row__amounts lf-mono">
           <div style={{ fontWeight: 600 }}>{moneyRu(Number(fund.amount), fund.currency)}</div>
           <div className="lf-text-faint" style={{ fontSize: 11 }}>
-            отложено {moneyRu(Number(fund.saved), fund.currency)}
+            saved {moneyRu(Number(fund.saved), fund.currency)}
           </div>
         </div>
       </div>
@@ -314,20 +314,20 @@ function FundRow({
       {!paid ? (
         <div className="lf-fund-row__actions">
           <button type="button" className="lf-btn lf-btn--sm" disabled={busy} onClick={onAllocate}>
-            Отложить
+            Allocate
           </button>
           <button type="button" className="lf-btn lf-btn--sm lf-btn--ghost" disabled={busy} onClick={onTogglePaid}>
-            Оплачено
+            Paid
           </button>
           {fund.monthly_contribution > 0 && (
             <span className="lf-note lf-fund-row__contrib">
-              взнос {moneyRu(Number(fund.monthly_contribution), fund.currency)}/мес
+              contrib {moneyRu(Number(fund.monthly_contribution), fund.currency)}/mo
             </span>
           )}
         </div>
       ) : (
         <button type="button" className="lf-fund-row__restore" disabled={busy} onClick={onTogglePaid}>
-          вернуть в план
+          restore to plan
         </button>
       )}
     </div>
@@ -352,31 +352,31 @@ function AddFundForm({
       <div className="lf-fund-add__grid">
         <div className="lf-field">
           <label className="lf-field__label" htmlFor="fund-category">
-            Категория
+            Category
           </label>
           <input
             id="fund-category"
             className="lf-input"
-            placeholder="Авиабилеты"
+            placeholder="Flights"
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
           />
         </div>
         <div className="lf-field">
           <label className="lf-field__label" htmlFor="fund-label">
-            Название
+            Label
           </label>
           <input
             id="fund-label"
             className="lf-input"
-            placeholder="Турция, июль"
+            placeholder="Turkey, July"
             value={form.label}
             onChange={(e) => setForm({ ...form, label: e.target.value })}
           />
         </div>
         <div className="lf-field">
           <label className="lf-field__label" htmlFor="fund-amount">
-            Сумма
+            Amount
           </label>
           <input
             id="fund-amount"
@@ -389,7 +389,7 @@ function AddFundForm({
         </div>
         <div className="lf-field">
           <label className="lf-field__label" htmlFor="fund-currency">
-            Валюта
+            Currency
           </label>
           <select
             id="fund-currency"
@@ -403,7 +403,7 @@ function AddFundForm({
         </div>
         <div className="lf-field lf-fund-add__date">
           <label className="lf-field__label" htmlFor="fund-due">
-            Срок
+            Due date
           </label>
           <input
             id="fund-due"
@@ -416,10 +416,10 @@ function AddFundForm({
       </div>
       <div className="lf-fund-add__actions">
         <button type="button" className="lf-btn lf-btn--sm" disabled={saving} onClick={onSubmit}>
-          Сохранить
+          Save
         </button>
         <button type="button" className="lf-btn lf-btn--sm lf-btn--ghost" disabled={saving} onClick={onCancel}>
-          Отмена
+          Cancel
         </button>
       </div>
     </div>

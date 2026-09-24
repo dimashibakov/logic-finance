@@ -76,9 +76,9 @@ export default function PwaUpdate() {
 
   return (
     <div className="lf-pwa-update" role="status">
-      <span>Доступна новая версия</span>
-      <button type="button" className="lf-pwa-update__btn lf-mono" onClick={applyUpdate}>
-        Обновить
+      <span>New version available</span>
+      <button type="button" className="lf-pwa-update__btn num" onClick={applyUpdate}>
+        Reload
       </button>
     </div>
   );

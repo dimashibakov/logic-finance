@@ -10,6 +10,8 @@ import { AddSheetProvider, useAddSheet } from "./AddSheetContext";
 import OperationForm from "./forms/OperationForm";
 import BalanceAdjustForm from "./forms/BalanceAdjustForm";
 import ImportPanel from "./forms/ImportPanel";
+import { TerminalShellProvider } from "./terminal/TerminalShellContext";
+import TerminalFxLoader from "./terminal/TerminalFxLoader";
 
 function ChromeInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -32,6 +34,7 @@ function ChromeInner({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <TerminalFxLoader />
       <DesktopShell
         overlay={
           sheetOpen ? (
@@ -61,9 +64,11 @@ function ChromeInner({ children }: { children: React.ReactNode }) {
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
-      <AddSheetProvider>
-        <ChromeInner>{children}</ChromeInner>
-      </AddSheetProvider>
+      <TerminalShellProvider>
+        <AddSheetProvider>
+          <ChromeInner>{children}</ChromeInner>
+        </AddSheetProvider>
+      </TerminalShellProvider>
     </ThemeProvider>
   );
 }

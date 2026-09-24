@@ -1,0 +1,991 @@
+/* Logic Finance — Terminal design system (overview-terminal.html) */
+
+html[data-theme="terminal"],
+html:not([data-theme]) {
+  --brand: #5f01d1;
+  --brand-2: #7b2ff2;
+  --ink: #1a1730;
+  --ink2: #5b5870;
+  --ink3: #8b8a9c;
+  --bg: #f5f4f8;
+  --panel: #ffffff;
+  --line: #e6e4ee;
+  --up: #00873c;
+  --down: #eb0f29;
+  --upbg: #e5f5ec;
+  --downbg: #fdeaec;
+  --hdr: #16121f;
+
+  --paper: var(--panel);
+  --card: var(--panel);
+  --line2: #f0eff5;
+  --muted: var(--ink2);
+  --faint: var(--ink3);
+  --accent: var(--brand);
+  --accent-ink: #ffffff;
+  --accent-weak: #efe6fb;
+  --danger: var(--down);
+  --success: var(--up);
+  --warn: #c2410c;
+  --warn-bg: #fff0e6;
+  --card-border: var(--line);
+  --card-border-w: 1px;
+  --row-border-w: 1px;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-btn: 6px;
+  --shadow: none;
+  --shadow-active: none;
+  --font-display: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-inter), "Inter", system-ui, sans-serif;
+  --progress-h: 7px;
+  --progress-radius: 4px;
+  --scrim: rgba(22, 18, 31, 0.45);
+}
+
+html[data-theme="terminal"] *,
+html:not([data-theme]) * {
+  font-family: var(--font-inter), "Inter", system-ui, sans-serif;
+}
+
+html[data-theme="terminal"] .num,
+html:not([data-theme]) .num,
+html[data-theme="terminal"] .lf-mono,
+html:not([data-theme]) .lf-mono {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
+}
+
+html[data-theme="terminal"] .t-up,
+html:not([data-theme]) .t-up {
+  color: var(--up);
+}
+
+html[data-theme="terminal"] .t-down,
+html:not([data-theme]) .t-down {
+  color: var(--down);
+}
+
+html[data-theme="terminal"] .t-panel,
+html:not([data-theme]) .t-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+html[data-theme="terminal"] .t-lbl,
+html:not([data-theme]) .t-lbl {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+
+html[data-theme="terminal"] .t-tag,
+html:not([data-theme]) .t-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: none;
+  cursor: default;
+}
+
+html[data-theme="terminal"] .t-tag--up,
+html:not([data-theme]) .t-tag--up {
+  background: var(--upbg);
+  color: var(--up);
+}
+
+html[data-theme="terminal"] .t-tag--down,
+html:not([data-theme]) .t-tag--down {
+  background: var(--downbg);
+  color: var(--down);
+}
+
+html[data-theme="terminal"] .t-tag--hot,
+html:not([data-theme]) .t-tag--hot {
+  background: #fff0e6;
+  color: #c2410c;
+}
+
+html[data-theme="terminal"] .t-tag--cov,
+html:not([data-theme]) .t-tag--cov {
+  background: #eef0f5;
+  color: var(--ink2);
+}
+
+html[data-theme="terminal"] .t-tag--brand,
+html:not([data-theme]) .t-tag--brand {
+  background: #efe6fb;
+  color: var(--brand);
+}
+
+html[data-theme="terminal"] .t-app,
+html:not([data-theme]) .t-app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+html[data-theme="terminal"] .t-main,
+html:not([data-theme]) .t-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+  position: relative;
+}
+
+html[data-theme="terminal"] .t-content,
+html:not([data-theme]) .t-content {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+
+html[data-theme="terminal"] .t-hdr,
+html:not([data-theme]) .t-hdr {
+  background: var(--hdr);
+  color: #fff;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px;
+  padding-top: env(safe-area-inset-top, 0px);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+html[data-theme="terminal"] .t-hdr__brand,
+html:not([data-theme]) .t-hdr__brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+html[data-theme="terminal"] .t-hdr__logo,
+html:not([data-theme]) .t-hdr__logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+}
+
+html[data-theme="terminal"] .t-hdr__name,
+html:not([data-theme]) .t-hdr__name {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-size: 1.02rem;
+}
+
+html[data-theme="terminal"] .t-hdr__search,
+html:not([data-theme]) .t-hdr__search {
+  flex: 1;
+  max-width: 520px;
+  position: relative;
+}
+
+html[data-theme="terminal"] .t-hdr__search-ic,
+html:not([data-theme]) .t-hdr__search-ic {
+  position: absolute;
+  left: 10px;
+  top: 7px;
+  color: #8f8a9e;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+html[data-theme="terminal"] .t-hdr__search-input,
+html:not([data-theme]) .t-hdr__search-input {
+  width: 100%;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: #26212f;
+  color: #fff;
+  padding: 0 12px 0 32px;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+html[data-theme="terminal"] .t-hdr__actions,
+html:not([data-theme]) .t-hdr__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+html[data-theme="terminal"] .t-hdr__fx,
+html:not([data-theme]) .t-hdr__fx {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #b8b4c6;
+  line-height: 1.25;
+  text-align: right;
+  white-space: nowrap;
+}
+
+html[data-theme="terminal"] .t-hdr__avatar,
+html:not([data-theme]) .t-hdr__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7b2ff2, #eb0f29);
+  flex-shrink: 0;
+}
+
+html[data-theme="terminal"] .t-seg,
+html:not([data-theme]) .t-seg {
+  display: inline-flex;
+  background: #26212f;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+html[data-theme="terminal"] .t-seg__btn,
+html:not([data-theme]) .t-seg__btn {
+  border: none;
+  background: transparent;
+  color: #b8b4c6;
+  height: 26px;
+  padding: 0 10px;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+html[data-theme="terminal"] .t-seg__btn--on,
+html:not([data-theme]) .t-seg__btn--on {
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+}
+
+html[data-theme="terminal"] .t-ticker,
+html:not([data-theme]) .t-ticker {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  overflow-x: auto;
+  height: 44px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+html[data-theme="terminal"] .t-ticker__cell,
+html:not([data-theme]) .t-ticker__cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 16px;
+  border-right: 1px solid var(--line);
+  white-space: nowrap;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+html[data-theme="terminal"] .t-ticker__cell:hover,
+html:not([data-theme]) .t-ticker__cell:hover {
+  background: #faf9fd;
+}
+
+html[data-theme="terminal"] .t-ticker__key,
+html:not([data-theme]) .t-ticker__key {
+  font-size: 0.58rem;
+}
+
+html[data-theme="terminal"] .t-ticker__val,
+html:not([data-theme]) .t-ticker__val {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+html[data-theme="terminal"] .lf-sidebar,
+html:not([data-theme]) .lf-sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  padding: 16px 12px;
+}
+
+html[data-theme="terminal"] .lf-sidebar__wordmark,
+html:not([data-theme]) .lf-sidebar__wordmark {
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+html[data-theme="terminal"] .lf-sidebar__grp,
+html:not([data-theme]) .lf-sidebar__grp {
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink3);
+  margin: 10px 6px 4px;
+}
+
+html[data-theme="terminal"] .lf-sidebar__link,
+html:not([data-theme]) .lf-sidebar__link {
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  text-transform: none;
+}
+
+html[data-theme="terminal"] .lf-sidebar__link--on,
+html:not([data-theme]) .lf-sidebar__link--on {
+  background: #efe6fb;
+  color: var(--brand);
+  border: none;
+}
+
+html[data-theme="terminal"] .lf-sidebar__link:hover:not(.lf-sidebar__link--on),
+html:not([data-theme]) .lf-sidebar__link:hover:not(.lf-sidebar__link--on) {
+  background: #faf9fd;
+  border: none;
+}
+
+html[data-theme="terminal"] .lf-sidebar__add,
+html:not([data-theme]) .lf-sidebar__add {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: none;
+}
+
+html[data-theme="terminal"] .t-table,
+html:not([data-theme]) .t-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+html[data-theme="terminal"] .t-table th,
+html:not([data-theme]) .t-table th {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  user-select: none;
+}
+
+html[data-theme="terminal"] .t-table th:hover,
+html:not([data-theme]) .t-table th:hover {
+  color: var(--brand);
+}
+
+html[data-theme="terminal"] .t-table td,
+html:not([data-theme]) .t-table td {
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  border-bottom: 1px solid #f0eff5;
+}
+
+html[data-theme="terminal"] .t-table tbody tr,
+html:not([data-theme]) .t-table tbody tr {
+  cursor: pointer;
+}
+
+html[data-theme="terminal"] .t-table tbody tr:hover,
+html:not([data-theme]) .t-table tbody tr:hover {
+  background: #faf9fd;
+}
+
+html[data-theme="terminal"] .t-overview,
+html:not([data-theme]) .t-overview {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 14px;
+  padding: 14px;
+  max-width: 1500px;
+  align-items: stretch;
+}
+
+html[data-theme="terminal"] .t-overview__col,
+html:not([data-theme]) .t-overview__col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  min-height: 0;
+}
+
+html[data-theme="terminal"] .t-overview__scroll,
+html:not([data-theme]) .t-overview__scroll {
+  max-height: 420px;
+  overflow: auto;
+}
+
+html[data-theme="terminal"] .lf-card,
+html:not([data-theme]) .lf-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+html[data-theme="terminal"] .lf-btn,
+html:not([data-theme]) .lf-btn {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+  font-family: var(--font-inter), Inter, sans-serif;
+}
+
+html[data-theme="terminal"] .lf-btn--ghost,
+html:not([data-theme]) .lf-btn--ghost {
+  background: var(--panel);
+  color: var(--ink2);
+  border: 1px solid var(--line);
+}
+
+html[data-theme="terminal"] .lf-progress__fill,
+html:not([data-theme]) .lf-progress__fill {
+  background: var(--brand);
+}
+
+html[data-theme="terminal"] .lf-wrap,
+html:not([data-theme]) .lf-wrap {
+  background: var(--bg);
+  min-height: 0;
+}
+
+html[data-theme="terminal"] .lf-phone,
+html:not([data-theme]) .lf-phone {
+  background: var(--bg);
+  border: none;
+  max-width: none;
+  width: 100%;
+  padding: 14px;
+}
+
+html[data-theme="terminal"] .lf-page-desktop,
+html:not([data-theme]) .lf-page-desktop {
+  background: transparent;
+}
+
+html[data-theme="terminal"] .lf-desktop-page,
+html:not([data-theme]) .lf-desktop-page {
+  padding: 14px;
+  max-width: 1500px;
+}
+
+html[data-theme="terminal"] .lf-topbar,
+html:not([data-theme]) .lf-topbar {
+  display: none !important;
+}
+
+@media (max-width: 1079px) {
+  html[data-theme="terminal"] .t-app,
+  html:not([data-theme]) .t-app {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-theme="terminal"] .lf-sidebar,
+  html:not([data-theme]) .lf-sidebar {
+    display: none !important;
+  }
+
+  html[data-theme="terminal"] .t-overview,
+  html:not([data-theme]) .t-overview {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-theme="terminal"] .t-hdr__search,
+  html:not([data-theme]) .t-hdr__search {
+    display: none;
+  }
+}
+
+@media (min-width: 1080px) {
+  html[data-theme="terminal"] .lf-mobile-chrome,
+  html:not([data-theme]) .lf-mobile-chrome {
+    display: none !important;
+  }
+
+  html[data-theme="terminal"] .lf-app-root,
+  html:not([data-theme]) .lf-app-root {
+    display: contents;
+  }
+}
+
+/* Panel internals */
+html[data-theme="terminal"] .t-panel__head,
+html:not([data-theme]) .t-panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+html[data-theme="terminal"] .t-panel__title,
+html:not([data-theme]) .t-panel__title {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+html[data-theme="terminal"] .t-panel__sub,
+html:not([data-theme]) .t-panel__sub {
+  font-size: 0.68rem;
+  color: var(--ink3);
+  margin-left: 8px;
+}
+
+html[data-theme="terminal"] .t-panel__body,
+html:not([data-theme]) .t-panel__body {
+  padding: 14px 16px;
+}
+
+html[data-theme="terminal"] .t-panel__body--flush,
+html:not([data-theme]) .t-panel__body--flush {
+  padding: 0;
+}
+
+html[data-theme="terminal"] .t-panel--gradient,
+html:not([data-theme]) .t-panel--gradient {
+  background: linear-gradient(135deg, #efe6fb, #fff);
+  padding: 14px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+html[data-theme="terminal"] .t-panel--hero .t-panel__body,
+html:not([data-theme]) .t-panel--hero .t-panel__body {
+  padding: 14px 16px;
+}
+
+html[data-theme="terminal"] .t-lbl--brand,
+html:not([data-theme]) .t-lbl--brand {
+  color: var(--brand);
+}
+
+/* Net worth hero */
+html[data-theme="terminal"] .t-nw-head,
+html:not([data-theme]) .t-nw-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+html[data-theme="terminal"] .t-nw-title-row,
+html:not([data-theme]) .t-nw-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+html[data-theme="terminal"] .t-nw-title,
+html:not([data-theme]) .t-nw-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+html[data-theme="terminal"] .t-nw-values,
+html:not([data-theme]) .t-nw-values {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+html[data-theme="terminal"] .t-nw-primary,
+html:not([data-theme]) .t-nw-primary {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+html[data-theme="terminal"] .t-nw-secondary,
+html:not([data-theme]) .t-nw-secondary {
+  font-size: 1.05rem;
+  color: var(--ink2);
+  font-weight: 600;
+}
+
+html[data-theme="terminal"] .t-tf-group,
+html:not([data-theme]) .t-tf-group {
+  display: flex;
+  gap: 2px;
+  background: #f2f1f7;
+  border-radius: 6px;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+html[data-theme="terminal"] .t-tf,
+html:not([data-theme]) .t-tf {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--ink3);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+html[data-theme="terminal"] .t-tf--on,
+html:not([data-theme]) .t-tf--on {
+  background: var(--brand);
+  color: #fff;
+}
+
+html[data-theme="terminal"] .t-chart-foot,
+html:not([data-theme]) .t-chart-foot {
+  font-size: 0.6rem;
+  color: var(--ink3);
+  margin-top: 6px;
+}
+
+/* Summary grid */
+html[data-theme="terminal"] .t-summary-grid,
+html:not([data-theme]) .t-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+html[data-theme="terminal"] .t-summary-cell,
+html:not([data-theme]) .t-summary-cell {
+  padding: 9px 12px;
+  border-right: 1px solid #f0eff5;
+  border-top: 1px solid #f0eff5;
+}
+
+html[data-theme="terminal"] .t-summary-val,
+html:not([data-theme]) .t-summary-val {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+html[data-theme="terminal"] .t-summary-sub,
+html:not([data-theme]) .t-summary-sub {
+  font-size: 0.62rem;
+  color: var(--ink3);
+  margin-top: 1px;
+}
+
+/* Payment feed */
+html[data-theme="terminal"] .t-pay-row,
+html:not([data-theme]) .t-pay-row {
+  display: grid;
+  grid-template-columns: 28px 36px 1fr auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid #f0eff5;
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.78rem;
+}
+
+html[data-theme="terminal"] .t-pay-row:hover,
+html:not([data-theme]) .t-pay-row:hover {
+  background: #faf9fd;
+}
+
+html[data-theme="terminal"] .t-pay-day,
+html:not([data-theme]) .t-pay-day {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+html[data-theme="terminal"] .t-pay-mon,
+html:not([data-theme]) .t-pay-mon {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--ink3);
+}
+
+html[data-theme="terminal"] .t-pay-name,
+html:not([data-theme]) .t-pay-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-theme="terminal"] .t-pay-tags,
+html:not([data-theme]) .t-pay-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+html[data-theme="terminal"] .t-pay-empty,
+html:not([data-theme]) .t-pay-empty {
+  padding: 16px 14px;
+  color: var(--ink3);
+  font-size: 0.78rem;
+}
+
+/* Signals */
+html[data-theme="terminal"] .t-signal,
+html:not([data-theme]) .t-signal {
+  display: block;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0eff5;
+  text-decoration: none;
+  color: inherit;
+}
+
+html[data-theme="terminal"] .t-signal:hover,
+html:not([data-theme]) .t-signal:hover {
+  background: #faf9fd;
+}
+
+html[data-theme="terminal"] .t-signal__title,
+html:not([data-theme]) .t-signal__title {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+html[data-theme="terminal"] .t-signal__body,
+html:not([data-theme]) .t-signal__body {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--ink2);
+  margin-top: 2px;
+}
+
+/* Funds card */
+html[data-theme="terminal"] .t-funds-head,
+html:not([data-theme]) .t-funds-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+html[data-theme="terminal"] .t-funds-amt,
+html:not([data-theme]) .t-funds-amt {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+html[data-theme="terminal"] .t-funds-target,
+html:not([data-theme]) .t-funds-target {
+  font-size: 0.85rem;
+  color: var(--ink3);
+  font-weight: 600;
+}
+
+html[data-theme="terminal"] .t-funds-next,
+html:not([data-theme]) .t-funds-next {
+  font-size: 0.68rem;
+  color: var(--ink2);
+  margin-top: 8px;
+}
+
+/* Cash flow mini chart */
+html[data-theme="terminal"] .t-cf-legend,
+html:not([data-theme]) .t-cf-legend {
+  display: flex;
+  gap: 11px;
+  font-size: 0.6rem;
+  color: var(--ink2);
+  margin-bottom: 9px;
+}
+
+html[data-theme="terminal"] .t-cf-dot,
+html:not([data-theme]) .t-cf-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+html[data-theme="terminal"] .t-cf-dot--loans,
+html:not([data-theme]) .t-cf-dot--loans {
+  background: #c9c6d6;
+}
+
+html[data-theme="terminal"] .t-cf-dot--funds,
+html:not([data-theme]) .t-cf-dot--funds {
+  background: var(--brand);
+}
+
+html[data-theme="terminal"] .t-cf-dot--income,
+html:not([data-theme]) .t-cf-dot--income {
+  width: 11px;
+  height: 0;
+  border-top: 2px dashed var(--up);
+  border-radius: 0;
+}
+
+html[data-theme="terminal"] .t-cf-bars,
+html:not([data-theme]) .t-cf-bars {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  height: 72px;
+}
+
+html[data-theme="terminal"] .t-cf-col,
+html:not([data-theme]) .t-cf-col {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+html[data-theme="terminal"] .t-cf-stack,
+html:not([data-theme]) .t-cf-stack {
+  display: flex;
+  flex-direction: column-reverse;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-start;
+}
+
+html[data-theme="terminal"] .t-cf-bar,
+html:not([data-theme]) .t-cf-bar {
+  display: block;
+  width: 100%;
+  min-height: 2px;
+}
+
+html[data-theme="terminal"] .t-cf-bar--loans,
+html:not([data-theme]) .t-cf-bar--loans {
+  background: #c9c6d6;
+}
+
+html[data-theme="terminal"] .t-cf-bar--funds,
+html:not([data-theme]) .t-cf-bar--funds {
+  background: var(--brand);
+}
+
+html[data-theme="terminal"] .t-cf-months,
+html:not([data-theme]) .t-cf-months {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+  font-size: 0.6rem;
+  color: var(--ink3);
+}
+
+html[data-theme="terminal"] .t-cf-months span,
+html:not([data-theme]) .t-cf-months span {
+  flex: 1;
+  text-align: center;
+}
+
+/* Hide legacy mobile header — Terminal shell provides header */
+html[data-theme="terminal"] .lf-header,
+html:not([data-theme]) .lf-header {
+  display: none !important;
+}
+
+/* Remap bento desktop pages → Terminal panels */
+html[data-theme="terminal"] .lf-bento-grid,
+html:not([data-theme]) .lf-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+html[data-theme="terminal"] .lf-bento-grid .lf-card,
+html:not([data-theme]) .lf-bento-grid .lf-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+html[data-theme="terminal"] .lf-bento-lab,
+html:not([data-theme]) .lf-bento-lab {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  font-family: var(--font-inter), Inter, sans-serif;
+}
+
+html[data-theme="terminal"] .lf-bento-val,
+html:not([data-theme]) .lf-bento-val {
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-theme="terminal"] .lf-nav,
+html:not([data-theme]) .lf-nav {
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+}
+
+html[data-theme="terminal"] .lf-nav__tab--on,
+html:not([data-theme]) .lf-nav__tab--on {
+  color: var(--brand);
+}
+
+html[data-theme="terminal"] .lf-nav__fab,
+html:not([data-theme]) .lf-nav__fab {
+  background: var(--brand);
+  box-shadow: none;
+}
+
+@media (max-width: 767px) {
+  html[data-theme="terminal"] .t-summary-grid,
+  html:not([data-theme]) .t-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  html[data-theme="terminal"] .t-pay-row,
+  html:not([data-theme]) .t-pay-row {
+    grid-template-columns: 28px 32px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  html[data-theme="terminal"] .t-pay-amt,
+  html:not([data-theme]) .t-pay-amt,
+  html[data-theme="terminal"] .t-pay-tags,
+  html:not([data-theme]) .t-pay-tags {
+    grid-column: 3;
+  }
+}

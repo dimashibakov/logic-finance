@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import TerminalFxSync from "../terminal/TerminalFxSync";
 import { DesktopPageMeta } from "./DesktopShellContext";
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 export default function DesktopPageBridge({ title, spot, eff, children }: Props) {
   return (
     <>
+      <TerminalFxSync spot={spot} eff={eff} />
       <DesktopPageMeta title={title} spot={spot} eff={eff} />
       {children}
     </>
