@@ -150,7 +150,11 @@ export function buildPlanFactMonth(
       const cur = tx.currency === "USD" ? "US" : "RF";
       if (cur !== zoneFilter) continue;
     }
-    meta.set(tx.category_id, { name: tx.categoryName, kind: tx.categoryKind, currency: tx.currency });
+    if (!meta.has(tx.category_id)) {
+      meta.set(tx.category_id, { name: tx.categoryName, kind: tx.categoryKind, currency: tx.currency });
+    }
+    const catCurrency = meta.get(tx.category_id)!.currency;
+    if (tx.currency !== catCurrency) continue;
     const catKind = tx.categoryKind === "income" ? "income" : "expense";
     if (tx.type === "income" && catKind === "income") {
       const amt = Math.abs(Number(tx.amount));

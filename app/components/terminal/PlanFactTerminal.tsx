@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import { fmtCompactMoney } from "@/lib/bento-overview";
+import { fmtNative } from "@/lib/format";
 import {
   buildPlanFactMonth,
   progressPct,
@@ -46,21 +47,17 @@ function monthLabel(iso: string) {
   return new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
-function fmtRowMoney(amount: number, currency: "RUB" | "USD", displayCurrency: "RUB" | "USD", spot: number) {
-  return fmtDisplayMoney(amount, currency, displayCurrency, spot);
+function fmtRowMoney(amount: number, currency: "RUB" | "USD") {
+  return fmtNative(amount, currency);
 }
 
 function PlanSectionTable({
   title,
   rows,
-  spot,
-  displayCurrency,
   onRowClick,
 }: {
   title: string;
   rows: PlanFactCategoryRow[];
-  spot: number;
-  displayCurrency: "RUB" | "USD";
   onRowClick: (row: PlanFactCategoryRow) => void;
 }) {
   if (rows.length === 0) return null;
@@ -94,14 +91,14 @@ function PlanSectionTable({
               label: "Planned",
               align: "right",
               sortValue: (r) => r.planned,
-              render: (r) => <span className="num">{fmtRowMoney(r.planned, r.currency, displayCurrency, spot)}</span>,
+              render: (r) => <span className="num">{fmtRowMoney(r.planned, r.currency)}</span>,
             },
             {
               key: "actual",
               label: "Actual",
               align: "right",
               sortValue: (r) => r.actual,
-              render: (r) => <span className="num">{fmtRowMoney(r.actual, r.currency, displayCurrency, spot)}</span>,
+              render: (r) => <span className="num">{fmtRowMoney(r.actual, r.currency)}</span>,
             },
             {
               key: "variance",
@@ -111,7 +108,7 @@ function PlanSectionTable({
               render: (r) => (
                 <span className={`num ${varianceTone(r.kind, r.variance) ?? ""}`}>
                   {r.variance >= 0 ? "+" : "−"}
-                  {fmtRowMoney(Math.abs(r.variance), r.currency, displayCurrency, spot)}
+                  {fmtRowMoney(Math.abs(r.variance), r.currency)}
                 </span>
               ),
             },
@@ -366,28 +363,10 @@ export default function PlanFactTerminal({
       </TerminalPanel>
 
       <div className="t-page__stack">
-        <PlanSectionTable
-          title="Income"
-          rows={filteredIncome}
-          spot={spot}
-          displayCurrency={displayCurrency}
-          onRowClick={openCategory}
-        />
-        <PlanSectionTable
-          title="Expenses"
-          rows={filteredExpenses}
-          spot={spot}
-          displayCurrency={displayCurrency}
-          onRowClick={openCategory}
-        />
+        <PlanSectionTable title="Income" rows={filteredIncome} onRowClick={openCategory} />
+        <PlanSectionTable title="Expenses" rows={filteredExpenses} onRowClick={openCategory} />
         {snapshot.unplanned.length > 0 ? (
-          <PlanSectionTable
-            title="Unplanned actuals"
-            rows={snapshot.unplanned}
-            spot={spot}
-            displayCurrency={displayCurrency}
-            onRowClick={openCategory}
-          />
+          <PlanSectionTable title="Unplanned actuals" rows={snapshot.unplanned} onRowClick={openCategory} />
         ) : null}
       </div>
 

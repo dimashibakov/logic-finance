@@ -14,6 +14,7 @@ import {
   formatDrawerTxTitle,
   parseTransactionRow,
   signedPrefix,
+  txMerchantNotes,
   txLabel,
   type AccountOption,
   type CategoryOption,
@@ -328,8 +329,8 @@ export default function HistoryTerminal({
               {
                 key: "merchant",
                 label: "Merchant / Notes",
-                sortValue: (tx) => txLabel(tx),
-                render: (tx) => txLabel(tx),
+                sortValue: (tx) => txMerchantNotes(tx),
+                render: (tx) => txMerchantNotes(tx),
               },
               {
                 key: "type",

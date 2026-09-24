@@ -131,6 +131,16 @@ export function txLabel(tx: Pick<TransactionRecord, "merchant" | "category_name"
   return tx.merchant || tx.category_name || tx.notes || tx.type;
 }
 
+/** Merchant/Notes column — avoid duplicating category when notes equals category name. */
+export function txMerchantNotes(
+  tx: Pick<TransactionRecord, "merchant" | "category_name" | "notes">,
+): string {
+  if (tx.merchant?.trim()) return tx.merchant.trim();
+  const notes = tx.notes?.trim();
+  if (notes && notes !== tx.category_name) return notes;
+  return "—";
+}
+
 export function amountTone(type: string): string | undefined {
   if (type === "expense") return "t-down";
   if (type === "income") return "t-up";
