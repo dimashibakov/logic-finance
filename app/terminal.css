@@ -514,10 +514,12 @@ html:not([data-theme]) .t-table tbody tr:hover {
 html[data-theme="terminal"] .t-overview,
 html:not([data-theme]) .t-overview {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 14px;
   padding: 14px;
-  max-width: 1500px;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   align-items: stretch;
 }
 
@@ -528,6 +530,13 @@ html:not([data-theme]) .t-overview__col {
   gap: 14px;
   min-width: 0;
   min-height: 0;
+  align-items: stretch;
+}
+
+html[data-theme="terminal"] .t-overview__col .t-panel,
+html:not([data-theme]) .t-overview__col .t-panel {
+  width: 100%;
+  min-width: 0;
 }
 
 html[data-theme="terminal"] .t-overview__scroll,
@@ -572,6 +581,18 @@ html:not([data-theme]) .lf-wrap {
   min-height: 0;
 }
 
+/* Inside Terminal main column: never center page shells (legacy lf-wrap is flex + center) */
+html[data-theme="terminal"] .t-content > .lf-wrap,
+html:not([data-theme]) .t-content > .lf-wrap,
+html[data-theme="terminal"] .t-content .lf-wrap--desktop,
+html:not([data-theme]) .t-content .lf-wrap--desktop {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 html[data-theme="terminal"] .lf-phone,
 html:not([data-theme]) .lf-phone {
   background: var(--bg);
@@ -588,8 +609,11 @@ html:not([data-theme]) .lf-page-desktop {
 
 html[data-theme="terminal"] .lf-desktop-page,
 html:not([data-theme]) .lf-desktop-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
   padding: 14px;
-  max-width: 1500px;
+  box-sizing: border-box;
 }
 
 html[data-theme="terminal"] .lf-topbar,
@@ -629,6 +653,15 @@ html:not([data-theme]) .lf-topbar {
   html[data-theme="terminal"] .lf-bento-top,
   html:not([data-theme]) .lf-bento-top {
     display: none;
+  }
+
+  html[data-theme="terminal"] .t-content .lf-desktop-page,
+  html:not([data-theme]) .t-content .lf-desktop-page,
+  html[data-theme="terminal"] .t-content .lf-bento-grid,
+  html:not([data-theme]) .t-content .lf-bento-grid {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
   }
 }
 

@@ -82,8 +82,7 @@ export default async function Home() {
   const funds = (fundData ?? []).map((row) => parseFundRow(row as Record<string, unknown>));
 
   return (
-    <div className="lf-wrap">
-      <OverviewTerminal
+    <OverviewTerminal
         spot={spot}
         eff={eff}
         assets={assets}
@@ -105,6 +104,5 @@ export default async function Home() {
         funds={funds}
         insights={insights}
       />
-    </div>
   );
 }
