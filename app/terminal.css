@@ -128,11 +128,22 @@ html:not([data-theme]) .t-tag--brand {
   color: var(--brand);
 }
 
-html[data-theme="terminal"] .lf-app-root.t-app,
-html:not([data-theme]) .lf-app-root.t-app {
+html[data-theme="terminal"] .t-app,
+html:not([data-theme]) .t-app {
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
+}
+
+html[data-theme="terminal"] .t-app--desktop,
+html:not([data-theme]) .t-app--desktop {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+html[data-theme="terminal"] .t-app--mobile,
+html:not([data-theme]) .t-app--mobile {
+  display: block;
 }
 
 html[data-theme="terminal"] .t-main,
@@ -142,6 +153,7 @@ html:not([data-theme]) .t-main {
   min-width: 0;
   min-height: 100vh;
   position: relative;
+  isolation: isolate;
 }
 
 html[data-theme="terminal"] .t-content,
@@ -323,30 +335,33 @@ html:not([data-theme]) .t-ticker__val {
   font-weight: 600;
 }
 
-html[data-theme="terminal"] .lf-sidebar,
-html:not([data-theme]) .lf-sidebar {
+/* Terminal sidebar — isolated from legacy .lf-sidebar in globals.css */
+html[data-theme="terminal"] .t-sidebar,
+html:not([data-theme]) .t-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-sizing: border-box;
+  overflow: auto;
   background: var(--bg);
   border-right: 1px solid var(--line);
   padding: 16px 12px;
-  box-sizing: border-box;
 }
 
-html[data-theme="terminal"] .lf-sidebar__wordmark,
-html:not([data-theme]) .lf-sidebar__wordmark {
+html[data-theme="terminal"] .t-sidebar__brand,
+html:not([data-theme]) .t-sidebar__brand {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-family: var(--font-inter), Inter, sans-serif;
-  font-weight: 800;
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
-  text-transform: none;
-  color: var(--ink);
   margin-bottom: 14px;
 }
 
-html[data-theme="terminal"] .lf-sidebar__logo,
-html:not([data-theme]) .lf-sidebar__logo {
+html[data-theme="terminal"] .t-sidebar__logo,
+html:not([data-theme]) .t-sidebar__logo {
   width: 22px;
   height: 22px;
   border-radius: 5px;
@@ -354,72 +369,104 @@ html:not([data-theme]) .lf-sidebar__logo {
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
 }
 
-html[data-theme="terminal"] .lf-sidebar__grp,
-html:not([data-theme]) .lf-sidebar__grp {
-  font-family: var(--font-inter), Inter, sans-serif;
+html[data-theme="terminal"] .t-sidebar__name,
+html:not([data-theme]) .t-sidebar__name {
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+html[data-theme="terminal"] .t-sidebar__nav,
+html:not([data-theme]) .t-sidebar__nav {
+  flex: 1;
+  min-height: 0;
+}
+
+html[data-theme="terminal"] .t-sidebar__grp,
+html:not([data-theme]) .t-sidebar__grp {
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ink3);
   margin: 10px 6px 4px;
 }
 
-html[data-theme="terminal"] .lf-sidebar__link,
-html:not([data-theme]) .lf-sidebar__link {
-  font-family: var(--font-inter), Inter, sans-serif;
+html[data-theme="terminal"] .t-sidebar__section:first-child .t-sidebar__grp,
+html:not([data-theme]) .t-sidebar__section:first-child .t-sidebar__grp {
+  margin-top: 0;
+}
+
+html[data-theme="terminal"] .t-sidebar__link,
+html:not([data-theme]) .t-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   font-size: 0.82rem;
   font-weight: 500;
   padding: 7px 10px;
-  border: none;
   border-radius: 6px;
-  text-transform: none;
+  border: none;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
 }
 
-html[data-theme="terminal"] .lf-sidebar__link--on,
-html:not([data-theme]) .lf-sidebar__link--on {
+html[data-theme="terminal"] .t-sidebar__link--active,
+html:not([data-theme]) .t-sidebar__link--active {
   background: rgba(95, 1, 209, 0.08);
   color: var(--brand);
-  border: none;
 }
 
-html[data-theme="terminal"] .lf-sidebar__link:hover:not(.lf-sidebar__link--on),
-html:not([data-theme]) .lf-sidebar__link:hover:not(.lf-sidebar__link--on) {
+html[data-theme="terminal"] .t-sidebar__link:hover:not(.t-sidebar__link--active),
+html:not([data-theme]) .t-sidebar__link:hover:not(.t-sidebar__link--active) {
   background: rgba(95, 1, 209, 0.04);
-  border: none;
 }
 
-html[data-theme="terminal"] .lf-sidebar__foot,
-html:not([data-theme]) .lf-sidebar__foot {
-  color: var(--ink3);
-  font-size: 0.78rem;
+html[data-theme="terminal"] .t-sidebar__ic,
+html:not([data-theme]) .t-sidebar__ic {
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
-html[data-theme="terminal"] .lf-sidebar__foot .lf-sign-out,
-html:not([data-theme]) .lf-sidebar__foot .lf-sign-out {
-  color: var(--ink3);
-  font-family: var(--font-inter), Inter, sans-serif;
-  font-size: 0.78rem;
-  text-decoration: none;
-}
-
-html[data-theme="terminal"] .lf-sidebar__foot .lf-sign-out:hover,
-html:not([data-theme]) .lf-sidebar__foot .lf-sign-out:hover {
-  color: var(--ink2);
-}
-
-html[data-theme="terminal"] .lf-sidebar__add,
-html:not([data-theme]) .lf-sidebar__add {
-  background: var(--brand);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  box-shadow: none;
-  font-family: var(--font-inter), Inter, sans-serif;
-  font-weight: 700;
-  font-size: 0.82rem;
-  text-transform: none;
+html[data-theme="terminal"] .t-sidebar__add,
+html:not([data-theme]) .t-sidebar__add {
+  margin-top: auto;
   width: 100%;
   box-sizing: border-box;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+html[data-theme="terminal"] .t-sidebar__foot,
+html:not([data-theme]) .t-sidebar__foot {
+  margin-top: 10px;
+  color: var(--ink3);
+  font-size: 0.78rem;
+}
+
+html[data-theme="terminal"] .t-sidebar__foot .lf-sign-out,
+html:not([data-theme]) .t-sidebar__foot .lf-sign-out {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ink3);
+  font-size: 0.78rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+html[data-theme="terminal"] .t-sidebar__foot .lf-sign-out:hover,
+html:not([data-theme]) .t-sidebar__foot .lf-sign-out:hover {
+  color: var(--ink2);
 }
 
 html[data-theme="terminal"] .t-table,
@@ -547,15 +594,10 @@ html:not([data-theme]) .lf-desktop-page {
 
 html[data-theme="terminal"] .lf-topbar,
 html:not([data-theme]) .lf-topbar {
-  display: none !important;
+  display: none;
 }
 
 @media (max-width: 1023px) {
-  html[data-theme="terminal"] .lf-sidebar,
-  html:not([data-theme]) .lf-sidebar {
-    display: none !important;
-  }
-
   html[data-theme="terminal"] .t-overview,
   html:not([data-theme]) .t-overview {
     grid-template-columns: 1fr;
@@ -566,11 +608,6 @@ html:not([data-theme]) .lf-topbar {
     display: none;
   }
 
-  html[data-theme="terminal"] .lf-mobile-chrome,
-  html:not([data-theme]) .lf-mobile-chrome {
-    display: block;
-  }
-
   html[data-theme="terminal"] .t-content,
   html:not([data-theme]) .t-content {
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
@@ -578,62 +615,9 @@ html:not([data-theme]) .lf-topbar {
 }
 
 @media (min-width: 1024px) {
-  html[data-theme="terminal"] .lf-app-root.t-app,
-  html:not([data-theme]) .lf-app-root.t-app {
-    display: grid;
-    grid-template-columns: 240px minmax(0, 1fr);
-  }
-
-  html[data-theme="terminal"] .lf-sidebar,
-  html:not([data-theme]) .lf-sidebar {
-    display: flex !important;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    height: 100vh;
-    width: 240px;
-    overflow: auto;
-    background: var(--bg) !important;
-    border-right: 1px solid var(--line) !important;
-    padding: 16px 12px !important;
-    gap: 0;
-  }
-
-  html[data-theme="terminal"] .lf-sidebar__link,
-  html:not([data-theme]) .lf-sidebar__link {
-    border: none !important;
-    box-shadow: none !important;
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  html[data-theme="terminal"] .lf-sidebar__link--on,
-  html:not([data-theme]) .lf-sidebar__link--on {
-    background: rgba(95, 1, 209, 0.08) !important;
-    color: var(--brand) !important;
-    border: none !important;
-  }
-
-  html[data-theme="terminal"] .lf-sidebar__add,
-  html:not([data-theme]) .lf-sidebar__add {
-    margin-top: auto;
-    background: var(--brand) !important;
-    color: #fff !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 10px 12px;
-  }
-
-  html[data-theme="terminal"] .lf-sidebar__foot,
-  html:not([data-theme]) .lf-sidebar__foot {
-    margin-top: 10px !important;
-    padding-top: 0;
-  }
-
   html[data-theme="terminal"] .t-hdr__brand--mobile,
   html:not([data-theme]) .t-hdr__brand--mobile {
-    display: none !important;
+    display: none;
   }
 
   html[data-theme="terminal"] .t-hdr__search,
@@ -642,22 +626,9 @@ html:not([data-theme]) .lf-topbar {
     max-width: none;
   }
 
-  html[data-theme="terminal"] .lf-bento-nav,
-  html:not([data-theme]) .lf-bento-nav,
   html[data-theme="terminal"] .lf-bento-top,
   html:not([data-theme]) .lf-bento-top {
-    display: none !important;
-  }
-
-  html[data-theme="terminal"] .lf-mobile-chrome,
-  html:not([data-theme]) .lf-mobile-chrome {
-    display: none !important;
-    pointer-events: none !important;
-  }
-
-  html[data-theme="terminal"] .lf-nav,
-  html:not([data-theme]) .lf-nav {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -1051,7 +1022,7 @@ html:not([data-theme]) .t-cf-months span {
 /* Hide legacy mobile header — Terminal shell provides header */
 html[data-theme="terminal"] .lf-header,
 html:not([data-theme]) .lf-header {
-  display: none !important;
+  display: none;
 }
 
 /* Remap bento desktop pages → Terminal panels */
