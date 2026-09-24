@@ -2011,3 +2011,77 @@ html:not([data-theme]) .t-agent-row__actions {
     grid-template-columns: 1fr;
   }
 }
+
+/* Login */
+html[data-theme="terminal"] .t-login-page,
+html:not([data-theme]) .t-login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--bg);
+  box-sizing: border-box;
+}
+
+html[data-theme="terminal"] .t-login-card,
+html:not([data-theme]) .t-login-card {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+html[data-theme="terminal"] .t-login-card__head,
+html:not([data-theme]) .t-login-card__head {
+  padding: 20px 20px 0;
+}
+
+html[data-theme="terminal"] .t-login-card__title,
+html:not([data-theme]) .t-login-card__title {
+  margin: 8px 0 6px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+html[data-theme="terminal"] .t-login-card__sub,
+html:not([data-theme]) .t-login-card__sub {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--ink2);
+}
+
+html[data-theme="terminal"] .t-login-card__body,
+html:not([data-theme]) .t-login-card__body {
+  padding: 20px;
+}
+
+html[data-theme="terminal"] .t-login-form,
+html:not([data-theme]) .t-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+html[data-theme="terminal"] .t-login-form .t-drawer__input,
+html:not([data-theme]) .t-login-form .t-drawer__input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+html[data-theme="terminal"] .t-login-submit,
+html:not([data-theme]) .t-login-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+html[data-theme="terminal"] .t-login-sent,
+html:not([data-theme]) .t-login-sent {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink2);
+}

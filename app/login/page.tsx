@@ -33,42 +33,42 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="lf-auth-page">
-      <div className="lf-auth-card lf-phone" style={{ paddingTop: 48 }}>
-        <div className="lf-eyebrow">Sign in</div>
-        <h1 style={{ fontSize: 24, fontWeight: 700, margin: "8px 0 6px" }}>Logic Finance</h1>
-        <p className="lf-hint" style={{ marginBottom: 24 }}>
-          Magic link for the owner account. No public sign-up.
-        </p>
+    <div className="t-login-page">
+      <section className="t-panel t-login-card">
+        <div className="t-login-card__head">
+          <span className="t-lbl">Sign in</span>
+          <h1 className="t-login-card__title">Logic Finance</h1>
+          <p className="t-login-card__sub">Magic link for the owner account. No public sign-up.</p>
+        </div>
 
-        {sent ? (
-          <div className="lf-card lf-card--pad">
-            <p style={{ fontSize: 14, lineHeight: 1.5 }}>
+        <div className="t-login-card__body">
+          {sent ? (
+            <p className="t-login-sent">
               Link sent to <b>{email}</b>. Open it on this device to continue.
             </p>
-          </div>
-        ) : (
-          <form onSubmit={submit}>
-            <div className="lf-field">
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                required
-                autoComplete="email"
-                className="lf-input--mono"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-              />
-            </div>
-            {error && <div className="lf-text-danger" style={{ fontSize: 12, marginBottom: 12 }}>{error}</div>}
-            <button type="submit" className="lf-btn" disabled={busy} style={{ marginTop: 0 }}>
-              {busy ? "Sending…" : "Send magic link"}
-            </button>
-          </form>
-        )}
-      </div>
+          ) : (
+            <form className="t-login-form" onSubmit={submit}>
+              <label className="t-drawer__field">
+                <span className="t-lbl">Email</span>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  className="t-drawer__input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                />
+              </label>
+              {error ? <div className="t-page__error">{error}</div> : null}
+              <button type="submit" className="t-btn t-btn--brand t-login-submit" disabled={busy}>
+                {busy ? "Sending…" : "Send magic link"}
+              </button>
+            </form>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
